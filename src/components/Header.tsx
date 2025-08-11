@@ -2,6 +2,7 @@ import { ShoppingCart, Search, Menu, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import logo from "@/assets/logo.png";
 
 interface HeaderProps {
   cartItems: number;
@@ -14,9 +15,15 @@ const Header = ({ cartItems, onCartClick }: HeaderProps) => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <h1 className="text-2xl font-bold text-primary">Artisan</h1>
-            <span className="text-muted-foreground">Shop</span>
+          {/* <div className="flex items-center space-x-2">
+            <h1 className="text-2xl font-bold text-primary">ButtaBomma</h1>
+            <span className="text-muted-foreground">Shop</span> */}
+            <div className="flex items-center">
+            <img 
+              src={logo} 
+              alt="Shop Logo" 
+              className="h-12 w-auto object-contain"
+            />
           </div>
 
           {/* Search Bar */}
