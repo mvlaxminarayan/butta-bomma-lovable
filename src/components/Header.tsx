@@ -22,7 +22,7 @@ const Header = ({ cartItems, onCartClick }: HeaderProps) => {
             <img 
               src={logo} 
               alt="Shop Logo" 
-              className="h-12 w-auto object-contain"
+              className="h-12 w-auto object-contain mix-blend-multiply dark:mix-blend-screen filter drop-shadow-sm"
             />
           </div>
 
