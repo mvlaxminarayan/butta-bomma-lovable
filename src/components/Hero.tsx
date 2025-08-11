@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import heroImage from "@/assets/hero-image.jpg";
+import heroImage from "@/assets/kondapalli.jpg";
+import heroImage1 from "@/assets/hero-image.jpg";
 
 const Hero = () => {
   return (
@@ -57,6 +58,11 @@ const Hero = () => {
             <div className="relative overflow-hidden rounded-2xl shadow-elegant">
               <img
                 src={heroImage}
+                alt="Handcrafted artisanal products"
+                className="w-full h-[400px] md:h-[500px] object-cover transition-transform duration-700 hover:scale-105"
+              />
+              <img
+                src={heroImage1}
                 alt="Handcrafted artisanal products"
                 className="w-full h-[400px] md:h-[500px] object-cover transition-transform duration-700 hover:scale-105"
               />
