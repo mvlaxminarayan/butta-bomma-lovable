@@ -52,12 +52,13 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// E-commerce specific colors
+				// Traditional Indian inspired colors
 				'product-card': 'hsl(var(--product-card))',
 				'product-card-hover': 'hsl(var(--product-card-hover))',
 				'price': 'hsl(var(--price))',
 				'sale-price': 'hsl(var(--sale-price))',
 				'rating': 'hsl(var(--rating))',
+				'traditional': 'var(--gradient-traditional)',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',

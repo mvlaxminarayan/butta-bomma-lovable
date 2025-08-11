@@ -8,57 +8,59 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* E-commerce color palette - warm and inviting */
-    --background: 30 15% 97%;
-    --foreground: 25 15% 15%;
+    /* Indian Traditional color palette - inspired by your logo */
+    --background: 45 20% 98%;
+    --foreground: 20 15% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 25 15% 15%;
+    --card-foreground: 20 15% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 25 15% 15%;
+    --popover-foreground: 20 15% 15%;
 
-    /* Sage green primary */
-    --primary: 120 20% 45%;
+    /* Vibrant green from sari */
+    --primary: 120 85% 35%;
     --primary-foreground: 0 0% 98%;
 
-    /* Warm cream secondary */
-    --secondary: 35 25% 88%;
-    --secondary-foreground: 25 15% 25%;
+    /* Warm golden cream */
+    --secondary: 45 60% 88%;
+    --secondary-foreground: 20 15% 25%;
 
-    --muted: 35 15% 92%;
-    --muted-foreground: 25 10% 55%;
+    --muted: 45 25% 92%;
+    --muted-foreground: 20 10% 55%;
 
-    /* Terracotta accent */
-    --accent: 15 60% 65%;
+    /* Rich red from blouse */
+    --accent: 5 85% 55%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 35 15% 85%;
-    --input: 35 15% 90%;
-    --ring: 120 20% 45%;
+    --border: 45 20% 85%;
+    --input: 45 15% 90%;
+    --ring: 120 85% 35%;
 
     --radius: 0.75rem;
 
     /* E-commerce specific tokens */
     --product-card: 0 0% 100%;
-    --product-card-hover: 35 20% 96%;
-    --price: 15 60% 50%;
-    --sale-price: 0 70% 55%;
-    --rating: 45 100% 55%;
+    --product-card-hover: 45 25% 96%;
+    --price: 5 85% 50%;
+    --sale-price: 120 85% 35%;
+    --rating: 50 100% 55%;
     
-    /* Gradients */
+    /* Traditional inspired gradients */
     --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--secondary)) 100%);
+    --gradient-traditional: linear-gradient(45deg, hsl(120 85% 35%) 0%, hsl(50 80% 60%) 50%, hsl(5 85% 55%) 100%);
     
-    /* Shadows */
-    --shadow-product: 0 4px 12px hsl(var(--primary) / 0.1);
-    --shadow-product-hover: 0 8px 25px hsl(var(--primary) / 0.15);
-    --shadow-elegant: 0 10px 30px -5px hsl(var(--foreground) / 0.1);
+    /* Enhanced shadows with color */
+    --shadow-product: 0 4px 12px hsl(var(--primary) / 0.15);
+    --shadow-product-hover: 0 8px 25px hsl(var(--primary) / 0.2);
+    --shadow-elegant: 0 10px 30px -5px hsl(var(--accent) / 0.1);
+    --shadow-traditional: 0 6px 20px hsl(var(--primary) / 0.2);
 
-    /* Transitions */
+    /* Smooth transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
