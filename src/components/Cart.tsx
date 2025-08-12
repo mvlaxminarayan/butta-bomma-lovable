@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { X, Minus, Plus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Product } from "./ProductCard";
+import { getSupabase } from "@/lib/supabase";
+import { toast } from "@/components/ui/use-toast";
 
 export interface CartItem extends Product {
   quantity: number;
@@ -16,9 +19,35 @@ interface CartProps {
 }
 
 const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: CartProps) => {
+  const [isLoading, setIsLoading] = useState(false);
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = subtotal > 50 ? 0 : 8.99;
   const total = subtotal + shipping;
+
+  const handleCheckout = async () => {
+    try {
+      setIsLoading(true);
+      const supabase = getSupabase();
+      const { data, error } = await supabase.functions.invoke("create-payment", {
+        body: {
+          product: "Handcrafted Ceramic Mug",
+          amount: 99,
+          currency: "usd",
+        },
+      });
+
+      if (error || !data?.url) {
+        throw new Error(error?.message || "Could not start checkout.");
+      }
+
+      // Open Stripe checkout in a new tab per requirements
+      window.open((data as any).url, "_blank");
+    } catch (err: any) {
+      toast({ title: "Checkout failed", description: err?.message || "Please try again." });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -127,8 +156,8 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
                 </div>
               </div>
               
-              <Button className="w-full bg-primary hover:bg-primary/90">
-                Checkout
+              <Button className="w-full bg-primary hover:bg-primary/90" onClick={handleCheckout} disabled={isLoading}>
+                {isLoading ? "Redirecting..." : "Checkout"}
               </Button>
               
               {subtotal < 50 && (
