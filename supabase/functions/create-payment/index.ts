@@ -30,8 +30,11 @@ serve(async (req) => {
 
     // Check if Stripe key exists
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    console.log("All env vars:", Object.keys(Deno.env.toObject()));
+    console.log("Checking STRIPE_SECRET_KEY:", stripeKey ? "found" : "not found");
     if (!stripeKey) {
       console.error("STRIPE_SECRET_KEY not found in environment");
+      console.error("Available env vars:", Object.keys(Deno.env.toObject()));
       throw new Error("Stripe configuration error");
     }
     console.log("Stripe key found:", stripeKey.substring(0, 10) + "...");
