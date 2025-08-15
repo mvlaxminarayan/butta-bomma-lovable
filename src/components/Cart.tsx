@@ -3,7 +3,7 @@ import { X, Minus, Plus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Product } from "./ProductCard";
-import { getSupabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 
 export interface CartItem extends Product {
@@ -27,7 +27,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
   const handleCheckout = async () => {
     try {
       setIsLoading(true);
-      const supabase = getSupabase();
+      // Use the Supabase client directly
       const { data, error } = await supabase.functions.invoke("create-payment", {
         body: {
           product: "Handcrafted Ceramic Mug",
