@@ -14,6 +14,7 @@ serve(async (req) => {
 
   // Create Supabase client using anon key (for optional auth context)
   const supabaseClient = createClient(
+    console.log("SUPABASE url",Deno.env.get("SUPABASE_URL"))
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_ANON_KEY") ?? ""
   );

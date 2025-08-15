@@ -1,8 +1,19 @@
 import { Button } from "@/components/ui/button";
 import heroImage from "@/assets/kondapalli.jpg";
 import heroImage1 from "@/assets/hero-image.jpg";
+import { useState, useEffect } from "react";
 
 const Hero = () => {
+  const images = [heroImage, heroImage1];
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, 3000); // Change every 3 seconds
+    return () => clearInterval(interval);
+  }, [images.length]);
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-background to-secondary">
       <div className="container mx-auto px-4 py-16 md:py-24">
@@ -53,19 +64,19 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* Hero Image */}
+          {/* Hero Image Slider */}
           <div className="relative">
-            <div className="relative overflow-hidden rounded-2xl shadow-elegant">
-              <img
-                src={heroImage}
-                alt="Handcrafted artisanal products"
-                className="w-full h-[400px] md:h-[500px] object-cover transition-transform duration-700 hover:scale-105"
-              />
-              <img
-                src={heroImage1}
-                alt="Handcrafted artisanal products"
-                className="w-full h-[400px] md:h-[500px] object-cover transition-transform duration-700 hover:scale-105"
-              />
+            <div className="relative overflow-hidden rounded-2xl shadow-elegant h-[400px] md:h-[500px]">
+              {images.map((src, index) => (
+                <img
+                  key={index}
+                  src={src}
+                  alt={`Slide ${index}`}
+                  className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+                    index === currentIndex ? "opacity-100" : "opacity-0"
+                  }`}
+                />
+              ))}
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
             </div>
             
