@@ -40,8 +40,8 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
         throw new Error(error?.message || "Could not start checkout.");
       }
 
-      // Open Stripe checkout in a new tab per requirements
-      window.open((data as any).url, "_blank");
+      // Redirect to Stripe checkout page
+      window.location.href = (data as any).url;
     } catch (err: any) {
       toast({ title: "Checkout failed", description: err?.message || "Please try again." });
     } finally {
