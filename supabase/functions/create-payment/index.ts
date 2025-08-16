@@ -19,7 +19,7 @@ serve(async (req) => {
   );
 
   try {
-    console.log("Create payment function started");
+    console.log("Create payment function started - timestamp:", new Date().toISOString());
     
     const origin = req.headers.get("origin") || "";
     console.log("Origin:", origin);
