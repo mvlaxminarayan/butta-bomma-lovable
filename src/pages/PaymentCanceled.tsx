@@ -1,6 +1,10 @@
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const PaymentCanceled = () => {
+  const navigate = useNavigate();
+  
   useEffect(() => {
     document.title = "Payment Canceled - Handcrafted Ceramic Mug";
     const metaDesc = document.querySelector('meta[name="description"]');
@@ -18,7 +22,10 @@ const PaymentCanceled = () => {
     <main className="min-h-screen bg-background px-6 py-16">
       <section className="max-w-2xl mx-auto text-center">
         <h1 className="text-3xl font-bold mb-2">Payment Canceled</h1>
-        <p className="text-muted-foreground">No worries—your card wasn’t charged. You can continue shopping and try again.</p>
+        <p className="text-muted-foreground mb-6">No worries—your card wasn't charged. You can continue shopping and try again.</p>
+        <Button onClick={() => navigate("/")} className="bg-primary hover:bg-primary/90">
+          Continue Shopping
+        </Button>
       </section>
     </main>
   );

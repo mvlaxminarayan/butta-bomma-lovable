@@ -30,8 +30,8 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
       // Use the Supabase client directly
       const { data, error } = await supabase.functions.invoke("create-payment", {
         body: {
-          product: "Handcrafted Ceramic Mug",
-          amount: 99,
+          product: cartItems.length === 1 ? cartItems[0].name : `${cartItems.length} items`,
+          amount: Math.round(total * 100), // Convert to cents
           currency: "usd",
         },
       });
