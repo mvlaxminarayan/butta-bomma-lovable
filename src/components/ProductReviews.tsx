@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { useProductReviews } from "@/hooks/useProductReviews";
 
 interface Review {
   id: string;
@@ -21,47 +22,10 @@ interface ProductReviewsProps {
   productName: string;
 }
 
-// Mock reviews data - in a real app, this would come from a backend
-const mockReviews: Record<string, Review[]> = {
-  "1": [
-    {
-      id: "1",
-      name: "Sarah M.",
-      rating: 5,
-      comment: "Absolutely love this mug! The quality is excellent and it feels great in my hands. Perfect for my morning coffee routine.",
-      date: "2024-01-15"
-    },
-    {
-      id: "2", 
-      name: "John D.",
-      rating: 4,
-      comment: "Great mug, very well made. The only reason I'm not giving 5 stars is because it's a bit smaller than I expected.",
-      date: "2024-01-10"
-    }
-  ],
-  "2": [
-    {
-      id: "3",
-      name: "Lisa K.",
-      rating: 5,
-      comment: "Beautiful basket! Perfect for organizing my living room and looks great as decor too.",
-      date: "2024-01-12"
-    }
-  ],
-  "3": [
-    {
-      id: "4",
-      name: "Mike R.",
-      rating: 5,
-      comment: "Outstanding cutting board. The live edge design is gorgeous and it's very functional. Worth every penny!",
-      date: "2024-01-08"
-    }
-  ]
-};
-
 const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
   const { toast } = useToast();
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const { reviews, averageRating } = useProductReviews(productId);
+  const [localReviews, setLocalReviews] = useState<Review[]>(reviews);
   const [showForm, setShowForm] = useState(false);
   const [newReview, setNewReview] = useState({
     name: "",
@@ -69,26 +33,20 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
     comment: ""
   });
 
-  // Load reviews from localStorage on component mount
+  // Update local reviews when the hook reviews change
   useEffect(() => {
-    const savedReviews = localStorage.getItem(`reviews_${productId}`);
-    if (savedReviews) {
-      setReviews(JSON.parse(savedReviews));
-    } else {
-      // Use mock data as initial data if no saved reviews
-      setReviews(mockReviews[productId] || []);
-    }
-  }, [productId]);
+    setLocalReviews(reviews);
+  }, [reviews]);
 
-  // Save reviews to localStorage whenever reviews change
+  // Save reviews to localStorage whenever local reviews change
   useEffect(() => {
-    if (reviews.length > 0) {
-      localStorage.setItem(`reviews_${productId}`, JSON.stringify(reviews));
+    if (localReviews.length > 0 && localReviews !== reviews) {
+      localStorage.setItem(`reviews_${productId}`, JSON.stringify(localReviews));
     }
-  }, [reviews, productId]);
+  }, [localReviews, productId, reviews]);
 
-  const averageRating = reviews.length > 0 
-    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
+  const currentAverageRating = localReviews.length > 0 
+    ? localReviews.reduce((sum, review) => sum + review.rating, 0) / localReviews.length 
     : 0;
 
   const handleRatingClick = (rating: number) => {
@@ -115,7 +73,7 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
       date: new Date().toISOString().split('T')[0]
     };
 
-    setReviews(prev => [review, ...prev]);
+    setLocalReviews(prev => [review, ...prev]);
     setNewReview({ name: "", rating: 0, comment: "" });
     setShowForm(false);
     
@@ -155,15 +113,15 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {reviews.length > 0 ? (
+          {localReviews.length > 0 ? (
             <div className="space-y-4">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
-                  {renderStars(Math.round(averageRating))}
+                  {renderStars(Math.round(currentAverageRating))}
                 </div>
-                <span className="text-xl font-semibold">{averageRating.toFixed(1)}</span>
+                <span className="text-xl font-semibold">{currentAverageRating.toFixed(1)}</span>
                 <span className="text-muted-foreground">
-                  ({reviews.length} review{reviews.length !== 1 ? 's' : ''})
+                  ({localReviews.length} review{localReviews.length !== 1 ? 's' : ''})
                 </span>
               </div>
             </div>
@@ -226,10 +184,10 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
       )}
 
       {/* Reviews List */}
-      {reviews.length > 0 && (
+      {localReviews.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-xl font-semibold">Reviews</h3>
-          {reviews.map((review, index) => (
+          {localReviews.map((review, index) => (
             <div key={review.id}>
               <Card>
                 <CardContent className="p-6">
@@ -252,7 +210,7 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
                   </div>
                 </CardContent>
               </Card>
-              {index < reviews.length - 1 && <Separator />}
+              {index < localReviews.length - 1 && <Separator />}
             </div>
           ))}
         </div>

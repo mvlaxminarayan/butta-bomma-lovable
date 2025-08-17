@@ -2,22 +2,21 @@ import ProductCard, { Product } from "./ProductCard";
 import productMug from "@/assets/product-mug.jpg";
 import productBasket from "@/assets/product-basket.jpg";
 import productCuttingBoard from "@/assets/product-cutting-board.jpg";
+import { getProductReviewsSync } from "@/hooks/useProductReviews";
 
 interface ProductGridProps {
   onAddToCart: (product: Product) => void;
   onViewDetails: (product: Product) => void;
 }
 
-// Mock product data
-const products: Product[] = [
+// Base product data - ratings and reviews will be dynamically loaded
+const baseProducts = [
   {
     id: "1",
     name: "Handcrafted Ceramic Mug",
     price: 28,
     originalPrice: 35,
     image: productMug,
-    rating: 4.8,
-    reviews: 42,
     category: "Ceramics",
     inStock: true,
   },
@@ -26,8 +25,6 @@ const products: Product[] = [
     name: "Woven Storage Basket",
     price: 45,
     image: productBasket,
-    rating: 4.6,
-    reviews: 28,
     category: "Home Decor",
     inStock: true,
   },
@@ -37,8 +34,6 @@ const products: Product[] = [
     price: 68,
     originalPrice: 85,
     image: productCuttingBoard,
-    rating: 4.9,
-    reviews: 67,
     category: "Kitchen",
     inStock: true,
   },
@@ -47,8 +42,6 @@ const products: Product[] = [
     name: "Artisan Ceramic Bowl Set",
     price: 95,
     image: productMug,
-    rating: 4.7,
-    reviews: 35,
     category: "Ceramics",
     inStock: false,
   },
@@ -57,8 +50,6 @@ const products: Product[] = [
     name: "Handwoven Placemat Set",
     price: 32,
     image: productBasket,
-    rating: 4.5,
-    reviews: 23,
     category: "Home Decor",
     inStock: true,
   },
@@ -67,14 +58,26 @@ const products: Product[] = [
     name: "Rustic Serving Tray",
     price: 55,
     image: productCuttingBoard,
-    rating: 4.8,
-    reviews: 51,
     category: "Kitchen",
     inStock: true,
   },
 ];
 
+// Get products with current review data
+const getProductsWithReviews = (): Product[] => {
+  return baseProducts.map(product => {
+    const { averageRating, reviewCount } = getProductReviewsSync(product.id);
+    return {
+      ...product,
+      rating: averageRating || 0,
+      reviews: reviewCount
+    };
+  });
+};
+
 const ProductGrid = ({ onAddToCart, onViewDetails }: ProductGridProps) => {
+  const products = getProductsWithReviews();
+  
   return (
     <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
