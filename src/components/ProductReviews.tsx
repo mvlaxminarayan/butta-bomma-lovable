@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Star, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -61,13 +61,31 @@ const mockReviews: Record<string, Review[]> = {
 
 const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
   const { toast } = useToast();
-  const [reviews, setReviews] = useState<Review[]>(mockReviews[productId] || []);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [newReview, setNewReview] = useState({
     name: "",
     rating: 0,
     comment: ""
   });
+
+  // Load reviews from localStorage on component mount
+  useEffect(() => {
+    const savedReviews = localStorage.getItem(`reviews_${productId}`);
+    if (savedReviews) {
+      setReviews(JSON.parse(savedReviews));
+    } else {
+      // Use mock data as initial data if no saved reviews
+      setReviews(mockReviews[productId] || []);
+    }
+  }, [productId]);
+
+  // Save reviews to localStorage whenever reviews change
+  useEffect(() => {
+    if (reviews.length > 0) {
+      localStorage.setItem(`reviews_${productId}`, JSON.stringify(reviews));
+    }
+  }, [reviews, productId]);
 
   const averageRating = reviews.length > 0 
     ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
