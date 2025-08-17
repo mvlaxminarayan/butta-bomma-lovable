@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import type { Product } from "@/components/ProductCard";
+import ProductReviews from "@/components/ProductReviews";
 
 // Enhanced product data with multiple images
 const getProductById = (id: string): (Product & { 
@@ -355,6 +356,11 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-16">
+          <ProductReviews productId={product.id} productName={product.name} />
         </div>
       </main>
     </div>
