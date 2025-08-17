@@ -51,10 +51,8 @@ const Index = () => {
   };
 
   const handleViewDetails = (product: Product) => {
-    toast({
-      title: "Product Details",
-      description: `Viewing details for ${product.name}`,
-    });
+    // Navigate to product detail page
+    window.location.href = `/product/${product.id}`;
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
