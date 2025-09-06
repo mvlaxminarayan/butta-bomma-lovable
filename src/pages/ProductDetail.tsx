@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { useProductReviews } from "@/hooks/useProductReviews";
 import type { Product } from "@/components/ProductCard";
 import ProductReviews from "@/components/ProductReviews";
 
@@ -28,8 +29,8 @@ const getProductById = (id: string): (Product & {
         "/src/assets/product-mug.jpg", // In real app, these would be different angles
         "/src/assets/product-mug.jpg"
       ],
-      rating: 4.8,
-      reviews: 42,
+      rating: 0, // Will be updated from reviews
+      reviews: 0, // Will be updated from reviews
       category: "Ceramics",
       inStock: true,
       description: "This beautiful handcrafted ceramic mug is perfect for your morning coffee or evening tea. Each piece is unique, featuring subtle variations that make it truly one-of-a-kind. Made from high-quality ceramic with a smooth finish and comfortable handle.",
@@ -58,8 +59,8 @@ const getProductById = (id: string): (Product & {
         "/src/assets/product-basket.jpg",
         "/src/assets/product-basket.jpg"
       ],
-      rating: 4.6,
-      reviews: 28,
+      rating: 0, // Will be updated from reviews
+      reviews: 0, // Will be updated from reviews
       category: "Home Decor",
       inStock: true,
       description: "Beautifully handwoven storage basket perfect for organizing your home. Made from sustainable materials with excellent craftsmanship. Great for storing blankets, toys, or as decorative accent piece.",
@@ -88,8 +89,8 @@ const getProductById = (id: string): (Product & {
         "/src/assets/product-cutting-board.jpg",
         "/src/assets/product-cutting-board.jpg"
       ],
-      rating: 4.9,
-      reviews: 67,
+      rating: 0, // Will be updated from reviews
+      reviews: 0, // Will be updated from reviews
       category: "Kitchen",
       inStock: true,
       description: "Premium live edge cutting board crafted from sustainably sourced hardwood. Features natural wood grain patterns and smooth finish. Perfect for food preparation and serving.",
@@ -123,7 +124,15 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
 
-  const product = id ? getProductById(id) : undefined;
+  const baseProduct = id ? getProductById(id) : undefined;
+  const { averageRating, reviewCount } = useProductReviews(id || "");
+  
+  // Update product with current review data
+  const product = baseProduct ? {
+    ...baseProduct,
+    rating: averageRating,
+    reviews: reviewCount
+  } : undefined;
 
   if (!product) {
     return (
