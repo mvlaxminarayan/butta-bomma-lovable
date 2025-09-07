@@ -20,7 +20,7 @@ const Header = ({ cartItems, onCartClick }: HeaderProps) => {
               <img 
                 src={logo} 
                 alt="Shop Logo" 
-                className="h-8 w-auto object-contain filter brightness-100 contrast-110"
+                className="h-12 w-auto object-contain filter brightness-100 contrast-110"
               />
             </div>
           </div>
