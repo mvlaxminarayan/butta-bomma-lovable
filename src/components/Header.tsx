@@ -15,15 +15,14 @@ const Header = ({ cartItems, onCartClick }: HeaderProps) => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          {/* <div className="flex items-center space-x-2">
-            <h1 className="text-2xl font-bold text-primary">ButtaBomma</h1>
-            <span className="text-muted-foreground">Shop</span> */}
-            <div className="flex items-center">
-            <img 
-              src={logo} 
-              alt="Shop Logo" 
-              className="h-12 w-auto object-contain mix-blend-multiply dark:mix-blend-screen filter drop-shadow-sm"
-            />
+          <div className="flex items-center">
+            <div className="relative p-2 bg-gradient-to-br from-background/80 to-background/60 rounded-xl border border-border/30 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
+              <img 
+                src={logo} 
+                alt="Shop Logo" 
+                className="h-8 w-auto object-contain filter brightness-100 contrast-110"
+              />
+            </div>
           </div>
 
           {/* Search Bar */}
