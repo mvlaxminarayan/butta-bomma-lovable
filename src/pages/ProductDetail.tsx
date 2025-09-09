@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ArrowLeft, Heart, Share2, ShoppingCart, Star, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,108 +9,140 @@ import { useToast } from "@/hooks/use-toast";
 import { useProductReviews } from "@/hooks/useProductReviews";
 import type { Product } from "@/components/ProductCard";
 import ProductReviews from "@/components/ProductReviews";
+import { supabase } from "@/integrations/supabase/client";
+import productMug from "@/assets/product-mug.jpg";
+import productBasket from "@/assets/product-basket.jpg";
+import productCuttingBoard from "@/assets/product-cutting-board.jpg";
 
-// Enhanced product data with multiple images
-const getProductById = (id: string): (Product & { 
+// Enhanced product data fetching from database
+const getProductById = async (id: string): Promise<(Product & { 
   images: string[]; 
   description: string; 
   features: string[]; 
   specifications: Record<string, string>;
-}) | undefined => {
-  const products = {
-    "1": {
-      id: "1",
-      name: "Handcrafted Ceramic Mug",
-      price: 28,
-      originalPrice: 35,
-      image: "/src/assets/product-mug.jpg", // Main image for Product interface
-      images: [
-        "/src/assets/product-mug.jpg",
-        "/src/assets/product-mug.jpg", // In real app, these would be different angles
-        "/src/assets/product-mug.jpg"
-      ],
-      rating: 0, // Will be updated from reviews
-      reviews: 0, // Will be updated from reviews
-      category: "Ceramics",
-      inStock: true,
-      description: "This beautiful handcrafted ceramic mug is perfect for your morning coffee or evening tea. Each piece is unique, featuring subtle variations that make it truly one-of-a-kind. Made from high-quality ceramic with a smooth finish and comfortable handle.",
-      features: [
-        "100% handcrafted ceramic",
-        "Microwave and dishwasher safe",
-        "12 oz capacity",
-        "Comfortable ergonomic handle",
-        "Lead-free glaze"
-      ],
-      specifications: {
-        "Material": "High-quality ceramic",
-        "Capacity": "12 oz (355ml)",
-        "Dimensions": "4.5\" H x 3.5\" W",
-        "Weight": "0.8 lbs",
-        "Care": "Dishwasher and microwave safe"
-      }
-    },
-    "2": {
-      id: "2",
-      name: "Woven Storage Basket",
-      price: 45,
-      image: "/src/assets/product-basket.jpg", // Main image for Product interface
-      images: [
-        "/src/assets/product-basket.jpg",
-        "/src/assets/product-basket.jpg",
-        "/src/assets/product-basket.jpg"
-      ],
-      rating: 0, // Will be updated from reviews
-      reviews: 0, // Will be updated from reviews
-      category: "Home Decor",
-      inStock: true,
-      description: "Beautifully handwoven storage basket perfect for organizing your home. Made from sustainable materials with excellent craftsmanship. Great for storing blankets, toys, or as decorative accent piece.",
-      features: [
-        "Handwoven natural materials",
-        "Sustainable and eco-friendly",
-        "Sturdy construction",
-        "Versatile storage solution",
-        "Beautiful decorative accent"
-      ],
-      specifications: {
-        "Material": "Natural woven fibers",
-        "Dimensions": "16\" L x 12\" W x 10\" H",
-        "Weight": "2.5 lbs",
-        "Care": "Spot clean only"
-      }
-    },
-    "3": {
-      id: "3",
-      name: "Live Edge Cutting Board",
-      price: 68,
-      originalPrice: 85,
-      image: "/src/assets/product-cutting-board.jpg", // Main image for Product interface
-      images: [
-        "/src/assets/product-cutting-board.jpg",
-        "/src/assets/product-cutting-board.jpg",
-        "/src/assets/product-cutting-board.jpg"
-      ],
-      rating: 0, // Will be updated from reviews
-      reviews: 0, // Will be updated from reviews
-      category: "Kitchen",
-      inStock: true,
-      description: "Premium live edge cutting board crafted from sustainably sourced hardwood. Features natural wood grain patterns and smooth finish. Perfect for food preparation and serving.",
-      features: [
-        "Live edge design",
-        "Food-safe finish",
-        "Sustainably sourced hardwood",
-        "Natural wood grain patterns",
-        "Dual-purpose: cutting and serving"
-      ],
-      specifications: {
-        "Material": "Hardwood (Walnut/Maple)",
-        "Dimensions": "18\" L x 12\" W x 1.5\" H",
-        "Weight": "4.2 lbs",
-        "Care": "Hand wash only, oil monthly"
+}) | undefined> => {
+  try {
+    const { data: product, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error || !product) {
+      console.error("Error fetching product:", error);
+      return undefined;
+    }
+
+    // Map database image name to imported asset
+    let productImage = productMug; // default fallback
+    if (product.image_url) {
+      switch (product.image_url) {
+        case 'product-mug.jpg':
+          productImage = productMug;
+          break;
+        case 'product-basket.jpg':
+          productImage = productBasket;
+          break;
+        case 'product-cutting-board.jpg':
+          productImage = productCuttingBoard;
+          break;
+        default:
+          productImage = productMug;
       }
     }
-  };
-  
-  return products[id as keyof typeof products];
+
+    // Enhanced product data based on category and name
+    const getEnhancedData = (product: any) => {
+      const name = product.name.toLowerCase();
+      
+      if (name.includes('mug') || name.includes('ceramic')) {
+        return {
+          features: [
+            "100% handcrafted ceramic",
+            "Microwave and dishwasher safe", 
+            "12 oz capacity",
+            "Comfortable ergonomic handle",
+            "Lead-free glaze"
+          ],
+          specifications: {
+            "Material": "High-quality ceramic",
+            "Capacity": "12 oz (355ml)",
+            "Dimensions": "4.5\" H x 3.5\" W",
+            "Weight": "0.8 lbs",
+            "Care": "Dishwasher and microwave safe"
+          }
+        };
+      } else if (name.includes('basket') || name.includes('woven')) {
+        return {
+          features: [
+            "Handwoven natural materials",
+            "Sustainable and eco-friendly",
+            "Sturdy construction", 
+            "Versatile storage solution",
+            "Beautiful decorative accent"
+          ],
+          specifications: {
+            "Material": "Natural woven fibers",
+            "Dimensions": "16\" L x 12\" W x 10\" H",
+            "Weight": "2.5 lbs",
+            "Care": "Spot clean only"
+          }
+        };
+      } else if (name.includes('cutting board') || name.includes('board')) {
+        return {
+          features: [
+            "Live edge design",
+            "Food-safe finish",
+            "Sustainably sourced hardwood",
+            "Natural wood grain patterns",
+            "Dual-purpose: cutting and serving"
+          ],
+          specifications: {
+            "Material": "Hardwood (Walnut/Maple)",
+            "Dimensions": "18\" L x 12\" W x 1.5\" H", 
+            "Weight": "4.2 lbs",
+            "Care": "Hand wash only, oil monthly"
+          }
+        };
+      } else {
+        // Default enhanced data
+        return {
+          features: [
+            "Handcrafted quality",
+            "Unique design",
+            "Durable construction",
+            "Artisan made",
+            "Premium materials"
+          ],
+          specifications: {
+            "Material": "Premium quality materials",
+            "Care": "Follow care instructions",
+            "Origin": "Handcrafted"
+          }
+        };
+      }
+    };
+
+    const enhancedData = getEnhancedData(product);
+
+    return {
+      id: product.id,
+      name: product.name,
+      price: Number(product.price),
+      image: productImage,
+      images: [productImage, productImage, productImage], // In real app, would have multiple angles
+      category: product.category || "Uncategorized",
+      inStock: product.in_stock,
+      description: product.description || `Beautiful ${product.name.toLowerCase()} crafted with attention to detail. Each piece is unique and brings character to your space.`,
+      rating: 0, // Will be updated from reviews
+      reviews: 0, // Will be updated from reviews
+      features: enhancedData.features,
+      specifications: enhancedData.specifications
+    };
+  } catch (error) {
+    console.error("Unexpected error fetching product:", error);
+    return undefined;
+  }
 };
 
 interface ProductDetailProps {
@@ -123,16 +155,56 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
   const { toast } = useToast();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [product, setProduct] = useState<(Product & { 
+    images: string[]; 
+    description: string; 
+    features: string[]; 
+    specifications: Record<string, string>;
+  }) | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const baseProduct = id ? getProductById(id) : undefined;
   const { averageRating, reviewCount } = useProductReviews(id || "");
-  
-  // Update product with current review data
-  const product = baseProduct ? {
-    ...baseProduct,
-    rating: averageRating,
-    reviews: reviewCount
-  } : undefined;
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) {
+        setProduct(null);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const fetchedProduct = await getProductById(id);
+        if (fetchedProduct) {
+          // Update product with current review data
+          setProduct({
+            ...fetchedProduct,
+            rating: averageRating,
+            reviews: reviewCount
+          });
+        } else {
+          setProduct(null);
+        }
+      } catch (error) {
+        console.error("Error loading product:", error);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id, averageRating, reviewCount]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Loading Product...</h1>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
