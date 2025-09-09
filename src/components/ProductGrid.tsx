@@ -78,11 +78,30 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
     // Map database products to Product interface
     return products.map(product => {
       const { averageRating, reviewCount } = getProductReviewsSync(product.id);
+      
+      // Map database image names to imported assets
+      let productImage = productMug; // default fallback
+      if (product.image_url) {
+        switch (product.image_url) {
+          case 'product-mug.jpg':
+            productImage = productMug;
+            break;
+          case 'product-basket.jpg':
+            productImage = productBasket;
+            break;
+          case 'product-cutting-board.jpg':
+            productImage = productCuttingBoard;
+            break;
+          default:
+            productImage = productMug;
+        }
+      }
+      
       return {
         id: product.id,
         name: product.name,
-        price: product.price,
-        image: product.image_url || productMug, // fallback image
+        price: Number(product.price),
+        image: productImage,
         category: product.category || "Uncategorized",
         inStock: product.in_stock,
         rating: averageRating || 0,
