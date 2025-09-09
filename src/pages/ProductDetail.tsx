@@ -22,14 +22,23 @@ const getProductById = async (id: string): Promise<(Product & {
   specifications: Record<string, string>;
 }) | undefined> => {
   try {
+    console.log("Fetching product with ID:", id);
+    
     const { data: product, error } = await supabase
       .from("products")
       .select("*")
       .eq("id", id)
-      .single();
+      .maybeSingle();
 
-    if (error || !product) {
+    console.log("Query result:", { product, error });
+
+    if (error) {
       console.error("Error fetching product:", error);
+      return undefined;
+    }
+
+    if (!product) {
+      console.log("No product found for ID:", id);
       return undefined;
     }
 
@@ -125,7 +134,7 @@ const getProductById = async (id: string): Promise<(Product & {
 
     const enhancedData = getEnhancedData(product);
 
-    return {
+    const result = {
       id: product.id,
       name: product.name,
       price: Number(product.price),
@@ -139,6 +148,9 @@ const getProductById = async (id: string): Promise<(Product & {
       features: enhancedData.features,
       specifications: enhancedData.specifications
     };
+
+    console.log("Returning product:", result);
+    return result;
   } catch (error) {
     console.error("Unexpected error fetching product:", error);
     return undefined;

@@ -44,11 +44,15 @@ const fallbackProducts = [
 // Get products with review data from database or fallback
 const getProductsWithReviews = async (): Promise<Product[]> => {
   try {
+    console.log("Fetching products from database...");
+    
     const { data: products, error } = await supabase
       .from("products")
       .select("*")
       .eq("in_stock", true)
       .order("created_at", { ascending: false });
+
+    console.log("Products query result:", { products, error });
 
     if (error) {
       console.error("Error fetching products:", error);
@@ -65,6 +69,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
 
     // If no products in database, use fallback
     if (!products || products.length === 0) {
+      console.log("No products in database, using fallback");
       return fallbackProducts.map(product => {
         const { averageRating, reviewCount } = getProductReviewsSync(product.id);
         return {
@@ -75,6 +80,8 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
       });
     }
 
+    console.log("Successfully fetched products, mapping data...");
+    
     // Map database products to Product interface
     return products.map(product => {
       const { averageRating, reviewCount } = getProductReviewsSync(product.id);
