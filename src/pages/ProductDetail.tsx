@@ -165,6 +165,12 @@ interface ProductDetailProps {
 const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const readCartCount = () => {
+    try {
+      return JSON.parse(localStorage.getItem("cart") || "[]").reduce((s: number, i: any) => s + (i.quantity || 0), 0);
+    } catch { return 0; }
+  };
+  const [cartCount, setCartCount] = useState<number>(readCartCount);
   const { toast } = useToast();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -236,6 +242,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
 
   const handleAddToCart = () => {
     onAddToCart(product, quantity);
+    setCartCount(readCartCount());
     toast({
       title: "Added to cart",
       description: `${quantity} x ${product.name} added to your cart`,
@@ -252,7 +259,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Button
             variant="ghost"
             onClick={() => navigate("/")}
@@ -260,6 +267,20 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Shop
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Open cart"
+            onClick={() => navigate("/?cart=open")}
+            className="relative"
+          >
+            <ShoppingCart className="h-5 w-5" />
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-5 min-w-5 px-1 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
           </Button>
         </div>
       </header>
