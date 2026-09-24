@@ -10,7 +10,9 @@ const Index = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try { return JSON.parse(localStorage.getItem("cart") || "[]"); } catch { return []; }
   });
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(
+    () => new URLSearchParams(window.location.search).get("cart") === "open"
+  );
   const { toast } = useToast();
 
   useEffect(() => {
