@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ProductGrid from "@/components/ProductGrid";
@@ -7,9 +7,15 @@ import { Product } from "@/components/ProductCard";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    try { return JSON.parse(localStorage.getItem("cart") || "[]"); } catch { return []; }
+  });
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const addToCart = (product: Product) => {
     setCartItems(prev => {

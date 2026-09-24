@@ -35,9 +35,13 @@ const App = () => (
               } 
             />
             <Route path="/product/:id" element={<ProductDetail onAddToCart={(product, quantity) => {
-              // This will be handled by the parent Index component
-              console.log('Add to cart:', product, quantity);
+              const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+              const existing = cart.find((i: any) => i.id === product.id);
+              if (existing) existing.quantity += quantity;
+              else cart.push({ ...product, quantity });
+              localStorage.setItem("cart", JSON.stringify(cart));
             }} />} />
+
             <Route path="/shipping-details" element={<ShippingDetails />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-canceled" element={<PaymentCanceled />} />
