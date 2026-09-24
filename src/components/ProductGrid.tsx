@@ -46,7 +46,8 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
   try {
     console.log("Fetching products from database...");
     
-    const { data: products, error } = await supabase
+    const { data: products, error } = await (supabase as any)
+      .schema("api")
       .from("products")
       .select("*")
       .eq("in_stock", true)
