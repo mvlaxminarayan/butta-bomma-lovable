@@ -1,4 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Tag } from "lucide-react";
+import { Coupon, DEFAULT_SETTINGS, StoreSettings, computeTotals, fetchStoreSettings, lookupCoupon } from "@/lib/pricing";
 import { X, Minus, Plus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,8 +24,22 @@ interface CartProps {
 const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: CartProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = subtotal > 50 ? 0 : 8.99;
-  const total = subtotal + shipping;
+  const [settings, setSettings] = useState<StoreSettings>(DEFAULT_SETTINGS);
+  const [codeInput, setCodeInput] = useState("");
+  const [coupon, setCoupon] = useState<Coupon | null>(null);
+  const [checking, setChecking] = useState(false);
+  useEffect(() => { if (isOpen) fetchStoreSettings().then(setSettings); }, [isOpen]);
+  const { discount, shipping, total, couponOk } = computeTotals(subtotal, settings, coupon);
+  const threshold = settings.free_shipping_threshold;
+
+  const applyCoupon = async () => {
+    setChecking(true);
+    const c = await lookupCoupon(codeInput);
+    setChecking(false);
+    if (!c) { setCoupon(null); toast({ title: "Invalid code", description: "That coupon doesn't exist or has expired." }); return; }
+    setCoupon(c);
+    toast({ title: "Coupon applied", description: subtotal < c.min_order ? `Spend $${c.min_order.toFixed(2)} to use this code.` : c.code });
+  };
 
   const handleCheckout = async () => {
     try {
@@ -31,7 +48,9 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
       const { data, error } = await supabase.functions.invoke("create-payment", {
         body: {
           product: cartItems.length === 1 ? cartItems[0].name : `${cartItems.length} items`,
-          amount: Math.round(total * 100), // Convert to cents
+          amount: Math.round(total * 100),
+          subtotal: Math.round(subtotal * 100) / 100,
+          couponCode: couponOk ? coupon!.code : undefined,
           currency: "usd",
         },
       });
@@ -140,6 +159,12 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
                   <span>Subtotal</span>
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
+                {couponOk && discount > 0 && (
+                  <div className="flex justify-between text-sm text-primary">
+                    <span>Discount ({coupon!.code})</span>
+                    <span>-${discount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm">
                   <span>Shipping</span>
                   <span>
@@ -156,13 +181,28 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
                 </div>
               </div>
               
+              <div className="flex gap-2">
+                <Input placeholder="Coupon code" value={codeInput} maxLength={40}
+                  onChange={(e) => setCodeInput(e.target.value)} />
+                {coupon ? (
+                  <Button variant="outline" onClick={() => { setCoupon(null); setCodeInput(""); }}>Remove</Button>
+                ) : (
+                  <Button variant="outline" onClick={applyCoupon} disabled={checking || !codeInput.trim()}>
+                    <Tag className="h-4 w-4 mr-1" />{checking ? "..." : "Apply"}
+                  </Button>
+                )}
+              </div>
+              {coupon && !couponOk && (
+                <p className="text-xs text-destructive">Code {coupon.code} needs an order of ${coupon.min_order.toFixed(2)} or more.</p>
+              )}
+
               <Button className="w-full bg-primary hover:bg-primary/90" onClick={handleCheckout} disabled={isLoading}>
                 {isLoading ? "Redirecting..." : "Checkout"}
               </Button>
               
-              {subtotal < 50 && (
+              {threshold != null && shipping > 0 && subtotal < threshold && (
                 <p className="text-xs text-muted-foreground text-center">
-                  Add ${(50 - subtotal).toFixed(2)} more for free shipping!
+                  Add ${(threshold - subtotal).toFixed(2)} more for free shipping!
                 </p>
               )}
             </div>
