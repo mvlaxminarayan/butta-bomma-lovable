@@ -115,7 +115,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
   }
 };
 
-const ProductGrid = ({ onAddToCart, onViewDetails }: ProductGridProps) => {
+const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "" }: ProductGridProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -128,6 +128,14 @@ const ProductGrid = ({ onAddToCart, onViewDetails }: ProductGridProps) => {
 
     fetchProducts();
   }, []);
+
+  const query = searchQuery.trim().toLowerCase();
+  const visibleProducts = query
+    ? products.filter((p) =>
+        p.name.toLowerCase().includes(query) ||
+        (p.category || "").toLowerCase().includes(query)
+      )
+    : products;
 
   if (loading) {
     return (

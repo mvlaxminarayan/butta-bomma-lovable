@@ -45,6 +45,8 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
               <Input 
                 placeholder="Search handcrafted items..." 
                 className="pl-10 border-border focus:ring-primary"
+                value={searchQuery}
+                onChange={(e) => onSearchChange?.(e.target.value)}
               />
             </div>
           </div>
@@ -112,6 +114,8 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
             <Input 
               placeholder="Search handcrafted items..." 
               className="pl-10"
+              value={searchQuery}
+              onChange={(e) => onSearchChange?.(e.target.value)}
             />
           </div>
         </div>

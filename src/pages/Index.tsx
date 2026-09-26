@@ -13,6 +13,7 @@ const Index = () => {
   const [isCartOpen, setIsCartOpen] = useState(
     () => new URLSearchParams(window.location.search).get("cart") === "open"
   );
+  const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
