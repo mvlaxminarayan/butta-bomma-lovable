@@ -10,9 +10,11 @@ import logo from "@/assets/logo.png";
 interface HeaderProps {
   cartItems: number;
   onCartClick: () => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }
 
-const Header = ({ cartItems, onCartClick }: HeaderProps) => {
+const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: HeaderProps) => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
 

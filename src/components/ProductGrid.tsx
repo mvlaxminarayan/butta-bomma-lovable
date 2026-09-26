@@ -10,6 +10,7 @@ import { resolveImageUrls, productImageRefs, FALLBACK_IMAGE } from "@/lib/produc
 interface ProductGridProps {
   onAddToCart: (product: Product) => void;
   onViewDetails: (product: Product) => void;
+  searchQuery?: string;
 }
 
 // Fallback product data for when database is empty
