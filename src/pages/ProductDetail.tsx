@@ -10,9 +10,7 @@ import { useProductReviews } from "@/hooks/useProductReviews";
 import type { Product } from "@/components/ProductCard";
 import ProductReviews from "@/components/ProductReviews";
 import { supabase } from "@/integrations/supabase/client";
-import productMug from "@/assets/product-mug.jpg";
-import productBasket from "@/assets/product-basket.jpg";
-import productCuttingBoard from "@/assets/product-cutting-board.jpg";
+import { resolveImageUrls, productImageRefs, FALLBACK_IMAGE } from "@/lib/productImages";
 
 // Enhanced product data fetching from database
 const getProductById = async (id: string): Promise<(Product & { 
@@ -43,23 +41,9 @@ const getProductById = async (id: string): Promise<(Product & {
       return undefined;
     }
 
-    // Map database image name to imported asset
-    let productImage = productMug; // default fallback
-    if (product.image_url) {
-      switch (product.image_url) {
-        case 'product-mug.jpg':
-          productImage = productMug;
-          break;
-        case 'product-basket.jpg':
-          productImage = productBasket;
-          break;
-        case 'product-cutting-board.jpg':
-          productImage = productCuttingBoard;
-          break;
-        default:
-          productImage = productMug;
-      }
-    }
+    const resolved = (await resolveImageUrls(productImageRefs(product))).filter(Boolean);
+    const productImages = resolved.length ? resolved : [FALLBACK_IMAGE];
+    const productImage = productImages[0];
 
     // Enhanced product data based on category and name
     const getEnhancedData = (product: any) => {
@@ -140,7 +124,7 @@ const getProductById = async (id: string): Promise<(Product & {
       name: product.name,
       price: Number(product.price),
       image: productImage,
-      images: [productImage, productImage, productImage], // In real app, would have multiple angles
+      images: productImages,
       category: product.category || "Uncategorized",
       inStock: product.in_stock,
       description: product.description || `Beautiful ${product.name.toLowerCase()} crafted with attention to detail. Each piece is unique and brings character to your space.`,
