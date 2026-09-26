@@ -342,6 +342,10 @@ export default function AdminDashboard() {
           )}
         </CardContent>
       </Card>
+
+      <div className="mt-6">
+        <DiscountsManager />
+      </div>
     </div>
   );
 }
