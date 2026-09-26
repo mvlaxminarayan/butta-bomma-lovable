@@ -10,9 +10,11 @@ import logo from "@/assets/logo.png";
 interface HeaderProps {
   cartItems: number;
   onCartClick: () => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }
 
-const Header = ({ cartItems, onCartClick }: HeaderProps) => {
+const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: HeaderProps) => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
 
@@ -43,6 +45,8 @@ const Header = ({ cartItems, onCartClick }: HeaderProps) => {
               <Input 
                 placeholder="Search handcrafted items..." 
                 className="pl-10 border-border focus:ring-primary"
+                value={searchQuery}
+                onChange={(e) => onSearchChange?.(e.target.value)}
               />
             </div>
           </div>
@@ -110,6 +114,8 @@ const Header = ({ cartItems, onCartClick }: HeaderProps) => {
             <Input 
               placeholder="Search handcrafted items..." 
               className="pl-10"
+              value={searchQuery}
+              onChange={(e) => onSearchChange?.(e.target.value)}
             />
           </div>
         </div>

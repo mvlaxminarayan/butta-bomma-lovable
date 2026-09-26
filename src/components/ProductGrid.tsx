@@ -10,6 +10,7 @@ import { resolveImageUrls, productImageRefs, FALLBACK_IMAGE } from "@/lib/produc
 interface ProductGridProps {
   onAddToCart: (product: Product) => void;
   onViewDetails: (product: Product) => void;
+  searchQuery?: string;
 }
 
 // Fallback product data for when database is empty
@@ -114,7 +115,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
   }
 };
 
-const ProductGrid = ({ onAddToCart, onViewDetails }: ProductGridProps) => {
+const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "" }: ProductGridProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -127,6 +128,14 @@ const ProductGrid = ({ onAddToCart, onViewDetails }: ProductGridProps) => {
 
     fetchProducts();
   }, []);
+
+  const query = searchQuery.trim().toLowerCase();
+  const visibleProducts = query
+    ? products.filter((p) =>
+        p.name.toLowerCase().includes(query) ||
+        (p.category || "").toLowerCase().includes(query)
+      )
+    : products;
 
   if (loading) {
     return (
@@ -166,22 +175,32 @@ const ProductGrid = ({ onAddToCart, onViewDetails }: ProductGridProps) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAddToCart={onAddToCart}
-              onViewDetails={onViewDetails}
-            />
-          ))}
-        </div>
+        {visibleProducts.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-lg text-muted-foreground">
+              No products found for "{searchQuery}". Try a different search.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {visibleProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={onAddToCart}
+                onViewDetails={onViewDetails}
+              />
+            ))}
+          </div>
+        )}
 
-        <div className="text-center mt-12">
-          <button className="text-primary font-semibold hover:underline transition-all duration-300">
-            View All Products →
-          </button>
-        </div>
+        {!query && (
+          <div className="text-center mt-12">
+            <button className="text-primary font-semibold hover:underline transition-all duration-300">
+              View All Products →
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

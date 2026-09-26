@@ -13,6 +13,7 @@ const Index = () => {
   const [isCartOpen, setIsCartOpen] = useState(
     () => new URLSearchParams(window.location.search).get("cart") === "open"
   );
+  const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -70,11 +71,14 @@ const Index = () => {
       <Header 
         cartItems={totalItems}
         onCartClick={() => setIsCartOpen(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
       <Hero />
       <ProductGrid 
         onAddToCart={addToCart}
         onViewDetails={handleViewDetails}
+        searchQuery={searchQuery}
       />
       <Cart
         isOpen={isCartOpen}
