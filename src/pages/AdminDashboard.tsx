@@ -527,19 +527,17 @@ export default function AdminDashboard() {
               <p className="text-sm text-muted-foreground">
                 Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filtered.length)} of {filtered.length}
               </p>
-              {totalPages > 1 && (
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" disabled={currentPage === 1}
-                    onClick={() => setPage(currentPage - 1)}>
-                    <ChevronLeft className="w-4 h-4" /> Previous
-                  </Button>
-                  <span className="text-sm">Page {currentPage} of {totalPages}</span>
-                  <Button variant="outline" size="sm" disabled={currentPage === totalPages}
-                    onClick={() => setPage(currentPage + 1)}>
-                    Next <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
-              )}
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" disabled={currentPage === 1}
+                  onClick={() => setPage(currentPage - 1)}>
+                  <ChevronLeft className="w-4 h-4" /> Previous
+                </Button>
+                <span className="text-sm">Page {currentPage} of {totalPages}</span>
+                <Button variant="outline" size="sm" disabled={currentPage >= totalPages}
+                  onClick={() => setPage(currentPage + 1)}>
+                  Next <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>
