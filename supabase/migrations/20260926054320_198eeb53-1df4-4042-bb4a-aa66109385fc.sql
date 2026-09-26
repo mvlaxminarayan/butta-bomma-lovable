@@ -1,0 +1,1 @@
+REVOKE SELECT ON api.profiles FROM anon;
