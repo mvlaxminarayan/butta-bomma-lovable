@@ -5,6 +5,7 @@ import productMug from "@/assets/product-mug.jpg";
 import productBasket from "@/assets/product-basket.jpg";
 import productCuttingBoard from "@/assets/product-cutting-board.jpg";
 import { getProductReviewsSync } from "@/hooks/useProductReviews";
+import { resolveImageUrls, productImageRefs, FALLBACK_IMAGE } from "@/lib/productImages";
 
 interface ProductGridProps {
   onAddToCart: (product: Product) => void;
@@ -81,35 +82,18 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
       });
     }
 
-    console.log("Successfully fetched products, mapping data...");
-    
-    // Map database products to Product interface
-    return products.map(product => {
+    const firstRefs = products.map((p: any) => productImageRefs(p)[0] || "");
+    const urls = await resolveImageUrls(firstRefs.filter(Boolean));
+    const urlByRef: Record<string, string> = {};
+    firstRefs.filter(Boolean).forEach((r: string, i: number) => { urlByRef[r] = urls[i]; });
+
+    return products.map((product: any, i: number) => {
       const { averageRating, reviewCount } = getProductReviewsSync(product.id);
-      
-      // Map database image names to imported assets
-      let productImage = productMug; // default fallback
-      if (product.image_url) {
-        switch (product.image_url) {
-          case 'product-mug.jpg':
-            productImage = productMug;
-            break;
-          case 'product-basket.jpg':
-            productImage = productBasket;
-            break;
-          case 'product-cutting-board.jpg':
-            productImage = productCuttingBoard;
-            break;
-          default:
-            productImage = productMug;
-        }
-      }
-      
       return {
         id: product.id,
         name: product.name,
         price: Number(product.price),
-        image: productImage,
+        image: urlByRef[firstRefs[i]] || FALLBACK_IMAGE,
         category: product.category || "Uncategorized",
         inStock: product.in_stock,
         rating: averageRating || 0,
