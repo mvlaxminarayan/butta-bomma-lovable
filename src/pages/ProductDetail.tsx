@@ -294,7 +294,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                 doubleClick={{ mode: "toggle", step: 2 }}
                 onTransform={(_, s) => setZoomScale(s.scale)}
               >
-                {({ zoomIn, zoomOut, resetTransform, state }) => (
+                {({ zoomIn, zoomOut, resetTransform }) => (
                   <>
                     <TransformComponent
                       wrapperClass="!w-full !h-full"
