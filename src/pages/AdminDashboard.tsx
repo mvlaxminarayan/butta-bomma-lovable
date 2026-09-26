@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Trash2, Edit, Plus, Upload, X, CloudUpload } from "lucide-react";
+import { Trash2, Edit, Plus, Upload, X, CloudUpload, Store } from "lucide-react";
 import {
   BUCKET, LOCAL_ASSETS, productImageRefs, resolveImageUrls, uploadProductImage, FALLBACK_IMAGE,
 } from "@/lib/productImages";
@@ -32,6 +33,7 @@ interface Product {
 const db = () => (supabase as any).schema("api").from("products");
 
 export default function AdminDashboard() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [thumbs, setThumbs] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -217,6 +219,10 @@ export default function AdminDashboard() {
           <p className="text-muted-foreground">Manage your products and inventory</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => navigate("/")}>
+            <Store className="w-4 h-4 mr-2" />
+            Back to Shop
+          </Button>
           {hasBuiltIn && (
             <Button variant="outline" onClick={migrateBuiltInPhotos} disabled={migrating}>
               <CloudUpload className="w-4 h-4 mr-2" />
