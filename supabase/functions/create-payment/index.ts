@@ -24,16 +24,46 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || "";
     console.log("Origin:", origin);
     
-    const { product = "Handcrafted Ceramic Mug", amount = 99, currency = "usd" } =
-      (await req.json().catch(() => ({}))) as { product?: string; amount?: number; currency?: string };
-    console.log("Request body parsed:", { product, amount, currency });
+    const body = (await req.json().catch(() => ({}))) as {
+      product?: string; amount?: number; subtotal?: number; couponCode?: string; currency?: string;
+    };
+    const product = String(body.product || "Order").slice(0, 200);
+    const currency = "usd";
+    const amount = body.amount ?? 99;
+    let finalAmount = Math.round(Number(amount));
+
+    // Recompute shipping + discounts on the server so coupons can't be faked
+    if (typeof body.subtotal === "number" && body.subtotal >= 0) {
+      const admin = createClient(
+        Deno.env.get("SUPABASE_URL") ?? "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      ).schema("api");
+      const subtotal = body.subtotal;
+      const { data: s } = await admin.from("store_settings").select("*").eq("id", 1).maybeSingle();
+      const fee = s ? Number(s.shipping_fee) : 8.99;
+      const threshold = s?.free_shipping_threshold == null ? null : Number(s.free_shipping_threshold);
+      let discount = 0;
+      let freeShip = threshold != null && subtotal >= threshold;
+      const code = String(body.couponCode || "").trim().slice(0, 40);
+      if (code) {
+        const { data: rows } = await admin.rpc("validate_coupon", { _code: code });
+        const c = Array.isArray(rows) ? rows[0] : rows;
+        if (!c || subtotal < Number(c.min_order)) throw new Error("Coupon is not valid for this order");
+        const v = Number(c.discount_value);
+        if (c.discount_type === "percent") discount = subtotal * Math.min(v, 100) / 100;
+        if (c.discount_type === "fixed") discount = Math.min(v, subtotal);
+        if (c.discount_type === "free_shipping") freeShip = true;
+        const { data: row } = await admin.from("coupons").select("id,times_used").ilike("code", c.code).maybeSingle();
+        if (row) await admin.from("coupons").update({ times_used: row.times_used + 1 }).eq("id", row.id);
+      }
+      discount = Math.round(discount * 100) / 100;
+      finalAmount = Math.round((Math.max(0, subtotal - discount) + (freeShip ? 0 : fee)) * 100);
+    }
+    if (finalAmount < 50) throw new Error("Order total must be at least $0.50");
+    console.log("Request body parsed:", { product, finalAmount });
 
     // Check if Stripe key exists
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    console.log("All env vars:", Object.keys(Deno.env.toObject()));
-    console.log("Raw STRIPE_SECRET_KEY value:", JSON.stringify(stripeKey));
-    console.log("STRIPE_SECRET_KEY type:", typeof stripeKey);
-    console.log("STRIPE_SECRET_KEY length:", stripeKey?.length);
     if (!stripeKey || stripeKey.trim() === "") {
       console.error("STRIPE_SECRET_KEY not found or empty in environment");
       console.error("Available env vars:", Object.keys(Deno.env.toObject()));
@@ -82,7 +112,7 @@ serve(async (req) => {
           price_data: {
             currency,
             product_data: { name: product },
-            unit_amount: amount, // amount is in cents
+            unit_amount: finalAmount, // cents, recomputed on the server
           },
           quantity: 1,
         },
