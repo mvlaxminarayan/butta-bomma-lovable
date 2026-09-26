@@ -61,12 +61,14 @@ export type Database = {
           category: string | null
           created_at: string
           description: string | null
+          features: string[]
           id: string
           image_url: string | null
           images: string[]
           in_stock: boolean | null
           name: string
           price: number
+          specifications: Json
           stock_quantity: number | null
           updated_at: string
         }
@@ -74,12 +76,14 @@ export type Database = {
           category?: string | null
           created_at?: string
           description?: string | null
+          features?: string[]
           id?: string
           image_url?: string | null
           images?: string[]
           in_stock?: boolean | null
           name: string
           price: number
+          specifications?: Json
           stock_quantity?: number | null
           updated_at?: string
         }
@@ -87,12 +91,14 @@ export type Database = {
           category?: string | null
           created_at?: string
           description?: string | null
+          features?: string[]
           id?: string
           image_url?: string | null
           images?: string[]
           in_stock?: boolean | null
           name?: string
           price?: number
+          specifications?: Json
           stock_quantity?: number | null
           updated_at?: string
         }
