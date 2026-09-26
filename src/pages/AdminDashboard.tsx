@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Trash2, Edit, Plus, Upload, X, CloudUpload, Store } from "lucide-react";
+import { Trash2, Edit, Plus, Upload, X, CloudUpload, Store, Search, LayoutGrid, List, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   BUCKET, LOCAL_ASSETS, productImageRefs, resolveImageUrls, uploadProductImage, FALLBACK_IMAGE,
 } from "@/lib/productImages";
@@ -49,6 +49,14 @@ export default function AdminDashboard() {
   const [features, setFeatures] = useState<string[]>([]);
   const [specs, setSpecs] = useState<{ key: string; value: string }[]>([]);
 
+  // Browsing controls
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [stockFilter, setStockFilter] = useState<"all" | "in" | "out">("all");
+  const [view, setView] = useState<"table" | "grid">("table");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 25;
+
   useEffect(() => { fetchProducts(); }, []);
 
   const fetchProducts = async () => {
@@ -58,15 +66,56 @@ export default function AdminDashboard() {
     } else {
       const list: Product[] = (data || []).map((p: any) => ({ ...p, price: Number(p.price) }));
       setProducts(list);
-      const refs = list.map((p) => productImageRefs(p)[0] || "");
-      const urls = await resolveImageUrls(refs.filter(Boolean));
-      const map: Record<string, string> = {};
-      let j = 0;
-      list.forEach((p, i) => { if (refs[i]) map[p.id] = urls[j++]; });
-      setThumbs(map);
     }
     setLoading(false);
   };
+
+  const categories = useMemo(() => {
+    const counts: Record<string, number> = {};
+    products.forEach((p) => {
+      const c = p.category || "Uncategorized";
+      counts[c] = (counts[c] || 0) + 1;
+    });
+    return Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [products]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return products.filter((p) => {
+      const cat = p.category || "Uncategorized";
+      if (categoryFilter !== "all" && cat !== categoryFilter) return false;
+      if (stockFilter === "in" && !p.in_stock) return false;
+      if (stockFilter === "out" && p.in_stock) return false;
+      if (q && !`${p.name} ${p.description || ""} ${cat}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [products, search, categoryFilter, stockFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageItems = useMemo(
+    () => filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [filtered, currentPage]
+  );
+
+  useEffect(() => { setPage(1); }, [search, categoryFilter, stockFilter]);
+
+  // Only resolve photo links for the products visible on this page
+  useEffect(() => {
+    let cancelled = false;
+    const missing = pageItems.filter((p) => !thumbs[p.id]);
+    if (!missing.length) return;
+    (async () => {
+      const refs = missing.map((p) => productImageRefs(p)[0] || "");
+      const urls = await resolveImageUrls(refs.filter(Boolean));
+      if (cancelled) return;
+      const map: Record<string, string> = {};
+      let j = 0;
+      missing.forEach((p, i) => { if (refs[i]) map[p.id] = urls[j++]; });
+      setThumbs((prev) => ({ ...prev, ...map }));
+    })();
+    return () => { cancelled = true; };
+  }, [pageItems]);
 
   const loadPreviews = async (refs: string[]) => {
     const urls = await resolveImageUrls(refs);
