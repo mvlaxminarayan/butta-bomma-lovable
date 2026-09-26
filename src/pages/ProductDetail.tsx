@@ -166,6 +166,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
   const { toast } = useToast();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [zoomScale, setZoomScale] = useState(1);
   const [product, setProduct] = useState<(Product & { 
     images: string[]; 
     description: string; 
@@ -291,6 +292,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                 centerZoomedOut
                 wheel={{ step: 0.2 }}
                 doubleClick={{ mode: "toggle", step: 2 }}
+                onTransform={(_, s) => setZoomScale(s.scale)}
               >
                 {({ zoomIn, zoomOut, resetTransform, state }) => (
                   <>
