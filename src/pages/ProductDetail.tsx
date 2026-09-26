@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Heart, Share2, ShoppingCart, Star, Plus, Minus } from "lucide-react";
+import { ArrowLeft, Heart, Share2, ShoppingCart, Star, Plus, Minus, RotateCcw } from "lucide-react";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -165,6 +166,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
   const { toast } = useToast();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [zoomScale, setZoomScale] = useState(1);
   const [product, setProduct] = useState<(Product & { 
     images: string[]; 
     description: string; 
@@ -280,13 +282,53 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Image Gallery */}
           <div className="space-y-4">
-            {/* Main Image */}
-            <div className="aspect-square rounded-xl overflow-hidden bg-product-card">
-              <img
-                src={product.images[selectedImageIndex]}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
+            {/* Main Image — zoomable */}
+            <div className="relative aspect-square rounded-xl overflow-hidden bg-product-card group/zoom">
+              <TransformWrapper
+                key={selectedImageIndex}
+                initialScale={1}
+                minScale={1}
+                maxScale={5}
+                centerZoomedOut
+                wheel={{ step: 0.2 }}
+                doubleClick={{ mode: "toggle", step: 2 }}
+                onTransform={(_, s) => setZoomScale(s.scale)}
+              >
+                {({ zoomIn, zoomOut, resetTransform }) => (
+                  <>
+                    <TransformComponent
+                      wrapperClass="!w-full !h-full"
+                      wrapperStyle={{ width: "100%", height: "100%" }}
+                    >
+                      <img
+                        src={product.images[selectedImageIndex]}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                        draggable={false}
+                      />
+                    </TransformComponent>
+                    <div className="absolute bottom-3 right-3 flex gap-1.5 opacity-0 group-hover/zoom:opacity-100 focus-within:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm rounded-lg p-1 shadow-sm">
+                      <Button variant="ghost" size="icon" aria-label="Zoom out" className="h-8 w-8" onClick={() => zoomOut()}>
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" aria-label="Zoom in" className="h-8 w-8" onClick={() => zoomIn()}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" aria-label="Reset zoom" className="h-8 w-8" onClick={() => resetTransform()}>
+                        <RotateCcw className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {zoomScale > 1.01 && (
+                      <div className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm text-xs px-2 py-1 rounded-md">
+                        {Math.round(zoomScale * 100)}%
+                      </div>
+                    )}
+                  </>
+                )}
+              </TransformWrapper>
+              <p className="absolute bottom-3 left-3 text-xs text-muted-foreground bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md pointer-events-none opacity-100 group-hover/zoom:opacity-0 transition-opacity">
+                Scroll to zoom • Double-click to enlarge
+              </p>
             </div>
             
             {/* Thumbnail Images */}
