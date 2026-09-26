@@ -41,7 +41,7 @@ const getProductById = async (id: string): Promise<(Product & {
       return undefined;
     }
 
-    const resolved = await resolveImageUrls(productImageRefs(product));
+    const resolved = (await resolveImageUrls(productImageRefs(product))).filter(Boolean);
     const productImages = resolved.length ? resolved : [FALLBACK_IMAGE];
     const productImage = productImages[0];
 

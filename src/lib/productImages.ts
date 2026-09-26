@@ -30,9 +30,8 @@ export async function resolveImageUrls(refs: string[]): Promise<string[]> {
     if (error) console.error("Signed URL error:", error);
     data?.forEach((d) => { if (d.path && d.signedUrl) signed[d.path] = d.signedUrl; });
   }
-  return refs
-    .map((r) => (r.startsWith("http") ? r : LOCAL_ASSETS[r] || signed[r]))
-    .filter(Boolean) as string[];
+  // Keeps the same order/length as refs; unresolved entries become "".
+  return refs.map((r) => (r.startsWith("http") ? r : LOCAL_ASSETS[r] || signed[r] || ""));
 }
 
 export async function uploadProductImage(file: File | Blob, ext = "jpg"): Promise<string> {
