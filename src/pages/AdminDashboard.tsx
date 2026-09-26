@@ -25,6 +25,8 @@ interface Product {
   category: string | null;
   stock_quantity: number;
   in_stock: boolean;
+  features?: string[] | null;
+  specifications?: Record<string, string> | null;
 }
 
 const db = () => (supabase as any).schema("api").from("products");
@@ -42,6 +44,8 @@ export default function AdminDashboard() {
   const [formData, setFormData] = useState({
     name: "", description: "", price: "", category: "", stock_quantity: "",
   });
+  const [features, setFeatures] = useState<string[]>([]);
+  const [specs, setSpecs] = useState<{ key: string; value: string }[]>([]);
 
   useEffect(() => { fetchProducts(); }, []);
 
@@ -115,6 +119,10 @@ export default function AdminDashboard() {
       category: formData.category || null,
       stock_quantity: stock,
       in_stock: stock > 0,
+      features: features.map((f) => f.trim()).filter(Boolean),
+      specifications: Object.fromEntries(
+        specs.filter((s) => s.key.trim() && s.value.trim()).map((s) => [s.key.trim(), s.value.trim()])
+      ),
     };
     const { error } = editingProduct
       ? await db().update(productData).eq("id", editingProduct.id)
@@ -156,12 +164,16 @@ export default function AdminDashboard() {
       category: product.category || "",
       stock_quantity: product.stock_quantity.toString(),
     });
+    setFeatures(Array.isArray(product.features) ? product.features : []);
+    setSpecs(Object.entries(product.specifications || {}).map(([key, value]) => ({ key, value: String(value) })));
     setIsDialogOpen(true);
   };
 
   const resetForm = () => {
     setEditingProduct(null);
     setImages([]);
+    setFeatures([]);
+    setSpecs([]);
     setFormData({ name: "", description: "", price: "", category: "", stock_quantity: "" });
   };
 
@@ -252,6 +264,41 @@ export default function AdminDashboard() {
                   <Label htmlFor="category">Category</Label>
                   <Input id="category" value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>Features</Label>
+                  {features.map((f, i) => (
+                    <div key={i} className="flex gap-2">
+                      <Input value={f} placeholder="e.g. Dishwasher safe"
+                        onChange={(e) => setFeatures(features.map((x, j) => (j === i ? e.target.value : x)))} />
+                      <Button type="button" variant="ghost" size="icon" aria-label="Remove feature"
+                        onClick={() => setFeatures(features.filter((_, j) => j !== i))}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" size="sm" onClick={() => setFeatures([...features, ""])}>
+                    <Plus className="w-4 h-4 mr-1" /> Add feature
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  <Label>Specifications</Label>
+                  {specs.map((s, i) => (
+                    <div key={i} className="flex gap-2">
+                      <Input value={s.key} placeholder="e.g. Material" className="w-2/5"
+                        onChange={(e) => setSpecs(specs.map((x, j) => (j === i ? { ...x, key: e.target.value } : x)))} />
+                      <Input value={s.value} placeholder="e.g. Ceramic"
+                        onChange={(e) => setSpecs(specs.map((x, j) => (j === i ? { ...x, value: e.target.value } : x)))} />
+                      <Button type="button" variant="ghost" size="icon" aria-label="Remove specification"
+                        onClick={() => setSpecs(specs.filter((_, j) => j !== i))}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <Button type="button" variant="outline" size="sm" onClick={() => setSpecs([...specs, { key: "", value: "" }])}>
+                    <Plus className="w-4 h-4 mr-1" /> Add specification
+                  </Button>
+                  <p className="text-xs text-muted-foreground">Leave empty to show the standard features and specifications.</p>
                 </div>
                 <div className="space-y-2">
                   <Label>Photos</Label>

@@ -117,7 +117,14 @@ const getProductById = async (id: string): Promise<(Product & {
       }
     };
 
-    const enhancedData = getEnhancedData(product);
+    const defaults = getEnhancedData(product);
+    const savedFeatures: string[] = Array.isArray(product.features) ? product.features.filter(Boolean) : [];
+    const savedSpecs: Record<string, string> =
+      product.specifications && typeof product.specifications === "object" ? product.specifications : {};
+    const enhancedData = {
+      features: savedFeatures.length ? savedFeatures : defaults.features,
+      specifications: Object.keys(savedSpecs).length ? savedSpecs : defaults.specifications,
+    };
 
     const result = {
       id: product.id,
