@@ -1,6 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Heart, Share2, ShoppingCart, Star, Plus, Minus } from "lucide-react";
+import { ArrowLeft, Heart, Share2, ShoppingCart, Star, Plus, Minus, RotateCcw } from "lucide-react";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import "react-zoom-pan-pinch/dist/styles.css";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
