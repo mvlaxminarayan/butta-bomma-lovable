@@ -13,6 +13,7 @@ import { Trash2, Edit, Plus, Upload, X, CloudUpload } from "lucide-react";
 import {
   BUCKET, LOCAL_ASSETS, productImageRefs, resolveImageUrls, uploadProductImage, FALLBACK_IMAGE,
 } from "@/lib/productImages";
+import DiscountsManager from "@/components/admin/DiscountsManager";
 
 interface Product {
   id: string;
