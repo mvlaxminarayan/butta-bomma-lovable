@@ -316,9 +316,9 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                         <RotateCcw className="h-4 w-4" />
                       </Button>
                     </div>
-                    {scale > 1 && (
+                    {state.scale > 1.01 && (
                       <div className="absolute top-3 left-3 bg-background/80 backdrop-blur-sm text-xs px-2 py-1 rounded-md">
-                        {Math.round(scale * 100)}%
+                        {Math.round(state.scale * 100)}%
                       </div>
                     )}
                   </>
