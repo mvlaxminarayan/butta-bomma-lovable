@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      coupons: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          max_uses: number | null
+          min_order: number
+          times_used: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          min_order?: number
+          times_used?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          max_uses?: number | null
+          min_order?: number
+          times_used?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category: string | null
@@ -86,12 +128,33 @@ export type Database = {
         }
         Relationships: []
       }
+      store_settings: {
+        Row: {
+          free_shipping_threshold: number | null
+          id: number
+          shipping_fee: number
+          updated_at: string
+        }
+        Insert: {
+          free_shipping_threshold?: number | null
+          id?: number
+          shipping_fee?: number
+          updated_at?: string
+        }
+        Update: {
+          free_shipping_threshold?: number | null
+          id?: number
+          shipping_fee?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
