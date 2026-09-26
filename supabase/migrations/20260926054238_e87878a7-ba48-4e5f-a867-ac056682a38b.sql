@@ -1,0 +1,1 @@
+CREATE OR REPLACE VIEW api.profiles WITH (security_invoker = true) AS SELECT id, user_id, email, full_name, role FROM public.profiles; GRANT SELECT ON api.profiles TO authenticated; GRANT SELECT ON api.profiles TO anon;
