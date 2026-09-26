@@ -292,7 +292,6 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                 centerZoomedOut
                 wheel={{ step: 0.2 }}
                 doubleClick={{ mode: "toggle", step: 2 }}
-                panning={{ disabled: scale === 1 }}
               >
                 {({ zoomIn, zoomOut, resetTransform, scale }) => (
                   <>
