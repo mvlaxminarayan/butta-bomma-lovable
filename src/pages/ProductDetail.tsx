@@ -294,7 +294,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                 doubleClick={{ mode: "toggle", step: 2 }}
                 panning={{ disabled: scale === 1 }}
               >
-                {({ zoomIn, zoomOut, resetTransform }) => (
+                {({ zoomIn, zoomOut, resetTransform, scale }) => (
                   <>
                     <TransformComponent
                       wrapperClass="!w-full !h-full"
