@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Trash2, Edit, Plus, Upload, X, CloudUpload, Store } from "lucide-react";
+import { Trash2, Edit, Plus, Upload, X, CloudUpload, Store, Search, LayoutGrid, List, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   BUCKET, LOCAL_ASSETS, productImageRefs, resolveImageUrls, uploadProductImage, FALLBACK_IMAGE,
 } from "@/lib/productImages";
@@ -49,6 +49,14 @@ export default function AdminDashboard() {
   const [features, setFeatures] = useState<string[]>([]);
   const [specs, setSpecs] = useState<{ key: string; value: string }[]>([]);
 
+  // Browsing controls
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [stockFilter, setStockFilter] = useState<"all" | "in" | "out">("all");
+  const [view, setView] = useState<"table" | "grid">("table");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 25;
+
   useEffect(() => { fetchProducts(); }, []);
 
   const fetchProducts = async () => {
@@ -58,15 +66,56 @@ export default function AdminDashboard() {
     } else {
       const list: Product[] = (data || []).map((p: any) => ({ ...p, price: Number(p.price) }));
       setProducts(list);
-      const refs = list.map((p) => productImageRefs(p)[0] || "");
-      const urls = await resolveImageUrls(refs.filter(Boolean));
-      const map: Record<string, string> = {};
-      let j = 0;
-      list.forEach((p, i) => { if (refs[i]) map[p.id] = urls[j++]; });
-      setThumbs(map);
     }
     setLoading(false);
   };
+
+  const categories = useMemo(() => {
+    const counts: Record<string, number> = {};
+    products.forEach((p) => {
+      const c = p.category || "Uncategorized";
+      counts[c] = (counts[c] || 0) + 1;
+    });
+    return Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [products]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return products.filter((p) => {
+      const cat = p.category || "Uncategorized";
+      if (categoryFilter !== "all" && cat !== categoryFilter) return false;
+      if (stockFilter === "in" && !p.in_stock) return false;
+      if (stockFilter === "out" && p.in_stock) return false;
+      if (q && !`${p.name} ${p.description || ""} ${cat}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [products, search, categoryFilter, stockFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageItems = useMemo(
+    () => filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [filtered, currentPage]
+  );
+
+  useEffect(() => { setPage(1); }, [search, categoryFilter, stockFilter]);
+
+  // Only resolve photo links for the products visible on this page
+  useEffect(() => {
+    let cancelled = false;
+    const missing = pageItems.filter((p) => !thumbs[p.id]);
+    if (!missing.length) return;
+    (async () => {
+      const refs = missing.map((p) => productImageRefs(p)[0] || "");
+      const urls = await resolveImageUrls(refs.filter(Boolean));
+      if (cancelled) return;
+      const map: Record<string, string> = {};
+      let j = 0;
+      missing.forEach((p, i) => { if (refs[i]) map[p.id] = urls[j++]; });
+      setThumbs((prev) => ({ ...prev, ...map }));
+    })();
+    return () => { cancelled = true; };
+  }, [pageItems]);
 
   const loadPreviews = async (refs: string[]) => {
     const urls = await resolveImageUrls(refs);
@@ -344,12 +393,90 @@ export default function AdminDashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Products</CardTitle>
-          <CardDescription>Manage your product inventory</CardDescription>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <CardTitle>Products</CardTitle>
+              <CardDescription>Manage your product inventory</CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search products..."
+                  className="pl-8 w-56"
+                />
+              </div>
+              <div className="flex rounded-md border overflow-hidden">
+                <Button type="button" variant={view === "table" ? "default" : "ghost"} size="sm"
+                  className="rounded-none" onClick={() => setView("table")} aria-label="Table view">
+                  <List className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant={view === "grid" ? "default" : "ghost"} size="sm"
+                  className="rounded-none" onClick={() => setView("grid")} aria-label="Grid view">
+                  <LayoutGrid className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2 pt-3">
+            <Button size="sm" variant={categoryFilter === "all" ? "default" : "outline"}
+              onClick={() => setCategoryFilter("all")}>
+              All <span className="ml-1 opacity-70">({products.length})</span>
+            </Button>
+            {categories.map(([cat, count]) => (
+              <Button key={cat} size="sm" variant={categoryFilter === cat ? "default" : "outline"}
+                onClick={() => setCategoryFilter(cat)}>
+                {cat} <span className="ml-1 opacity-70">({count})</span>
+              </Button>
+            ))}
+          </div>
+
+          <div className="flex flex-wrap gap-2 pt-2">
+            {([["all", "All stock"], ["in", "In stock"], ["out", "Out of stock"]] as const).map(([key, label]) => (
+              <button key={key} type="button" onClick={() => setStockFilter(key)}
+                className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                  stockFilter === key ? "bg-secondary text-secondary-foreground border-secondary" : "text-muted-foreground hover:bg-muted"
+                }`}>
+                {label}
+              </button>
+            ))}
+          </div>
         </CardHeader>
         <CardContent>
           {loading && products.length === 0 ? (
             <p>Loading products...</p>
+          ) : filtered.length === 0 ? (
+            <p className="text-muted-foreground py-8 text-center">No products match your filters.</p>
+          ) : view === "grid" ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {pageItems.map((product) => (
+                <div key={product.id} className="border rounded-lg overflow-hidden flex flex-col">
+                  <img src={thumbs[product.id] || FALLBACK_IMAGE} alt={product.name}
+                    className="w-full h-36 object-cover" />
+                  <div className="p-3 flex flex-col gap-1 flex-1">
+                    <p className="font-medium text-sm line-clamp-1">{product.name}</p>
+                    <p className="text-xs text-muted-foreground">{product.category || "Uncategorized"}</p>
+                    <div className="flex items-center justify-between mt-1">
+                      <span className="font-semibold text-sm">${product.price.toFixed(2)}</span>
+                      <Badge variant={product.in_stock ? "default" : "destructive"} className="text-[10px]">
+                        {product.in_stock ? `${product.stock_quantity} left` : "Out of Stock"}
+                      </Badge>
+                    </div>
+                    <div className="flex gap-2 mt-2">
+                      <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEdit(product)}>
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button variant="destructive" size="sm" className="flex-1" onClick={() => handleDelete(product)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <Table>
               <TableHeader>
@@ -364,7 +491,7 @@ export default function AdminDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {products.map((product) => (
+                {pageItems.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>
                       <img src={thumbs[product.id] || FALLBACK_IMAGE} alt={product.name}
@@ -393,6 +520,27 @@ export default function AdminDashboard() {
                 ))}
               </TableBody>
             </Table>
+          )}
+
+          {filtered.length > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-4">
+              <p className="text-sm text-muted-foreground">
+                Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filtered.length)} of {filtered.length}
+              </p>
+              {totalPages > 1 && (
+                <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" disabled={currentPage === 1}
+                    onClick={() => setPage(currentPage - 1)}>
+                    <ChevronLeft className="w-4 h-4" /> Previous
+                  </Button>
+                  <span className="text-sm">Page {currentPage} of {totalPages}</span>
+                  <Button variant="outline" size="sm" disabled={currentPage === totalPages}
+                    onClick={() => setPage(currentPage + 1)}>
+                    Next <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
           )}
         </CardContent>
       </Card>
