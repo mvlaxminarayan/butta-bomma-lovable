@@ -71,11 +71,14 @@ const Index = () => {
       <Header 
         cartItems={totalItems}
         onCartClick={() => setIsCartOpen(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
       <Hero />
       <ProductGrid 
         onAddToCart={addToCart}
         onViewDetails={handleViewDetails}
+        searchQuery={searchQuery}
       />
       <Cart
         isOpen={isCartOpen}

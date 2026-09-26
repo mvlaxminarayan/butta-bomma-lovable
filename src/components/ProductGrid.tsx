@@ -175,22 +175,32 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "" }: ProductGr
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onAddToCart={onAddToCart}
-              onViewDetails={onViewDetails}
-            />
-          ))}
-        </div>
+        {visibleProducts.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-lg text-muted-foreground">
+              No products found for "{searchQuery}". Try a different search.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {visibleProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={onAddToCart}
+                onViewDetails={onViewDetails}
+              />
+            ))}
+          </div>
+        )}
 
-        <div className="text-center mt-12">
-          <button className="text-primary font-semibold hover:underline transition-all duration-300">
-            View All Products →
-          </button>
-        </div>
+        {!query && (
+          <div className="text-center mt-12">
+            <button className="text-primary font-semibold hover:underline transition-all duration-300">
+              View All Products →
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );
