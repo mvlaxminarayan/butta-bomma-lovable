@@ -298,6 +298,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                   <>
                     <TransformComponent
                       wrapperClass="!w-full !h-full"
+                      contentClass="!w-full !h-full"
                       wrapperStyle={{ width: "100%", height: "100%" }}
                     >
                       <img
