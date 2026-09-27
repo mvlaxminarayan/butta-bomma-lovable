@@ -37,6 +37,7 @@ const Hero = () => {
           .from("products")
           .select("*")
           .eq("in_stock", true)
+          .eq("is_featured", true)
           .order("created_at", { ascending: false })
           .limit(8);
         if (error || !data || data.length === 0) return;
