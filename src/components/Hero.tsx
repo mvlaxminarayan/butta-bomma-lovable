@@ -7,6 +7,9 @@ const Hero = () => {
   const images = [heroImage, heroImage1];
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const scrollTo = (id: string) =>
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -34,6 +37,7 @@ const Hero = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 size="lg" 
+                onClick={() => scrollTo("products")}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-elegant transition-all duration-300 hover:shadow-2xl hover:scale-105"
               >
                 Shop Collection
@@ -41,6 +45,7 @@ const Hero = () => {
               <Button 
                 variant="outline" 
                 size="lg"
+                onClick={() => scrollTo("our-story")}
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
               >
                 Our Story
