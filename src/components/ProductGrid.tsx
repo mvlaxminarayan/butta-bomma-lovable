@@ -231,6 +231,11 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
     </button>
   );
 
+  const pill = (active: boolean) =>
+    `px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
+      active ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:bg-muted"
+    }`;
+
   return (
     <section id="products" className="py-16 bg-background scroll-mt-20">
       <div className="container mx-auto px-4">
