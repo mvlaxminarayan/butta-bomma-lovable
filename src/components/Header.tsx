@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
-import { useWishlistCount } from "@/hooks/useWishlist";
+import { useWishlistIds } from "@/hooks/useWishlist";
 import logo from "@/assets/logo.png";
 
 interface HeaderProps {
@@ -18,7 +18,7 @@ interface HeaderProps {
 const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: HeaderProps) => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
-  const wishlistCount = useWishlistCount().length;
+  const wishlistCount = useWishlistIds().length;
 
   const handleSignOut = async () => {
     await signOut();
