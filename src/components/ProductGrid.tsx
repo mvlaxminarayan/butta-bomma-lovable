@@ -1,5 +1,7 @@
-import { useState, useEffect, useMemo, useRef } from "react";
-import { ChevronLeft, ChevronRight, LayoutGrid, X } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { ChevronDown, X } from "lucide-react";
+
+const SERIF = { fontFamily: "'Playfair Display', Georgia, serif" };
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard, { Product } from "./ProductCard";
 import productMug from "@/assets/product-mug.jpg";
@@ -159,29 +161,7 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 12;
 
-  // Category rail scroll state
-  const railRef = useRef<HTMLDivElement>(null);
-  const [showAll, setShowAll] = useState(false);
-  const [rail, setRail] = useState({ canScroll: false, atStart: true, atEnd: true });
-  const updateRail = () => {
-    const el = railRef.current;
-    if (!el) return;
-    setRail({
-      canScroll: el.scrollWidth > el.clientWidth + 4,
-      atStart: el.scrollLeft <= 4,
-      atEnd: el.scrollLeft + el.clientWidth >= el.scrollWidth - 4,
-    });
-  };
-  useEffect(() => {
-    updateRail();
-    window.addEventListener("resize", updateRail);
-    return () => window.removeEventListener("resize", updateRail);
-  }, [products.length, showAll]);
-  useEffect(() => {
-    const el = railRef.current?.querySelector<HTMLElement>(`[data-cat="${CSS.escape(category)}"]`);
-    el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-  }, [category]);
-  const scrollRail = (dir: number) => railRef.current?.scrollBy({ left: dir * 260, behavior: "smooth" });
+  const [galleryOpen, setGalleryOpen] = useState(false);
 
   const query = searchQuery.trim().toLowerCase();
 
@@ -239,6 +219,18 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
     );
   }
 
+  const catLink = (label: string, count: number, active: boolean, onClick: () => void) => (
+    <button
+      onClick={onClick}
+      className={`w-full text-sm text-left flex justify-between items-baseline transition-colors ${
+        active ? "text-primary font-medium" : "text-foreground/70 hover:text-primary"
+      }`}
+    >
+      {label}
+      <span className="text-[10px] font-light text-muted-foreground">({count})</span>
+    </button>
+  );
+
   const pill = (active: boolean) =>
     `px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
       active ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:bg-muted"
@@ -256,74 +248,80 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-center gap-4 mb-8">
-          <div className="relative flex-1 min-w-0">
-            {rail.canScroll && !rail.atStart && (
-              <>
-                <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-                <button
-                  aria-label="Scroll categories left"
-                  onClick={() => scrollRail(-1)}
-                  className="absolute left-1 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full border border-border bg-card shadow-sm flex items-center justify-center hover:bg-muted transition-colors"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-              </>
-            )}
-
-            <nav
-              ref={railRef}
-              onScroll={updateRail}
-              aria-label="Categories"
-              className="no-scrollbar flex gap-2 overflow-x-auto pb-2 pr-16 scroll-smooth"
-            >
-              <button data-cat="All" className={pill(category === "All")} onClick={() => setCategory("All")}>
-                All ({products.length})
-              </button>
-              {categories.map(([c, n]) => (
-                <button key={c} data-cat={c} className={pill(category === c)} onClick={() => setCategory(c)}>
-                  {c} ({n})
-                </button>
-              ))}
-            </nav>
-
-            {rail.canScroll && !rail.atEnd && (
-              <div className="absolute right-14 top-0 bottom-2 w-10 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-            )}
+        {/* Category organization bar */}
+        <div className="border-y border-border py-4 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+          <div className="flex items-center gap-6 min-w-0">
             <button
-              onClick={() => setShowAll((v) => !v)}
-              aria-expanded={showAll}
-              aria-label={showAll ? "Close all categories" : "Show all categories"}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 h-9 px-3 rounded-full border border-border bg-card shadow-sm text-xs font-semibold uppercase tracking-wider text-foreground hover:bg-muted transition-colors whitespace-nowrap"
+              onClick={() => setGalleryOpen((v) => !v)}
+              aria-expanded={galleryOpen}
+              className="group flex items-center gap-3 cursor-pointer shrink-0"
             >
-              {showAll ? <X className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
-              {showAll ? "Close" : "All"}
+              <div className="relative w-6 h-6 flex flex-col justify-center gap-1.5">
+                <span className="block w-6 h-0.5 bg-foreground transition-transform group-hover:w-4" />
+                <span className="block w-4 h-0.5 bg-foreground transition-transform group-hover:w-6" />
+                <span className="block w-5 h-0.5 bg-foreground" />
+              </div>
+              <span className="text-xl text-foreground font-medium tracking-tight" style={SERIF}>
+                Browse Collections
+              </span>
             </button>
+
+            <div className="hidden lg:flex items-center gap-2 border-l border-border pl-8 min-w-0">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-medium">
+                Currently viewing
+              </span>
+              <span className="px-3 py-1 bg-primary text-primary-foreground text-xs rounded-full whitespace-nowrap">
+                {category === "All" ? "All Items" : category}
+              </span>
+            </div>
           </div>
-          <select
-            aria-label="Sort products"
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-            className="h-10 rounded-md border border-border bg-card px-3 text-sm"
-          >
-            <option value="featured">Featured</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-            <option value="name">Name: A–Z</option>
-          </select>
+
+          <div className="flex items-center gap-6">
+            <div className="hidden sm:block text-right">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Showing</p>
+              <p className="text-sm italic text-foreground" style={SERIF}>
+                {visibleProducts.length} Handmade {visibleProducts.length === 1 ? "Piece" : "Pieces"}
+              </p>
+            </div>
+            <div className="relative">
+              <select
+                aria-label="Sort products"
+                value={sort}
+                onChange={(e) => setSort(e.target.value)}
+                className="appearance-none bg-transparent pr-8 pl-2 py-1 border-b border-primary/30 text-sm text-foreground focus:outline-none focus:border-primary cursor-pointer"
+              >
+                <option value="featured">Featured</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="name">Name: A–Z</option>
+              </select>
+              <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground pointer-events-none" />
+            </div>
+          </div>
         </div>
 
-        {showAll && (
-          <div className="mb-8 rounded-xl border border-border bg-card p-4 shadow-sm">
-            <div className="flex flex-wrap gap-2">
-              <button className={pill(category === "All")} onClick={() => setCategory("All")}>
-                All ({products.length})
-              </button>
-              {categories.map(([c, n]) => (
-                <button key={c} className={pill(category === c)} onClick={() => setCategory(c)}>
-                  {c} ({n})
-                </button>
-              ))}
+        {/* Expanded category gallery */}
+        {galleryOpen && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10 py-6 mb-8 border-t border-border">
+            <div className="space-y-4">
+              <h3 className="text-lg text-foreground border-b border-border pb-2" style={SERIF}>
+                All Collections
+              </h3>
+              <ul className="space-y-2.5">
+                <li>{catLink("All Items", products.length, category === "All", () => { setCategory("All"); setGalleryOpen(false); })}</li>
+              </ul>
+            </div>
+            <div className="space-y-4">
+              <h3 className="text-lg text-foreground border-b border-border pb-2" style={SERIF}>
+                Browse by Category
+              </h3>
+              <ul className="space-y-2.5">
+                {categories.map(([c, n]) => (
+                  <li key={c}>
+                    {catLink(c, n, category === c, () => { setCategory(c); setGalleryOpen(false); })}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         )}
