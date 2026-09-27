@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import DealsRibbon from "@/components/DealsRibbon";
+
 import ProductGrid from "@/components/ProductGrid";
 import OurStory from "@/components/OurStory";
 import Cart, { CartItem } from "@/components/Cart";
@@ -111,7 +113,9 @@ const Index = () => {
         onSearchChange={setSearchQuery}
       />
       <Hero />
+      <DealsRibbon />
       <ProductGrid 
+
         onAddToCart={addToCart}
         onViewDetails={handleViewDetails}
         searchQuery={searchQuery}

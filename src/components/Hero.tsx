@@ -5,7 +5,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveImageUrls, productImageRefs } from "@/lib/productImages";
-import { fetchStoreSettings } from "@/lib/pricing";
 
 interface Slide {
   id: string | null;
@@ -23,7 +22,6 @@ const Hero = () => {
   const navigate = useNavigate();
   const [slides, setSlides] = useState<Slide[]>(DEFAULT_SLIDES);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [freeShipping, setFreeShipping] = useState<number | null>(50);
 
   const scrollTo = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -70,13 +68,6 @@ const Hero = () => {
     return () => { cancelled = true; };
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    fetchStoreSettings().then((s) => {
-      if (!cancelled) setFreeShipping(s.free_shipping_threshold);
-    }).catch(() => {});
-    return () => { cancelled = true; };
-  }, []);
 
   useEffect(() => {
     if (slides.length < 2) return;
@@ -201,13 +192,6 @@ const Hero = () => {
               )}
             </div>
             
-            {/* Floating Badge */}
-            {freeShipping != null && (
-              <div className="absolute -top-3 -left-4 bg-accent text-accent-foreground px-6 py-3 rounded-full shadow-elegant">
-                <div className="font-semibold">Free Shipping</div>
-                <div className="text-sm opacity-90">On orders over ${freeShipping}</div>
-              </div>
-            )}
           </div>
         </div>
       </div>
