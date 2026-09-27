@@ -110,7 +110,7 @@ const DealsRibbon = () => {
             type="button"
             aria-expanded={expanded}
             aria-controls="store-offers-list"
-            onClick={() => setOpen((v) => !v)}
+            onClick={() => setOpen((v) => (canHover ? true : !v))}
             className="w-full flex items-center justify-between px-5 py-4 text-left focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded-b-sm"
           >
             <div className="space-y-1">
