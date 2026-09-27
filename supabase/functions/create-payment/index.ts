@@ -28,7 +28,7 @@ serve(async (req) => {
       product?: string; amount?: number; subtotal?: number; couponCode?: string; currency?: string;
     };
     const product = String(body.product || "Order").slice(0, 200);
-    const currency = "usd";
+    const currency = "inr";
     const amount = body.amount ?? 99;
     let finalAmount = Math.round(Number(amount));
 
@@ -59,7 +59,7 @@ serve(async (req) => {
       discount = Math.round(discount * 100) / 100;
       finalAmount = Math.round((Math.max(0, subtotal - discount) + (freeShip ? 0 : fee)) * 100);
     }
-    if (finalAmount < 50) throw new Error("Order total must be at least $0.50");
+    if (finalAmount < 5000) throw new Error("Order total must be at least ₹50");
     console.log("Request body parsed:", { product, finalAmount });
 
     // Check if Stripe key exists

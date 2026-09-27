@@ -89,7 +89,7 @@ export default function DiscountsManager() {
         </CardHeader>
         <CardContent className="flex flex-wrap items-end gap-4">
           <div className="space-y-2">
-            <Label htmlFor="fee">Shipping fee ($)</Label>
+            <Label htmlFor="fee">Shipping fee (₹)</Label>
             <Input id="fee" type="number" step="0.01" min="0" value={fee} onChange={(e) => setFee(e.target.value)} className="w-32" />
           </div>
           <div className="flex items-center gap-2 pb-2">
@@ -97,7 +97,7 @@ export default function DiscountsManager() {
             <Label htmlFor="fs">Free shipping on orders over</Label>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="th">Amount ($)</Label>
+            <Label htmlFor="th">Amount (₹)</Label>
             <Input id="th" type="number" step="0.01" min="0" value={threshold} disabled={!freeShipOn}
               onChange={(e) => setThreshold(e.target.value)} className="w-32" />
           </div>
@@ -123,19 +123,19 @@ export default function DiscountsManager() {
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="percent">% off</SelectItem>
-                  <SelectItem value="fixed">$ off</SelectItem>
+                  <SelectItem value="fixed">₹ off</SelectItem>
                   <SelectItem value="free_shipping">Free shipping</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>{form.discount_type === "percent" ? "Percent" : "Amount ($)"}</Label>
+              <Label>{form.discount_type === "percent" ? "Percent" : "Amount (₹)"}</Label>
               <Input type="number" step="0.01" min="0" value={form.discount_value}
                 disabled={form.discount_type === "free_shipping"}
                 onChange={(e) => setForm({ ...form, discount_value: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label>Min order ($)</Label>
+              <Label>Min order (₹)</Label>
               <Input type="number" step="0.01" min="0" value={form.min_order} placeholder="0"
                 onChange={(e) => setForm({ ...form, min_order: e.target.value })} />
             </div>
