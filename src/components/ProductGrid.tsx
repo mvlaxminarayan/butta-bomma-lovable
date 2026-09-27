@@ -8,12 +8,15 @@ import productBasket from "@/assets/product-basket.jpg";
 import productCuttingBoard from "@/assets/product-cutting-board.jpg";
 import { getProductReviewsSync } from "@/hooks/useProductReviews";
 import { resolveImageUrls, productImageRefs, LOCAL_ASSETS, FALLBACK_IMAGE } from "@/lib/productImages";
+import { getWishlistIds } from "@/lib/wishlist";
 
 interface ProductGridProps {
   onAddToCart: (product: Product) => void;
   onViewDetails: (product: Product) => void;
   searchQuery?: string;
   onClearSearch?: () => void;
+  wishlistOnly?: boolean;
+  onExitWishlist?: () => void;
 }
 
 // Fallback product data for when database is empty
@@ -134,7 +137,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
   }
 };
 
-const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSearch }: ProductGridProps) => {
+const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSearch, wishlistOnly = false, onExitWishlist }: ProductGridProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -161,6 +164,17 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
   const PAGE_SIZE = 12;
 
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [wishlistIds, setWishlistIds] = useState<string[]>(() => getWishlistIds());
+
+  useEffect(() => {
+    const update = () => setWishlistIds(getWishlistIds());
+    window.addEventListener("wishlist-changed", update);
+    window.addEventListener("storage", update);
+    return () => {
+      window.removeEventListener("wishlist-changed", update);
+      window.removeEventListener("storage", update);
+    };
+  }, []);
 
   const query = searchQuery.trim().toLowerCase();
 
@@ -172,6 +186,7 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
 
   const visibleProducts = useMemo(() => {
     let list = products.filter((p) =>
+      (!wishlistOnly || wishlistIds.includes(p.id)) &&
       (category === "All" || (p.category || "Uncategorized") === category) &&
       (!query || p.name.toLowerCase().includes(query) || (p.category || "").toLowerCase().includes(query))
     );
@@ -179,9 +194,9 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
     else if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
     else if (sort === "name") list = [...list].sort((a, b) => a.name.localeCompare(b.name));
     return list;
-  }, [products, category, query, sort]);
+  }, [products, category, query, sort, wishlistOnly, wishlistIds]);
 
-  useEffect(() => { setPage(1); }, [category, query, sort]);
+  useEffect(() => { setPage(1); }, [category, query, sort, wishlistOnly]);
 
   const totalPages = Math.max(1, Math.ceil(visibleProducts.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -240,10 +255,20 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
       <div className="container mx-auto px-4">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Featured <span className="text-primary">Collection</span>
+            {wishlistOnly ? (
+              <>
+                Your <span className="text-primary">Wishlist</span>
+              </>
+            ) : (
+              <>
+                Featured <span className="text-primary">Collection</span>
+              </>
+            )}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Carefully curated handmade items that bring warmth and character to your home
+            {wishlistOnly
+              ? "Items you've saved for later — tap the heart on any product to add more"
+              : "Carefully curated handmade items that bring warmth and character to your home"}
           </p>
         </div>
 
@@ -270,9 +295,18 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
             </span>
             <div className="flex items-center gap-2 px-3.5 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-primary">
               <span className="text-sm font-medium whitespace-nowrap">
-                {category === "All" ? "All Items" : category}
+                {wishlistOnly ? "Your Wishlist" : category === "All" ? "All Items" : category}
               </span>
-              {category !== "All" && (
+              {wishlistOnly && (
+                <button
+                  onClick={() => onExitWishlist?.()}
+                  aria-label="Exit wishlist view"
+                  className="p-0.5 hover:bg-primary/15 rounded-full transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+              {!wishlistOnly && category !== "All" && (
                 <button
                   onClick={() => setCategory("All")}
                   aria-label="Clear category filter"
@@ -337,7 +371,9 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
         {visibleProducts.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-lg text-muted-foreground">
-              No products found{query ? ` for "${searchQuery}"` : " in this category"}.
+              {wishlistOnly
+                ? "Your wishlist is empty. Tap the heart on any product to save it here."
+                : `No products found${query ? ` for "${searchQuery}"` : " in this category"}.`}
             </p>
           </div>
         ) : (
@@ -374,10 +410,10 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
           </div>
         )}
 
-        {(query || category !== "All") && (
+        {(wishlistOnly || query || category !== "All") && (
           <div className="text-center mt-8">
             <button
-              onClick={() => { setCategory("All"); onClearSearch?.(); }}
+              onClick={() => { setCategory("All"); onClearSearch?.(); onExitWishlist?.(); }}
               className="text-primary font-semibold hover:underline transition-all duration-300"
             >
               View All Products →

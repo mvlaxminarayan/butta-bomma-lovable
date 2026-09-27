@@ -15,6 +15,7 @@ import {
   BUCKET, LOCAL_ASSETS, productImageRefs, resolveImageUrls, uploadProductImage, FALLBACK_IMAGE,
 } from "@/lib/productImages";
 import DiscountsManager from "@/components/admin/DiscountsManager";
+import StoryManager from "@/components/admin/StoryManager";
 
 interface Product {
   id: string;
@@ -545,6 +546,10 @@ export default function AdminDashboard() {
 
       <div className="mt-6">
         <DiscountsManager />
+      </div>
+
+      <div className="mt-6">
+        <StoryManager />
       </div>
     </div>
   );

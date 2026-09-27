@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
+import { useWishlistCount } from "@/hooks/useWishlist";
 import logo from "@/assets/logo.png";
 
 interface HeaderProps {
@@ -17,6 +18,7 @@ interface HeaderProps {
 const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: HeaderProps) => {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const wishlistCount = useWishlistCount().length;
 
   const handleSignOut = async () => {
     await signOut();
@@ -53,8 +55,21 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="hidden md:flex">
-              <Heart className="h-5 w-5" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hidden md:flex relative"
+              onClick={() => navigate("/?wishlist=1")}
+              aria-label="Wishlist"
+            >
+              <Heart className={`h-5 w-5 ${wishlistCount > 0 ? "fill-primary text-primary" : ""}`} />
+              {wishlistCount > 0 && (
+                <Badge
+                  className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 bg-accent text-accent-foreground text-xs"
+                >
+                  {wishlistCount}
+                </Badge>
+              )}
             </Button>
             
             <Button 
@@ -101,9 +116,24 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
               </Button>
             )}
 
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Menu className="h-5 w-5" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden" aria-label="Menu">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => navigate("/", { state: { scrollTo: "products" } })}>
+                  Shop All
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/", { state: { scrollTo: "our-story" } })}>
+                  Our Story
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/?wishlist=1")}>
+                  Wishlist{wishlistCount > 0 ? ` (${wishlistCount})` : ""}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
