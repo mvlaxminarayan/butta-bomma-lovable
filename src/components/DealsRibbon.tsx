@@ -18,7 +18,6 @@ export const fetchActiveCoupons = async (): Promise<ActiveCoupon[]> => {
   const { data, error } = await api()
     .from("active_coupons")
     .select("code, discount_type, discount_value, min_order, expires_at")
-    .order("created_at", { ascending: false })
     .limit(4);
   if (error) return [];
   return (data ?? []) as ActiveCoupon[];
