@@ -42,6 +42,8 @@ const DealsRibbon = () => {
   const [coupons, setCoupons] = useState<ActiveCoupon[]>([]);
   const [copied, setCopied] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  // Hover-capable devices unfold on hover; touch devices unfold on tap.
+  const canHover = typeof window !== "undefined" && window.matchMedia("(hover: hover)").matches;
 
   useEffect(() => {
     let cancelled = false;
@@ -97,8 +99,8 @@ const DealsRibbon = () => {
         {/* Parchment fold card — collapsed by default, unfolds on hover or tap */}
         <div
           className="group relative w-full max-w-sm bg-card border border-border shadow-sm transition-shadow duration-500 ease-out hover:shadow-md"
-          onMouseEnter={() => setOpen(true)}
-          onMouseLeave={() => setOpen(false)}
+          onMouseEnter={canHover ? () => setOpen(true) : undefined}
+          onMouseLeave={canHover ? () => setOpen(false) : undefined}
         >
           {/* Top accent line */}
           <div className="h-1 w-full bg-primary/30" />
