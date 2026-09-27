@@ -27,6 +27,31 @@ export default function StoryManager() {
   const [form, setForm] = useState<StoryForm>(SAMPLE);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const uploadPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Photo must be under 10MB");
+      return;
+    }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = await uploadProductImage(file, ext);
+      setForm((f) => ({ ...f, story_image: path }));
+      toast.success("Photo uploaded — save the story to use it");
+    } catch {
+      toast.error("Upload failed — please try again");
+    }
+    setUploading(false);
+  };
 
   useEffect(() => {
     (async () => {
