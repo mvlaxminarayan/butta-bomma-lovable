@@ -129,6 +129,27 @@ export default function StoryManager() {
             onChange={(e) => setForm({ ...form, story_image: e.target.value })}
             placeholder="https://... (leave blank to use the default photo)"
           />
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={loading || uploading}
+              onClick={() => document.getElementById("story-image-upload")?.click()}
+            >
+              {uploading ? "Uploading..." : "Upload from device"}
+            </Button>
+            <input
+              id="story-image-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={uploading}
+              onChange={uploadPhoto}
+            />
+            <p className="text-xs text-muted-foreground">
+              Pick a photo from your computer (up to 10MB).
+            </p>
+          </div>
         </div>
         <Button onClick={save} disabled={loading || saving}>
           {saving ? "Saving..." : "Save Story"}
