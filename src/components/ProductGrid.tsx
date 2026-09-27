@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { ChevronLeft, ChevronRight, LayoutGrid, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard, { Product } from "./ProductCard";
 import productMug from "@/assets/product-mug.jpg";
@@ -158,6 +159,30 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 12;
 
+  // Category rail scroll state
+  const railRef = useRef<HTMLDivElement>(null);
+  const [showAll, setShowAll] = useState(false);
+  const [rail, setRail] = useState({ canScroll: false, atStart: true, atEnd: true });
+  const updateRail = () => {
+    const el = railRef.current;
+    if (!el) return;
+    setRail({
+      canScroll: el.scrollWidth > el.clientWidth + 4,
+      atStart: el.scrollLeft <= 4,
+      atEnd: el.scrollLeft + el.clientWidth >= el.scrollWidth - 4,
+    });
+  };
+  useEffect(() => {
+    updateRail();
+    window.addEventListener("resize", updateRail);
+    return () => window.removeEventListener("resize", updateRail);
+  }, [products.length, showAll]);
+  useEffect(() => {
+    const el = railRef.current?.querySelector<HTMLElement>(`[data-cat="${CSS.escape(category)}"]`);
+    el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }, [category]);
+  const scrollRail = (dir: number) => railRef.current?.scrollBy({ left: dir * 260, behavior: "smooth" });
+
   const query = searchQuery.trim().toLowerCase();
 
   const categories = useMemo(() => {
@@ -232,16 +257,49 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center gap-4 mb-8">
-          <nav aria-label="Categories" className="flex gap-2 overflow-x-auto pb-2 flex-1">
-            <button className={pill(category === "All")} onClick={() => setCategory("All")}>
-              All ({products.length})
-            </button>
-            {categories.map(([c, n]) => (
-              <button key={c} className={pill(category === c)} onClick={() => setCategory(c)}>
-                {c} ({n})
+          <div className="relative flex-1 min-w-0">
+            {rail.canScroll && !rail.atStart && (
+              <>
+                <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+                <button
+                  aria-label="Scroll categories left"
+                  onClick={() => scrollRail(-1)}
+                  className="absolute left-1 top-1/2 -translate-y-1/2 z-20 h-8 w-8 rounded-full border border-border bg-card shadow-sm flex items-center justify-center hover:bg-muted transition-colors"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+              </>
+            )}
+
+            <nav
+              ref={railRef}
+              onScroll={updateRail}
+              aria-label="Categories"
+              className="no-scrollbar flex gap-2 overflow-x-auto pb-2 pr-16 scroll-smooth"
+            >
+              <button data-cat="All" className={pill(category === "All")} onClick={() => setCategory("All")}>
+                All ({products.length})
               </button>
-            ))}
-          </nav>
+              {categories.map(([c, n]) => (
+                <button key={c} data-cat={c} className={pill(category === c)} onClick={() => setCategory(c)}>
+                  {c} ({n})
+                </button>
+              ))}
+            </nav>
+
+            {rail.canScroll && !rail.atEnd && (
+              <div className="absolute right-14 top-0 bottom-2 w-10 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+            )}
+            <button
+              onClick={() => setShowAll((v) => !v)}
+              aria-expanded={showAll}
+              aria-label={showAll ? "Close all categories" : "Show all categories"}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-20 flex items-center gap-1.5 h-9 px-3 rounded-full border border-border bg-card shadow-sm text-xs font-semibold uppercase tracking-wider text-foreground hover:bg-muted transition-colors whitespace-nowrap"
+            >
+              {showAll ? <X className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
+              {showAll ? "Close" : "All"}
+            </button>
+          </div>
           <select
             aria-label="Sort products"
             value={sort}
@@ -254,6 +312,21 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
             <option value="name">Name: A–Z</option>
           </select>
         </div>
+
+        {showAll && (
+          <div className="mb-8 rounded-xl border border-border bg-card p-4 shadow-sm">
+            <div className="flex flex-wrap gap-2">
+              <button className={pill(category === "All")} onClick={() => setCategory("All")}>
+                All ({products.length})
+              </button>
+              {categories.map(([c, n]) => (
+                <button key={c} className={pill(category === c)} onClick={() => setCategory(c)}>
+                  {c} ({n})
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {visibleProducts.length === 0 ? (
           <div className="text-center py-12">
