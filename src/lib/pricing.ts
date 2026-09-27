@@ -20,9 +20,17 @@ export const SAMPLE_STORY = {
   text: "Welcome to Buttabomma Shop — a small studio where every piece is made by hand, one at a time.\n\nWhat began as a love for traditional crafts has grown into a collection of ceramics, textiles and decor, each item shaped by skilled artisans using time-honored techniques. No two pieces are exactly alike — that's what makes them special.",
 };
 
+export const formatINR = (amount: number): string =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
+
 export const DEFAULT_SETTINGS: StoreSettings = {
-  shipping_fee: 8.99,
-  free_shipping_threshold: 50,
+  shipping_fee: 99,
+  free_shipping_threshold: 999,
   story_title: null,
   story_text: null,
   story_image: null,
