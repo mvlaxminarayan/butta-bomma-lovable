@@ -59,18 +59,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        setLoading(false);
 
+        // Defer the profile fetch: awaiting supabase calls directly inside
+        // this callback can deadlock the client's internal auth lock and
+        // stall every other query (e.g. products on the home page).
         if (session?.user) {
-          const profileData = await fetchProfile(session.user.id);
-          setProfile(profileData);
+          const userId = session.user.id;
+          setTimeout(async () => {
+            const profileData = await fetchProfile(userId);
+            setProfile(profileData);
+          }, 0);
         } else {
           setProfile(null);
         }
-
-        setLoading(false);
       }
     );
 

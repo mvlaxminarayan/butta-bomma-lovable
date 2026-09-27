@@ -120,13 +120,20 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "" }: ProductGr
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchProducts = async () => {
-      const productsWithReviews = await getProductsWithReviews();
-      setProducts(productsWithReviews);
-      setLoading(false);
+      try {
+        const productsWithReviews = await getProductsWithReviews();
+        if (!cancelled) setProducts(productsWithReviews);
+      } catch (e) {
+        console.error("Failed to load products:", e);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     };
 
     fetchProducts();
+    return () => { cancelled = true; };
   }, []);
 
   const query = searchQuery.trim().toLowerCase();
