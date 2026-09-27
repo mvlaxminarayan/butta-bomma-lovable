@@ -134,7 +134,7 @@ const DealsRibbon = () => {
                   )
                 }
               >
-                <div className="pt-2 flex items-center gap-2">
+                <div className="pt-1.5 flex items-center gap-2">
                   <span className="inline-block px-3 py-1 bg-secondary border border-dashed border-primary/30 font-mono font-bold text-foreground rounded text-sm tracking-widest">
                     {c.code}
                   </span>
