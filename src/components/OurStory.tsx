@@ -30,7 +30,7 @@ const OurStory = () => {
   }, []);
 
   return (
-    <section id="our-story" className="py-16 bg-secondary/40 scroll-mt-20">
+    <section id="our-story" className="py-10 bg-secondary/40 scroll-mt-20">
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="relative overflow-hidden rounded-2xl shadow-elegant h-[360px] md:h-[440px]">
