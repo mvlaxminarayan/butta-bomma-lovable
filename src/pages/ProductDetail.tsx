@@ -12,6 +12,7 @@ import type { Product } from "@/components/ProductCard";
 import ProductReviews from "@/components/ProductReviews";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveImageUrls, productImageRefs, FALLBACK_IMAGE } from "@/lib/productImages";
+import { isWishlisted, toggleWishlist } from "@/lib/wishlist";
 
 // Enhanced product data fetching from database
 const getProductById = async (id: string): Promise<(Product & { 
@@ -167,6 +168,28 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [zoomScale, setZoomScale] = useState(1);
+  const [wishlisted, setWishlisted] = useState(false);
+
+
+  const handleToggleWishlist = () => {
+    if (!product) return;
+    const nowSaved = toggleWishlist(product.id);
+    setWishlisted(nowSaved);
+    toast({
+      title: nowSaved ? "Added to wishlist" : "Removed from wishlist",
+      description: product.name,
+    });
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast({ title: "Link copied", description: "Share this product with friends and family." });
+    } catch {
+      toast({ title: "Couldn't copy link", description: "Please copy the address from your browser." });
+    }
+  };
+
   const [product, setProduct] = useState<(Product & { 
     images: string[]; 
     description: string; 
@@ -174,6 +197,11 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
     specifications: Record<string, string>;
   }) | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (product) setWishlisted(isWishlisted(product.id));
+  }, [product?.id]);
+
 
   const { averageRating, reviewCount } = useProductReviews(id || "");
 
@@ -445,10 +473,21 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                   <ShoppingCart className="h-5 w-5 mr-2" />
                   Add to Cart - ${(product.price * quantity).toFixed(2)}
                 </Button>
-                <Button variant="outline" size="lg">
-                  <Heart className="h-5 w-5" />
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={handleToggleWishlist}
+                  aria-pressed={wishlisted}
+                  aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                >
+                  <Heart className={`h-5 w-5 ${wishlisted ? "fill-primary text-primary" : ""}`} />
                 </Button>
-                <Button variant="outline" size="lg">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={handleShare}
+                  aria-label="Share this product"
+                >
                   <Share2 className="h-5 w-5" />
                 </Button>
               </div>

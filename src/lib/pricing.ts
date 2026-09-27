@@ -3,6 +3,9 @@ import { supabase } from "@/integrations/supabase/client";
 export interface StoreSettings {
   shipping_fee: number;
   free_shipping_threshold: number | null;
+  story_title: string | null;
+  story_text: string | null;
+  story_image: string | null;
 }
 
 export interface Coupon {
@@ -12,7 +15,18 @@ export interface Coupon {
   min_order: number;
 }
 
-export const DEFAULT_SETTINGS: StoreSettings = { shipping_fee: 8.99, free_shipping_threshold: 50 };
+export const SAMPLE_STORY = {
+  title: "Our Story",
+  text: "Welcome to Buttabomma Shop — a small studio where every piece is made by hand, one at a time.\n\nWhat began as a love for traditional crafts has grown into a collection of ceramics, textiles and decor, each item shaped by skilled artisans using time-honored techniques. No two pieces are exactly alike — that's what makes them special.",
+};
+
+export const DEFAULT_SETTINGS: StoreSettings = {
+  shipping_fee: 8.99,
+  free_shipping_threshold: 50,
+  story_title: null,
+  story_text: null,
+  story_image: null,
+};
 
 const api = () => (supabase as any).schema("api");
 
@@ -22,6 +36,9 @@ export async function fetchStoreSettings(): Promise<StoreSettings> {
   return {
     shipping_fee: Number(data.shipping_fee),
     free_shipping_threshold: data.free_shipping_threshold == null ? null : Number(data.free_shipping_threshold),
+    story_title: (data.story_title as string | null) ?? null,
+    story_text: (data.story_text as string | null) ?? null,
+    story_image: (data.story_image as string | null) ?? null,
   };
 }
 

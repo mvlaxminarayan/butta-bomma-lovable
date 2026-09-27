@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import ProductGrid from "@/components/ProductGrid";
+import OurStory from "@/components/OurStory";
 import Cart, { CartItem } from "@/components/Cart";
 import { Product } from "@/components/ProductCard";
 import { useToast } from "@/hooks/use-toast";
@@ -14,7 +16,33 @@ const Index = () => {
     () => new URLSearchParams(window.location.search).get("cart") === "open"
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [wishlistOnly, setWishlistOnly] = useState(
+    () => new URLSearchParams(window.location.search).get("wishlist") === "1"
+  );
+  const location = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("wishlist") === "1") setWishlistOnly(true);
+  }, [location.search]);
+
+  useEffect(() => {
+    const target = (location.state as { scrollTo?: string } | null)?.scrollTo;
+    if (!target) return;
+    const timer = setTimeout(() => {
+      document.getElementById(target)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [location.state]);
+
+  const exitWishlist = () => {
+    setWishlistOnly(false);
+    if (new URLSearchParams(location.search).get("wishlist")) {
+      navigate("/", { replace: true });
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cartItems));
@@ -80,7 +108,10 @@ const Index = () => {
         onViewDetails={handleViewDetails}
         searchQuery={searchQuery}
         onClearSearch={() => setSearchQuery("")}
+        wishlistOnly={wishlistOnly}
+        onExitWishlist={exitWishlist}
       />
+      <OurStory />
       <Cart
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}

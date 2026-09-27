@@ -139,18 +139,27 @@ export type Database = {
           free_shipping_threshold: number | null
           id: number
           shipping_fee: number
+          story_image: string | null
+          story_text: string | null
+          story_title: string | null
           updated_at: string
         }
         Insert: {
           free_shipping_threshold?: number | null
           id?: number
           shipping_fee?: number
+          story_image?: string | null
+          story_text?: string | null
+          story_title?: string | null
           updated_at?: string
         }
         Update: {
           free_shipping_threshold?: number | null
           id?: number
           shipping_fee?: number
+          story_image?: string | null
+          story_text?: string | null
+          story_title?: string | null
           updated_at?: string
         }
         Relationships: []
