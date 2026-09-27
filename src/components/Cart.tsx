@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Tag } from "lucide-react";
-import { Coupon, DEFAULT_SETTINGS, StoreSettings, computeTotals, fetchStoreSettings, lookupCoupon } from "@/lib/pricing";
+import { Coupon, DEFAULT_SETTINGS, StoreSettings, computeTotals, fetchStoreSettings, formatINR, lookupCoupon } from "@/lib/pricing";
 import { X, Minus, Plus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
