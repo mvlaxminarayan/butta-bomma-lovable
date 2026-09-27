@@ -37,6 +37,14 @@ const Index = () => {
     return () => clearTimeout(timer);
   }, [location.state]);
 
+  useEffect(() => {
+    if (!wishlistOnly) return;
+    const timer = setTimeout(() => {
+      document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [wishlistOnly]);
+
   const exitWishlist = () => {
     setWishlistOnly(false);
     if (new URLSearchParams(location.search).get("wishlist")) {
