@@ -74,23 +74,23 @@ const DealsRibbon = () => {
     desc: React.ReactNode;
     children?: React.ReactNode;
   }) => (
-    <div className="bg-card border border-primary/20 shadow-sm p-5 rounded-sm flex items-start gap-4 transition-all hover:border-primary/40">
-      <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-secondary rounded-full">
+    <div className="bg-card border border-primary/20 shadow-sm px-4 py-3 rounded-sm flex items-start gap-3 transition-all hover:border-primary/40">
+      <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-secondary rounded-full">
         {icon}
       </div>
-      <div className="space-y-1 min-w-0">
+      <div className="space-y-0.5 min-w-0">
         <div className="text-[9px] font-bold text-primary tracking-widest uppercase">{label}</div>
-        <h3 className="text-base font-medium text-foreground">{title}</h3>
-        <p className="text-sm text-muted-foreground">{desc}</p>
+        <h3 className="text-sm font-medium text-foreground leading-snug">{title}</h3>
+        <p className="text-xs text-muted-foreground leading-snug">{desc}</p>
         {children}
       </div>
     </div>
   );
 
   return (
-    <section className="bg-background pb-4">
+    <section className="bg-background pb-2">
       <div className="container mx-auto px-4 max-w-4xl">
-        <div className="flex items-center justify-center gap-4 pt-6 pb-5">
+        <div className="flex items-center justify-center gap-4 pt-4 pb-3">
           <div className="h-px flex-1 bg-primary/20" />
           <h2 className="text-[10px] font-bold tracking-[0.2em] text-primary uppercase whitespace-nowrap">
             Current Store Offers
@@ -98,7 +98,7 @@ const DealsRibbon = () => {
           <div className="h-px flex-1 bg-primary/20" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {threshold != null && (
             <Card
               icon={<Truck className="w-5 h-5 text-primary" />}
