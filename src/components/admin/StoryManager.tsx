@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { uploadProductImage } from "@/lib/productImages";
 
 const api = () => (supabase as any).schema("api");
 
@@ -26,6 +27,31 @@ export default function StoryManager() {
   const [form, setForm] = useState<StoryForm>(SAMPLE);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  const uploadPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose an image file");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Photo must be under 10MB");
+      return;
+    }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = await uploadProductImage(file, ext);
+      setForm((f) => ({ ...f, story_image: path }));
+      toast.success("Photo uploaded — save the story to use it");
+    } catch {
+      toast.error("Upload failed — please try again");
+    }
+    setUploading(false);
+  };
 
   useEffect(() => {
     (async () => {
@@ -103,6 +129,27 @@ export default function StoryManager() {
             onChange={(e) => setForm({ ...form, story_image: e.target.value })}
             placeholder="https://... (leave blank to use the default photo)"
           />
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={loading || uploading}
+              onClick={() => document.getElementById("story-image-upload")?.click()}
+            >
+              {uploading ? "Uploading..." : "Upload from device"}
+            </Button>
+            <input
+              id="story-image-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={uploading}
+              onChange={uploadPhoto}
+            />
+            <p className="text-xs text-muted-foreground">
+              Pick a photo from your computer (up to 10MB).
+            </p>
+          </div>
         </div>
         <Button onClick={save} disabled={loading || saving}>
           {saving ? "Saving..." : "Save Story"}
