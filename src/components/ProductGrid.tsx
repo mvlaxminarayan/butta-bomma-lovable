@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard, { Product } from "./ProductCard";
 import productMug from "@/assets/product-mug.jpg";
@@ -153,13 +153,40 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
     return () => { cancelled = true; };
   }, []);
 
+  const [category, setCategory] = useState<string>("All");
+  const [sort, setSort] = useState<string>("featured");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 12;
+
   const query = searchQuery.trim().toLowerCase();
-  const visibleProducts = query
-    ? products.filter((p) =>
-        p.name.toLowerCase().includes(query) ||
-        (p.category || "").toLowerCase().includes(query)
-      )
-    : products;
+
+  const categories = useMemo(() => {
+    const counts: Record<string, number> = {};
+    products.forEach((p) => { const c = p.category || "Uncategorized"; counts[c] = (counts[c] || 0) + 1; });
+    return Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [products]);
+
+  const visibleProducts = useMemo(() => {
+    let list = products.filter((p) =>
+      (category === "All" || (p.category || "Uncategorized") === category) &&
+      (!query || p.name.toLowerCase().includes(query) || (p.category || "").toLowerCase().includes(query))
+    );
+    if (sort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
+    else if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
+    else if (sort === "name") list = [...list].sort((a, b) => a.name.localeCompare(b.name));
+    return list;
+  }, [products, category, query, sort]);
+
+  useEffect(() => { setPage(1); }, [category, query, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(visibleProducts.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageItems = visibleProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const goTo = (p: number) => {
+    setPage(p);
+    document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   if (loading) {
     return (
@@ -186,11 +213,16 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
       </section>
     );
   }
-  
+
+  const pill = (active: boolean) =>
+    `px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
+      active ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:bg-muted"
+    }`;
+
   return (
-    <section className="py-16 bg-background">
+    <section id="products" className="py-16 bg-background scroll-mt-20">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
+        <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Featured <span className="text-primary">Collection</span>
           </h2>
@@ -199,29 +231,74 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
           </p>
         </div>
 
+        <div className="flex flex-col md:flex-row md:items-center gap-4 mb-8">
+          <nav aria-label="Categories" className="flex gap-2 overflow-x-auto pb-2 flex-1">
+            <button className={pill(category === "All")} onClick={() => setCategory("All")}>
+              All ({products.length})
+            </button>
+            {categories.map(([c, n]) => (
+              <button key={c} className={pill(category === c)} onClick={() => setCategory(c)}>
+                {c} ({n})
+              </button>
+            ))}
+          </nav>
+          <select
+            aria-label="Sort products"
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            className="h-10 rounded-md border border-border bg-card px-3 text-sm"
+          >
+            <option value="featured">Featured</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="name">Name: A–Z</option>
+          </select>
+        </div>
+
         {visibleProducts.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-lg text-muted-foreground">
-              No products found for "{searchQuery}". Try a different search.
+              No products found{query ? ` for "${searchQuery}"` : " in this category"}.
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {visibleProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={onAddToCart}
-                onViewDetails={onViewDetails}
-              />
+          <>
+            <p className="text-sm text-muted-foreground mb-4">
+              Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, visibleProducts.length)} of {visibleProducts.length}
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {pageItems.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={onAddToCart}
+                  onViewDetails={onViewDetails}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
+        {visibleProducts.length > 0 && (
+          <div className="flex items-center justify-center gap-2 mt-10 flex-wrap">
+            <button className={pill(false) + " disabled:opacity-50 disabled:pointer-events-none"} disabled={currentPage <= 1} onClick={() => goTo(currentPage - 1)}>
+              ‹ Previous
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <button key={p} className={pill(p === currentPage)} onClick={() => goTo(p)} aria-current={p === currentPage ? "page" : undefined}>
+                {p}
+              </button>
             ))}
+            <button className={pill(false) + " disabled:opacity-50 disabled:pointer-events-none"} disabled={currentPage >= totalPages} onClick={() => goTo(currentPage + 1)}>
+              Next ›
+            </button>
           </div>
         )}
 
-        {query && (
-          <div className="text-center mt-12">
+        {(query || category !== "All") && (
+          <div className="text-center mt-8">
             <button
-              onClick={onClearSearch}
+              onClick={() => { setCategory("All"); onClearSearch?.(); }}
               className="text-primary font-semibold hover:underline transition-all duration-300"
             >
               View All Products →
