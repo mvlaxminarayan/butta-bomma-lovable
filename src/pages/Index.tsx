@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
+import AnnouncementBar from "@/components/AnnouncementBar";
 import Hero from "@/components/Hero";
-import DealsRibbon from "@/components/DealsRibbon";
+
 
 import ProductGrid from "@/components/ProductGrid";
 import OurStory from "@/components/OurStory";
@@ -106,6 +107,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <AnnouncementBar />
       <Header 
         cartItems={totalItems}
         onCartClick={() => setIsCartOpen(true)}
@@ -113,7 +115,7 @@ const Index = () => {
         onSearchChange={setSearchQuery}
       />
       <Hero />
-      <DealsRibbon />
+
       <ProductGrid 
 
         onAddToCart={addToCart}
