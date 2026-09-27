@@ -1,4 +1,5 @@
-import { Heart, ShoppingCart, Star } from "lucide-react";
+import { useState } from "react";
+import { Heart, ShoppingCart, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -8,6 +9,7 @@ export interface Product {
   price: number;
   originalPrice?: number;
   image: string;
+  images?: string[];
   rating: number;
   reviews: number;
   category: string;
@@ -22,18 +24,54 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) => {
   const isOnSale = product.originalPrice && product.originalPrice > product.price;
+  const photos = (product.images && product.images.length > 0 ? product.images : [product.image]).filter(Boolean);
+  const hasMultiple = photos.length > 1;
+  const [photoIndex, setPhotoIndex] = useState(0);
+
+  const prevPhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPhotoIndex((i) => (i - 1 + photos.length) % photos.length);
+  };
+
+  const nextPhoto = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setPhotoIndex((i) => (i + 1) % photos.length);
+  };
 
   return (
     <div className="group relative bg-product-card hover:bg-product-card-hover rounded-xl shadow-[var(--shadow-product)] hover:shadow-[var(--shadow-product-hover)] transition-all duration-300 hover:-translate-y-2 cursor-pointer">
       {/* Product Image */}
       <div className="relative overflow-hidden rounded-t-xl">
         <img
-          src={product.image}
+          src={photos[photoIndex] || product.image}
           alt={product.name}
           className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
           onClick={() => onViewDetails(product)}
         />
-        
+        {hasMultiple && (
+          <>
+            {/* Prev / Next arrows */}
+            <button
+              aria-label="Previous photo"
+              onClick={prevPhoto}
+              className="absolute left-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-background/80 backdrop-blur-sm shadow-md flex items-center justify-center hover:bg-background transition-all duration-200 opacity-0 group-hover:opacity-100"
+            >
+              <ChevronLeft className="h-5 w-5 text-foreground" />
+            </button>
+            <button
+              aria-label="Next photo"
+              onClick={nextPhoto}
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-background/80 backdrop-blur-sm shadow-md flex items-center justify-center hover:bg-background transition-all duration-200 opacity-0 group-hover:opacity-100"
+            >
+              <ChevronRight className="h-5 w-5 text-foreground" />
+            </button>
+            {/* Photo counter */}
+            <span className="absolute bottom-3 right-3 text-xs font-medium px-2 py-0.5 rounded-full bg-background/80 backdrop-blur-sm text-foreground">
+              {photoIndex + 1}/{photos.length}
+            </span>
+          </>
+        )}
+
         {/* Sale Badge */}
         {isOnSale && (
           <Badge className="absolute top-3 left-3 bg-sale-price text-white font-semibold">
@@ -45,7 +83,9 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm hover:bg-background opacity-0 group-hover:opacity-100 transition-all duration-300"
+          className={`absolute top-3 right-3 bg-background/80 backdrop-blur-sm hover:bg-background transition-all duration-300 ${
+            hasMultiple ? "opacity-0 group-hover:opacity-100" : ""
+          }`}
         >
           <Heart className="h-4 w-4" />
         </Button>

@@ -5,7 +5,7 @@ import productMug from "@/assets/product-mug.jpg";
 import productBasket from "@/assets/product-basket.jpg";
 import productCuttingBoard from "@/assets/product-cutting-board.jpg";
 import { getProductReviewsSync } from "@/hooks/useProductReviews";
-import { resolveImageUrls, productImageRefs, FALLBACK_IMAGE } from "@/lib/productImages";
+import { resolveImageUrls, productImageRefs, LOCAL_ASSETS, FALLBACK_IMAGE } from "@/lib/productImages";
 
 interface ProductGridProps {
   onAddToCart: (product: Product) => void;
@@ -21,6 +21,7 @@ const fallbackProducts = [
     price: 28,
     originalPrice: 35,
     image: productMug,
+    images: [productMug],
     category: "Ceramics",
     inStock: true,
   },
@@ -29,6 +30,7 @@ const fallbackProducts = [
     name: "Woven Storage Basket",
     price: 45,
     image: productBasket,
+    images: [productBasket],
     category: "Home Decor",
     inStock: true,
   },
@@ -38,6 +40,7 @@ const fallbackProducts = [
     price: 68,
     originalPrice: 85,
     image: productCuttingBoard,
+    images: [productCuttingBoard],
     category: "Kitchen",
     inStock: true,
   },
@@ -83,18 +86,31 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
       });
     }
 
-    const firstRefs = products.map((p: any) => productImageRefs(p)[0] || "");
-    const urls = await resolveImageUrls(firstRefs.filter(Boolean));
+    const allRefs = products.map((p: any) => productImageRefs(p));
+    const flatRefs = allRefs.flat().filter(Boolean);
+    const urls = await resolveImageUrls(Array.from(new Set(flatRefs)));
     const urlByRef: Record<string, string> = {};
-    firstRefs.filter(Boolean).forEach((r: string, i: number) => { urlByRef[r] = urls[i]; });
+    Array.from(new Set(flatRefs)).forEach((r: string, i: number) => { urlByRef[r] = urls[i]; });
+
+    const resolveFor = (product: any, i: number): string[] => {
+      const refs = allRefs[i];
+      const resolved = refs.map((r: string) => urlByRef[r]).filter(Boolean);
+      if (resolved.length === 0) {
+        const legacy = LOCAL_ASSETS[refs[0]] || FALLBACK_IMAGE;
+        return [legacy];
+      }
+      return resolved;
+    };
 
     return products.map((product: any, i: number) => {
       const { averageRating, reviewCount } = getProductReviewsSync(product.id);
+      const images = resolveFor(product, i);
       return {
         id: product.id,
         name: product.name,
         price: Number(product.price),
-        image: urlByRef[firstRefs[i]] || FALLBACK_IMAGE,
+        image: images[0] || FALLBACK_IMAGE,
+        images,
         category: product.category || "Uncategorized",
         inStock: product.in_stock,
         rating: averageRating || 0,
