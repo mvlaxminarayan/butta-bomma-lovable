@@ -72,7 +72,7 @@ const DealsRibbon = () => {
     icon: React.ReactNode;
     label: string;
     title: string;
-    desc: string;
+    desc: React.ReactNode;
     children?: React.ReactNode;
   }) => (
     <div className="bg-card border border-primary/20 shadow-sm p-5 rounded-sm flex items-start gap-4 transition-all hover:border-primary/40">
