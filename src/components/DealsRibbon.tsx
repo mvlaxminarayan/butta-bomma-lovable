@@ -144,7 +144,7 @@ const DealsRibbon = () => {
             <div className="px-5 pb-6 pt-4 space-y-5 border-t border-border/60">
               {threshold != null && (
                 <Item
-                  icon={<Truck className="w-4.5 h-4.5 text-primary" />}
+                  icon={<Truck className="w-4 h-4 text-primary" />}
                   label="Shipping"
                   title="Free Standard Delivery"
                   desc={
@@ -161,7 +161,7 @@ const DealsRibbon = () => {
                 return (
                   <Item
                     key={c.code}
-                    icon={<Tag className="w-4.5 h-4.5 text-primary" />}
+                    icon={<Tag className="w-4 h-4 text-primary" />}
                     label="Coupon"
                     title={`${info.title}${info.desc ? "" : " for you"}`}
                     desc={
