@@ -219,10 +219,17 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
     );
   }
 
-  const pill = (active: boolean) =>
-    `px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
-      active ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:bg-muted"
-    }`;
+  const catLink = (label: string, count: number, active: boolean, onClick: () => void) => (
+    <button
+      onClick={onClick}
+      className={`w-full text-sm text-left flex justify-between items-baseline transition-colors ${
+        active ? "text-primary font-medium" : "text-foreground/70 hover:text-primary"
+      }`}
+    >
+      {label}
+      <span className="text-[10px] font-light text-muted-foreground">({count})</span>
+    </button>
+  );
 
   return (
     <section id="products" className="py-16 bg-background scroll-mt-20">
