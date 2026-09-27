@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Tag } from "lucide-react";
-import { Coupon, DEFAULT_SETTINGS, StoreSettings, computeTotals, fetchStoreSettings, lookupCoupon } from "@/lib/pricing";
+import { Coupon, DEFAULT_SETTINGS, StoreSettings, computeTotals, fetchStoreSettings, formatINR, lookupCoupon } from "@/lib/pricing";
 import { X, Minus, Plus, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,7 +38,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
     setChecking(false);
     if (!c) { setCoupon(null); toast({ title: "Invalid code", description: "That coupon doesn't exist or has expired." }); return; }
     setCoupon(c);
-    toast({ title: "Coupon applied", description: subtotal < c.min_order ? `Spend $${c.min_order.toFixed(2)} to use this code.` : c.code });
+    toast({ title: "Coupon applied", description: subtotal < c.min_order ? `Spend ${formatINR(c.min_order)} to use this code.` : c.code });
   };
 
   const handleCheckout = async () => {
@@ -51,7 +51,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
           amount: Math.round(total * 100),
           subtotal: Math.round(subtotal * 100) / 100,
           couponCode: couponOk ? coupon!.code : undefined,
-          currency: "usd",
+          currency: "inr",
         },
       });
 
@@ -116,7 +116,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
                   <div className="flex-1 space-y-2">
                     <h3 className="font-medium text-sm">{item.name}</h3>
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-price">${item.price}</span>
+                      <span className="font-semibold text-price">{formatINR(item.price)}</span>
                       <div className="flex items-center gap-2">
                         <Button
                           variant="outline"
@@ -157,12 +157,12 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span>{formatINR(subtotal)}</span>
                 </div>
                 {couponOk && discount > 0 && (
                   <div className="flex justify-between text-sm text-primary">
                     <span>Discount ({coupon!.code})</span>
-                    <span>-${discount.toFixed(2)}</span>
+                    <span>-{formatINR(discount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm">
@@ -171,13 +171,13 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
                     {shipping === 0 ? (
                       <Badge variant="secondary" className="text-xs">Free</Badge>
                     ) : (
-                      `$${shipping.toFixed(2)}`
+                      formatINR(shipping)
                     )}
                   </span>
                 </div>
                 <div className="flex justify-between font-semibold text-lg border-t pt-2">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>{formatINR(total)}</span>
                 </div>
               </div>
               
@@ -193,7 +193,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
                 )}
               </div>
               {coupon && !couponOk && (
-                <p className="text-xs text-destructive">Code {coupon.code} needs an order of ${coupon.min_order.toFixed(2)} or more.</p>
+                <p className="text-xs text-destructive">Code {coupon.code} needs an order of {formatINR(coupon.min_order)} or more.</p>
               )}
 
               <Button className="w-full bg-primary hover:bg-primary/90" onClick={handleCheckout} disabled={isLoading}>
@@ -202,7 +202,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
               
               {threshold != null && shipping > 0 && subtotal < threshold && (
                 <p className="text-xs text-muted-foreground text-center">
-                  Add ${(threshold - subtotal).toFixed(2)} more for free shipping!
+                  Add {formatINR(threshold - subtotal)} more for free shipping!
                 </p>
               )}
             </div>

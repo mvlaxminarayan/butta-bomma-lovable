@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Sparkles, Check, Copy } from "lucide-react";
-import { fetchStoreSettings } from "@/lib/pricing";
+import { fetchStoreSettings, formatINR } from "@/lib/pricing";
 import { fetchActiveCoupons, couponMessage } from "@/lib/offers";
 import { useToast } from "@/hooks/use-toast";
 
@@ -26,7 +26,7 @@ const AnnouncementBar = () => {
       const msgs: OfferMessage[] = [];
       const threshold = settings?.free_shipping_threshold;
       if (threshold != null) {
-        msgs.push({ text: `Free standard delivery on all orders over $${Number(threshold).toFixed(2)}` });
+        msgs.push({ text: `Free standard delivery on all orders over ${formatINR(Number(threshold))}` });
       }
       coupons.slice(0, 3).forEach((c) => {
         msgs.push({ code: c.code, text: `${c.code} — ${couponMessage(c)}` });

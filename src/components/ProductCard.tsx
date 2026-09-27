@@ -3,6 +3,7 @@ import { Heart, ShoppingCart, Star, ChevronLeft, ChevronRight } from "lucide-rea
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toggleWishlist } from "@/lib/wishlist";
+import { formatINR } from "@/lib/pricing";
 import { useWishlistIds } from "@/hooks/useWishlist";
 
 export interface Product {
@@ -144,11 +145,11 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-lg font-bold text-price">
-              ${product.price}
+              {formatINR(product.price)}
             </span>
             {isOnSale && (
               <span className="text-sm text-muted-foreground line-through">
-                ${product.originalPrice}
+                {formatINR(product.originalPrice)}
               </span>
             )}
           </div>

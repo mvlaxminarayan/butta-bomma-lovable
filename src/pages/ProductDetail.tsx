@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useProductReviews } from "@/hooks/useProductReviews";
 import type { Product } from "@/components/ProductCard";
+import { formatINR } from "@/lib/pricing";
 import ProductReviews from "@/components/ProductReviews";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveImageUrls, productImageRefs, FALLBACK_IMAGE } from "@/lib/productImages";
@@ -422,11 +423,11 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
             {/* Price */}
             <div className="flex items-center gap-3">
               <span className="text-3xl font-bold text-price">
-                ${product.price}
+                {formatINR(product.price)}
               </span>
               {isOnSale && (
                 <span className="text-xl text-muted-foreground line-through">
-                  ${product.originalPrice}
+                  {formatINR(product.originalPrice)}
                 </span>
               )}
             </div>
@@ -471,7 +472,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                   size="lg"
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
-                  Add to Cart - ${(product.price * quantity).toFixed(2)}
+                  Add to Cart - {formatINR(product.price * quantity)}
                 </Button>
                 <Button
                   variant="outline"
