@@ -170,9 +170,6 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
   const [zoomScale, setZoomScale] = useState(1);
   const [wishlisted, setWishlisted] = useState(false);
 
-  useEffect(() => {
-    if (product) setWishlisted(isWishlisted(product.id));
-  }, [product?.id]);
 
   const handleToggleWishlist = () => {
     if (!product) return;
@@ -200,6 +197,11 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
     specifications: Record<string, string>;
   }) | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (product) setWishlisted(isWishlisted(product.id));
+  }, [product?.id]);
+
 
   const { averageRating, reviewCount } = useProductReviews(id || "");
 
