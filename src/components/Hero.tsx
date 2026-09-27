@@ -202,7 +202,7 @@ const Hero = () => {
             
             {/* Floating Badge */}
             {freeShipping != null && (
-              <div className="absolute -bottom-4 -left-4 bg-accent text-accent-foreground px-6 py-3 rounded-full shadow-elegant">
+              <div className="absolute -top-3 -left-4 bg-accent text-accent-foreground px-6 py-3 rounded-full shadow-elegant">
                 <div className="font-semibold">Free Shipping</div>
                 <div className="text-sm opacity-90">On orders over ${freeShipping}</div>
               </div>
