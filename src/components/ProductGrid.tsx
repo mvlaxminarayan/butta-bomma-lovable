@@ -176,7 +176,7 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
     updateRail();
     window.addEventListener("resize", updateRail);
     return () => window.removeEventListener("resize", updateRail);
-  }, [categories.length, showAll]);
+  }, [products.length, showAll]);
   useEffect(() => {
     const el = railRef.current?.querySelector<HTMLElement>(`[data-cat="${CSS.escape(category)}"]`);
     el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
