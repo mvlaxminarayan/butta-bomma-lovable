@@ -3,6 +3,7 @@ import { Truck, Tag, Check, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchStoreSettings } from "@/lib/pricing";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 interface ActiveCoupon {
   code: string;
@@ -55,6 +56,7 @@ const DealsRibbon = () => {
   if (threshold == null && coupons.length === 0) return null;
 
   const couponCards = coupons.slice(0, threshold != null ? 3 : 4);
+  const offerCount = couponCards.length + (threshold != null ? 1 : 0);
 
   const copyCode = async (code: string) => {
     try {
@@ -98,7 +100,7 @@ const DealsRibbon = () => {
           <div className="h-px flex-1 bg-primary/20" />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className={`grid grid-cols-1 gap-3 ${offerCount === 1 ? "max-w-xl mx-auto" : offerCount === 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
           {threshold != null && (
             <Card
               icon={<Truck className="w-5 h-5 text-primary" />}
@@ -138,18 +140,20 @@ const DealsRibbon = () => {
                   <span className="inline-block px-3 py-1 bg-secondary border border-dashed border-primary/30 font-mono font-bold text-foreground rounded text-sm tracking-widest">
                     {c.code}
                   </span>
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     aria-label={`Copy coupon code ${c.code}`}
                     onClick={() => copyCode(c.code)}
-                    className="inline-flex items-center gap-1 text-[10px] font-bold tracking-widest uppercase text-muted-foreground hover:text-primary transition-colors"
+                    className="h-7 px-2 text-[10px] font-bold tracking-widest uppercase text-muted-foreground hover:text-primary"
                   >
                     {copied === c.code ? (
                       <><Check className="w-3.5 h-3.5 text-primary" /> Copied</>
                     ) : (
                       <><Copy className="w-3.5 h-3.5" /> Copy</>
                     )}
-                  </button>
+                  </Button>
                 </div>
               </Card>
             );
