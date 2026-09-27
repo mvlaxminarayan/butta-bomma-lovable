@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Heart, ShoppingCart, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toggleWishlist } from "@/lib/wishlist";
+import { useWishlistIds } from "@/hooks/useWishlist";
 
 export interface Product {
   id: string;
@@ -27,6 +29,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
   const photos = (product.images && product.images.length > 0 ? product.images : [product.image]).filter(Boolean);
   const hasMultiple = photos.length > 1;
   const [photoIndex, setPhotoIndex] = useState(0);
+  const saved = useWishlistIds().includes(product.id);
 
   const prevPhoto = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -83,11 +86,17 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
         <Button
           variant="ghost"
           size="icon"
-          className={`absolute top-3 right-3 bg-background/80 backdrop-blur-sm hover:bg-background transition-all duration-300 ${
-            hasMultiple ? "opacity-0 group-hover:opacity-100" : ""
+          aria-label={saved ? "Remove from wishlist" : "Add to wishlist"}
+          aria-pressed={saved}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleWishlist(product.id);
+          }}
+          className={`absolute top-3 right-3 z-10 bg-background/80 backdrop-blur-sm hover:bg-background transition-all duration-300 ${
+            hasMultiple && !saved ? "opacity-0 group-hover:opacity-100" : ""
           }`}
         >
-          <Heart className="h-4 w-4" />
+          <Heart className={`h-4 w-4 ${saved ? "fill-accent text-accent" : ""}`} />
         </Button>
 
         {/* Stock Status */}
