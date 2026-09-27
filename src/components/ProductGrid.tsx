@@ -159,6 +159,30 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 12;
 
+  // Category rail scroll state
+  const railRef = useRef<HTMLDivElement>(null);
+  const [showAll, setShowAll] = useState(false);
+  const [rail, setRail] = useState({ canScroll: false, atStart: true, atEnd: true });
+  const updateRail = () => {
+    const el = railRef.current;
+    if (!el) return;
+    setRail({
+      canScroll: el.scrollWidth > el.clientWidth + 4,
+      atStart: el.scrollLeft <= 4,
+      atEnd: el.scrollLeft + el.clientWidth >= el.scrollWidth - 4,
+    });
+  };
+  useEffect(() => {
+    updateRail();
+    window.addEventListener("resize", updateRail);
+    return () => window.removeEventListener("resize", updateRail);
+  }, [categories.length, showAll]);
+  useEffect(() => {
+    const el = railRef.current?.querySelector<HTMLElement>(`[data-cat="${CSS.escape(category)}"]`);
+    el?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }, [category]);
+  const scrollRail = (dir: number) => railRef.current?.scrollBy({ left: dir * 260, behavior: "smooth" });
+
   const query = searchQuery.trim().toLowerCase();
 
   const categories = useMemo(() => {
