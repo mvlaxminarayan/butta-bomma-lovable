@@ -29,6 +29,7 @@ interface Product {
   in_stock: boolean;
   features?: string[] | null;
   specifications?: Record<string, string> | null;
+  is_featured?: boolean;
 }
 
 const db = () => (supabase as any).schema("api").from("products");
@@ -45,7 +46,7 @@ export default function AdminDashboard() {
   const [images, setImages] = useState<string[]>([]);
   const [previews, setPreviews] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
-    name: "", description: "", price: "", category: "", stock_quantity: "",
+    name: "", description: "", price: "", category: "", stock_quantity: "", is_featured: false,
   });
   const [features, setFeatures] = useState<string[]>([]);
   const [specs, setSpecs] = useState<{ key: string; value: string }[]>([]);
@@ -171,6 +172,7 @@ export default function AdminDashboard() {
       category: formData.category || null,
       stock_quantity: stock,
       in_stock: stock > 0,
+      is_featured: formData.is_featured,
       features: features.map((f) => f.trim()).filter(Boolean),
       specifications: Object.fromEntries(
         specs.filter((s) => s.key.trim() && s.value.trim()).map((s) => [s.key.trim(), s.value.trim()])
@@ -215,6 +217,7 @@ export default function AdminDashboard() {
       price: product.price.toString(),
       category: product.category || "",
       stock_quantity: product.stock_quantity.toString(),
+      is_featured: !!product.is_featured,
     });
     setFeatures(Array.isArray(product.features) ? product.features : []);
     setSpecs(Object.entries(product.specifications || {}).map(([key, value]) => ({ key, value: String(value) })));
@@ -226,7 +229,7 @@ export default function AdminDashboard() {
     setImages([]);
     setFeatures([]);
     setSpecs([]);
-    setFormData({ name: "", description: "", price: "", category: "", stock_quantity: "" });
+    setFormData({ name: "", description: "", price: "", category: "", stock_quantity: "", is_featured: false });
   };
 
   // One-time move: copy the built-in sample photos into Supabase Storage
@@ -321,6 +324,12 @@ export default function AdminDashboard() {
                   <Input id="category" value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })} />
                 </div>
+                <label className="flex items-center gap-2 text-sm cursor-pointer">
+                  <input type="checkbox" checked={formData.is_featured}
+                    onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
+                    className="h-4 w-4 accent-primary" />
+                  Featured product — show in the homepage hero rotation
+                </label>
                 <div className="space-y-2">
                   <Label>Features</Label>
                   {features.map((f, i) => (
