@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { ChevronDown, X } from "lucide-react";
 
-const SERIF = { fontFamily: "'Playfair Display', Georgia, serif" };
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard, { Product } from "./ProductCard";
 import productMug from "@/assets/product-mug.jpg";
@@ -249,53 +248,62 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
         </div>
 
         {/* Category organization bar */}
-        <div className="border-y border-border py-4 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-          <div className="flex items-center gap-6 min-w-0">
-            <button
-              onClick={() => setGalleryOpen((v) => !v)}
-              aria-expanded={galleryOpen}
-              className="group flex items-center gap-3 cursor-pointer shrink-0"
-            >
-              <div className="relative w-6 h-6 flex flex-col justify-center gap-1.5">
-                <span className="block w-6 h-0.5 bg-foreground transition-transform group-hover:w-4" />
-                <span className="block w-4 h-0.5 bg-foreground transition-transform group-hover:w-6" />
-                <span className="block w-5 h-0.5 bg-foreground" />
-              </div>
-              <span className="text-xl text-foreground font-medium tracking-tight" style={SERIF}>
-                Browse Collections
-              </span>
-            </button>
+        <div className="border-y border-border py-5 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+          <button
+            onClick={() => setGalleryOpen((v) => !v)}
+            aria-expanded={galleryOpen}
+            className="group flex items-center gap-3 cursor-pointer shrink-0"
+          >
+            <div className="flex flex-col gap-1 text-primary group-hover:text-primary/80 transition-colors">
+              <span className="block h-0.5 w-5 bg-current" />
+              <span className="block h-0.5 w-5 bg-current" />
+              <span className="block h-0.5 w-5 bg-current" />
+            </div>
+            <span className="text-xs font-bold uppercase tracking-[0.15em] text-foreground group-hover:text-primary transition-colors">
+              Browse Collections
+            </span>
+          </button>
 
-            <div className="hidden lg:flex items-center gap-2 border-l border-border pl-8 min-w-0">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-medium">
-                Currently viewing
-              </span>
-              <span className="px-3 py-1 bg-primary text-primary-foreground text-xs rounded-full whitespace-nowrap">
+          <div className="hidden lg:flex items-center gap-4 min-w-0">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              Currently viewing
+            </span>
+            <div className="flex items-center gap-2 px-3.5 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-primary">
+              <span className="text-sm font-medium whitespace-nowrap">
                 {category === "All" ? "All Items" : category}
               </span>
+              {category !== "All" && (
+                <button
+                  onClick={() => setCategory("All")}
+                  aria-label="Clear category filter"
+                  className="p-0.5 hover:bg-primary/15 rounded-full transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
             </div>
           </div>
 
-          <div className="flex items-center gap-6">
-            <div className="hidden sm:block text-right">
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Showing</p>
-              <p className="text-sm italic text-foreground" style={SERIF}>
-                {visibleProducts.length} Handmade {visibleProducts.length === 1 ? "Piece" : "Pieces"}
-              </p>
-            </div>
-            <div className="relative">
-              <select
-                aria-label="Sort products"
-                value={sort}
-                onChange={(e) => setSort(e.target.value)}
-                className="appearance-none bg-transparent pr-8 pl-2 py-1 border-b border-primary/30 text-sm text-foreground focus:outline-none focus:border-primary cursor-pointer"
-              >
-                <option value="featured">Featured</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="name">Name: A–Z</option>
-              </select>
-              <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground pointer-events-none" />
+          <div className="flex items-center gap-8">
+            <p className="hidden sm:block text-sm text-muted-foreground">
+              Showing <span className="font-bold text-foreground">{visibleProducts.length}</span> Handmade Pieces
+            </p>
+            <div className="flex items-center gap-2 border-l border-border pl-8">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Sort by</span>
+              <div className="relative">
+                <select
+                  aria-label="Sort products"
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                  className="appearance-none bg-transparent pr-6 text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
+                >
+                  <option value="featured">Featured</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="name">Name: A–Z</option>
+                </select>
+                <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              </div>
             </div>
           </div>
         </div>
@@ -304,7 +312,7 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
         {galleryOpen && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10 py-6 mb-8 border-t border-border">
             <div className="space-y-4">
-              <h3 className="text-lg text-foreground border-b border-border pb-2" style={SERIF}>
+              <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
                 All Collections
               </h3>
               <ul className="space-y-2.5">
@@ -312,7 +320,7 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
               </ul>
             </div>
             <div className="space-y-4">
-              <h3 className="text-lg text-foreground border-b border-border pb-2" style={SERIF}>
+              <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
                 Browse by Category
               </h3>
               <ul className="space-y-2.5">
