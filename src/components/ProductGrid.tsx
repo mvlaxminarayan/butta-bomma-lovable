@@ -55,7 +55,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
       .schema("api")
       .from("products")
       .select("*")
-      .eq("in_stock", true)
+      .order("in_stock", { ascending: false })
       .order("created_at", { ascending: false });
 
     console.log("Products query result:", { products, error });
@@ -217,9 +217,12 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "" }: ProductGr
           </div>
         )}
 
-        {!query && (
+        {query && (
           <div className="text-center mt-12">
-            <button className="text-primary font-semibold hover:underline transition-all duration-300">
+            <button
+              onClick={onClearSearch}
+              className="text-primary font-semibold hover:underline transition-all duration-300"
+            >
               View All Products →
             </button>
           </div>
