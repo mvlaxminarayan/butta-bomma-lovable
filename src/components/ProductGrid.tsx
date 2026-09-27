@@ -5,7 +5,7 @@ import productMug from "@/assets/product-mug.jpg";
 import productBasket from "@/assets/product-basket.jpg";
 import productCuttingBoard from "@/assets/product-cutting-board.jpg";
 import { getProductReviewsSync } from "@/hooks/useProductReviews";
-import { resolveImageUrls, productImageRefs, FALLBACK_IMAGE } from "@/lib/productImages";
+import { resolveImageUrls, productImageRefs, LOCAL_ASSETS, FALLBACK_IMAGE } from "@/lib/productImages";
 
 interface ProductGridProps {
   onAddToCart: (product: Product) => void;
