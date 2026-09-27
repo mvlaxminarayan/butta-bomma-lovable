@@ -1,5 +1,7 @@
-import { useState, useEffect, useMemo, useRef } from "react";
-import { ChevronLeft, ChevronRight, LayoutGrid, X } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { ChevronDown, X } from "lucide-react";
+
+const SERIF = { fontFamily: "'Playfair Display', Georgia, serif" };
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard, { Product } from "./ProductCard";
 import productMug from "@/assets/product-mug.jpg";
