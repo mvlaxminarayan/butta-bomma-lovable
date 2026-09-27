@@ -79,6 +79,7 @@ const Index = () => {
         onAddToCart={addToCart}
         onViewDetails={handleViewDetails}
         searchQuery={searchQuery}
+        onClearSearch={() => setSearchQuery("")}
       />
       <Cart
         isOpen={isCartOpen}

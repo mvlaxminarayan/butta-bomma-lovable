@@ -11,6 +11,7 @@ interface ProductGridProps {
   onAddToCart: (product: Product) => void;
   onViewDetails: (product: Product) => void;
   searchQuery?: string;
+  onClearSearch?: () => void;
 }
 
 // Fallback product data for when database is empty
@@ -131,7 +132,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
   }
 };
 
-const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "" }: ProductGridProps) => {
+const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSearch }: ProductGridProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
