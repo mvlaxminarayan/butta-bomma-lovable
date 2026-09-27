@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveImageUrls, productImageRefs } from "@/lib/productImages";
+import { formatINR } from "@/lib/pricing";
 
 interface Slide {
   id: string | null;
@@ -164,7 +165,7 @@ const Hero = () => {
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-primary-foreground">
                   <div className="text-xl font-semibold drop-shadow">{active.name}</div>
                   <div className="flex items-center gap-3 text-sm opacity-90">
-                    {active.price != null && <span>${active.price.toFixed(2)}</span>}
+                    {active.price != null && <span>{formatINR(active.price)}</span>}
                     <span className="underline underline-offset-4 group-hover:opacity-100 opacity-80">
                       View piece →
                     </span>

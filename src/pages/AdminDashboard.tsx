@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { formatINR } from "@/lib/pricing";
 import { Trash2, Edit, Plus, Upload, X, CloudUpload, Store, Search, LayoutGrid, List, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   BUCKET, LOCAL_ASSETS, productImageRefs, resolveImageUrls, uploadProductImage, FALLBACK_IMAGE,
@@ -309,7 +310,7 @@ export default function AdminDashboard() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="price">Price ($)</Label>
+                    <Label htmlFor="price">Price (₹)</Label>
                     <Input id="price" type="number" step="0.01" value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })} required />
                   </div>
@@ -470,7 +471,7 @@ export default function AdminDashboard() {
                     <p className="font-medium text-sm line-clamp-1">{product.name}</p>
                     <p className="text-xs text-muted-foreground">{product.category || "Uncategorized"}</p>
                     <div className="flex items-center justify-between mt-1">
-                      <span className="font-semibold text-sm">${product.price.toFixed(2)}</span>
+                      <span className="font-semibold text-sm">{formatINR(product.price)}</span>
                       <Badge variant={product.in_stock ? "default" : "destructive"} className="text-[10px]">
                         {product.in_stock ? `${product.stock_quantity} left` : "Out of Stock"}
                       </Badge>
@@ -509,7 +510,7 @@ export default function AdminDashboard() {
                     </TableCell>
                     <TableCell className="font-medium">{product.name}</TableCell>
                     <TableCell>{product.category || "Uncategorized"}</TableCell>
-                    <TableCell>${product.price.toFixed(2)}</TableCell>
+                    <TableCell>{formatINR(product.price)}</TableCell>
                     <TableCell>{product.stock_quantity}</TableCell>
                     <TableCell>
                       <Badge variant={product.in_stock ? "default" : "destructive"}>
