@@ -66,6 +66,7 @@ export type Database = {
           image_url: string | null
           images: string[]
           in_stock: boolean | null
+          is_featured: boolean
           name: string
           price: number
           specifications: Json
@@ -81,6 +82,7 @@ export type Database = {
           image_url?: string | null
           images?: string[]
           in_stock?: boolean | null
+          is_featured?: boolean
           name: string
           price: number
           specifications?: Json
@@ -96,6 +98,7 @@ export type Database = {
           image_url?: string | null
           images?: string[]
           in_stock?: boolean | null
+          is_featured?: boolean
           name?: string
           price?: number
           specifications?: Json
