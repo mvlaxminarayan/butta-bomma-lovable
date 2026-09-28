@@ -56,6 +56,78 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          coupon_code: string | null
+          courier: string | null
+          created_at: string
+          customer_name: string | null
+          discount: number
+          email: string | null
+          id: string
+          items: Json
+          order_number: string
+          phone: string | null
+          razorpay_order_id: string | null
+          razorpay_payment_id: string | null
+          shipping_address: Json
+          shipping_fee: number
+          status: string
+          status_history: Json
+          subtotal: number
+          total: number
+          tracking_number: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          coupon_code?: string | null
+          courier?: string | null
+          created_at?: string
+          customer_name?: string | null
+          discount?: number
+          email?: string | null
+          id?: string
+          items?: Json
+          order_number: string
+          phone?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          shipping_address?: Json
+          shipping_fee?: number
+          status?: string
+          status_history?: Json
+          subtotal?: number
+          total?: number
+          tracking_number?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          coupon_code?: string | null
+          courier?: string | null
+          created_at?: string
+          customer_name?: string | null
+          discount?: number
+          email?: string | null
+          id?: string
+          items?: Json
+          order_number?: string
+          phone?: string | null
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          shipping_address?: Json
+          shipping_fee?: number
+          status?: string
+          status_history?: Json
+          subtotal?: number
+          total?: number
+          tracking_number?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category: string | null
