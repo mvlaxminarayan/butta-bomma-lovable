@@ -1,17 +1,18 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { formatINR } from "@/lib/pricing";
-import { Trash2, Edit, Plus, Upload, X, CloudUpload, Store, Search, LayoutGrid, List, ChevronLeft, ChevronRight } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Trash2, Edit, Plus, Upload, X, CloudUpload, Store, Search, LayoutGrid, List, ChevronLeft, ChevronRight, Package, ClipboardList, Percent, BookOpen } from "lucide-react";
 import {
   BUCKET, LOCAL_ASSETS, productImageRefs, resolveImageUrls, uploadProductImage, FALLBACK_IMAGE,
 } from "@/lib/productImages";
@@ -60,6 +61,11 @@ export default function AdminDashboard() {
   const [view, setView] = useState<"table" | "grid">("table");
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 25;
+
+  // Active tab, kept in the URL so links like /admin?tab=orders work
+  const [params, setParams] = useSearchParams();
+  const tab = params.get("tab") || "products";
+  const setTab = (t: string) => setParams(t === "products" ? {} : { tab: t }, { replace: true });
 
   useEffect(() => { fetchProducts(); }, []);
 
@@ -271,26 +277,36 @@ export default function AdminDashboard() {
       <div className="flex flex-wrap gap-4 justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage your products and inventory</p>
+          <p className="text-muted-foreground">Manage your products, orders and offers</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => navigate("/")}>
-            <Store className="w-4 h-4 mr-2" />
-            Back to Shop
-          </Button>
-          {hasBuiltIn && (
-            <Button variant="outline" onClick={migrateBuiltInPhotos} disabled={migrating}>
-              <CloudUpload className="w-4 h-4 mr-2" />
-              {migrating ? "Moving photos..." : "Move sample photos to storage"}
-            </Button>
-          )}
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={resetForm}>
-                <Plus className="w-4 h-4 mr-2" />
-                Add Product
+        <Button variant="outline" onClick={() => navigate("/")}>
+          <Store className="w-4 h-4 mr-2" />
+          Back to Shop
+        </Button>
+      </div>
+
+      <Tabs value={tab} onValueChange={setTab} className="space-y-4">
+        <TabsList className="h-auto flex-wrap">
+          <TabsTrigger value="products" className="gap-1.5"><Package className="w-4 h-4" />Products</TabsTrigger>
+          <TabsTrigger value="orders" className="gap-1.5"><ClipboardList className="w-4 h-4" />Orders</TabsTrigger>
+          <TabsTrigger value="discounts" className="gap-1.5"><Percent className="w-4 h-4" />Discounts</TabsTrigger>
+          <TabsTrigger value="story" className="gap-1.5"><BookOpen className="w-4 h-4" />Store Story</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="products" className="space-y-4 mt-4">
+          <div className="flex flex-wrap gap-2 justify-between">
+            {hasBuiltIn ? (
+              <Button variant="outline" onClick={migrateBuiltInPhotos} disabled={migrating}>
+                <CloudUpload className="w-4 h-4 mr-2" />
+                {migrating ? "Moving photos..." : "Move sample photos to storage"}
               </Button>
-            </DialogTrigger>
+            ) : <span />}
+            <Button onClick={() => { resetForm(); setIsDialogOpen(true); }}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Product
+            </Button>
+          </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingProduct ? "Edit Product" : "Add New Product"}</DialogTitle>
@@ -400,8 +416,6 @@ export default function AdminDashboard() {
               </form>
             </DialogContent>
           </Dialog>
-        </div>
-      </div>
 
       <Card>
         <CardHeader>
@@ -432,6 +446,7 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
+
 
           <div className="flex flex-wrap gap-2 pt-3">
             <Button size="sm" variant={categoryFilter === "all" ? "default" : "outline"}
@@ -555,17 +570,13 @@ export default function AdminDashboard() {
         </CardContent>
       </Card>
 
-      <div className="mt-6">
-        <OrdersManager />
-      </div>
+        </TabsContent>
 
-      <div className="mt-6">
-        <DiscountsManager />
-      </div>
-
-      <div className="mt-6">
-        <StoryManager />
-      </div>
+        <TabsContent value="orders"><OrdersManager /></TabsContent>
+        <TabsContent value="discounts"><DiscountsManager /></TabsContent>
+        <TabsContent value="story"><StoryManager /></TabsContent>
+      </Tabs>
     </div>
   );
 }
+
