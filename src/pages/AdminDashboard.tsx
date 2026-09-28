@@ -416,7 +416,6 @@ export default function AdminDashboard() {
               </form>
             </DialogContent>
           </Dialog>
-        </div>
 
       <Card>
         <CardHeader>
