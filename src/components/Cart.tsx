@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Product } from "./ProductCard";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
+import { PENDING_ORDER_KEY } from "@/lib/orders";
 
 export interface CartItem extends Product {
   quantity: number;
@@ -77,10 +78,28 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
         description: cartItems.length === 1 ? cartItems[0].name : `${cartItems.length} items`,
         order_id: data.orderId,
         theme: { color: "#16a34a" },
-        handler: () => {
+        handler: async (resp: any) => {
+          const { data: saved } = await supabase.functions.invoke("orders", {
+            body: {
+              action: "create",
+              razorpay_order_id: resp.razorpay_order_id,
+              razorpay_payment_id: resp.razorpay_payment_id,
+              razorpay_signature: resp.razorpay_signature,
+              items: cartItems.map((i) => ({ id: i.id, quantity: i.quantity })),
+              shipping_fee: shipping,
+              coupon_code: couponOk ? coupon?.code : null,
+            },
+          });
           localStorage.removeItem("cart");
           window.dispatchEvent(new Event("cart-changed"));
-          window.location.href = "/payment-success";
+          if (saved?.order_number) {
+            sessionStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({
+              order_number: saved.order_number, payment_id: resp.razorpay_payment_id,
+            }));
+            window.location.href = `/shipping-details?order=${saved.order_number}`;
+          } else {
+            window.location.href = "/payment-success";
+          }
         },
         modal: {
           ondismiss: () => {
