@@ -1,4 +1,5 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import logo from "@/assets/logo.png";
 import { useState, useEffect } from "react";
 import { ArrowLeft, Heart, Share2, ShoppingCart, Star, Plus, Minus, RotateCcw } from "lucide-react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
@@ -282,14 +283,19 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
       {/* Header */}
       <header className="border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/")}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Shop
-          </Button>
+          <div className="flex items-center gap-3">
+            <Link to="/" aria-label="Go to home page" className="relative p-1.5 bg-gradient-to-br from-background/80 to-background/60 rounded-xl border border-border/30 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
+              <img src={logo} alt="Shop Logo" className="h-10 w-auto object-contain" />
+            </Link>
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/")}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Shop
+            </Button>
+          </div>
           <Button
             variant="ghost"
             size="icon"
