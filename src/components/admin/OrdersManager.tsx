@@ -81,57 +81,86 @@ const OrderRow = ({ order, onSaved }: { order: Order; onSaved: () => void }) => 
   );
 };
 
+const PAGE_SIZE = 25;
+const CLOSED = ["delivered", "cancelled", "refunded"];
+
 const OrdersManager = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [total, setTotal] = useState(0);
+  const [counts, setCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "open" | OrderStatus>("open");
   const [search, setSearch] = useState("");
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(0);
+
+  // Debounce search so we don't query on every keystroke
+  useEffect(() => {
+    const t = setTimeout(() => { setQuery(search.trim()); setPage(0); }, 350);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  const loadCounts = async () => {
+    const { data } = await (supabase as any).schema("api").rpc("order_status_counts");
+    const c: Record<string, number> = { all: 0, open: 0 };
+    (data || []).forEach((r: { status: string; n: number }) => {
+      const n = Number(r.n);
+      c[r.status] = n; c.all += n;
+      if (!CLOSED.includes(r.status)) c.open += n;
+    });
+    setCounts(c);
+  };
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await db().select("*").order("created_at", { ascending: false }).limit(500);
+    let q = db().select("*", { count: "exact" }).order("created_at", { ascending: false });
+    if (filter === "open") q = q.not("status", "in", `(${CLOSED.join(",")})`);
+    else if (filter !== "all") q = q.eq("status", filter);
+    if (query) {
+      const s = query.replace(/[%,()*]/g, " ");
+      q = q.or(`order_number.ilike.%${s}%,customer_name.ilike.%${s}%,email.ilike.%${s}%`);
+    }
+    const from = page * PAGE_SIZE;
+    const { data, error, count } = await q.range(from, from + PAGE_SIZE - 1);
     if (error) toast({ title: "Could not load orders", description: error.message });
     setOrders(data || []);
+    setTotal(count || 0);
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
 
-  const counts = useMemo(() => {
-    const c: Record<string, number> = { all: orders.length, open: 0 };
-    orders.forEach((o) => {
-      c[o.status] = (c[o.status] || 0) + 1;
-      if (!["delivered", "cancelled", "refunded"].includes(o.status)) c.open++;
-    });
-    return c;
-  }, [orders]);
+  useEffect(() => { load(); }, [filter, query, page]);
+  useEffect(() => { loadCounts(); }, []);
 
-  const shown = orders.filter((o) => {
-    if (filter === "open" && ["delivered", "cancelled", "refunded"].includes(o.status)) return false;
-    if (filter !== "all" && filter !== "open" && o.status !== filter) return false;
-    const q = search.trim().toLowerCase();
-    return !q || [o.order_number, o.customer_name, o.email].some((v) => v?.toLowerCase().includes(q));
-  });
-
+  const refresh = () => { load(); loadCounts(); };
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const tabs: ("open" | "all" | OrderStatus)[] = ["open", "paid", "packed", "shipped", "out_for_delivery", "delivered", "cancelled", "refunded", "all"];
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle>Orders</CardTitle>
-        <Button variant="outline" size="sm" onClick={load}><RefreshCw className="mr-1 h-4 w-4" />Refresh</Button>
+        <Button variant="outline" size="sm" onClick={refresh}><RefreshCw className="mr-1 h-4 w-4" />Refresh</Button>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-2">
           {tabs.map((t) => (
-            <Button key={t} size="sm" variant={filter === t ? "default" : "outline"} onClick={() => setFilter(t)}>
+            <Button key={t} size="sm" variant={filter === t ? "default" : "outline"} onClick={() => { setFilter(t); setPage(0); }}>
               {t === "open" ? "To do" : t === "all" ? "All" : STATUS_LABELS[t]} ({counts[t] || 0})
             </Button>
           ))}
         </div>
         <Input placeholder="Search order number, name or email" value={search} onChange={(e) => setSearch(e.target.value)} />
         {loading ? <p className="text-sm text-muted-foreground">Loading orders...</p>
-          : shown.length === 0 ? <p className="text-sm text-muted-foreground">No orders here.</p>
-          : <div className="space-y-2">{shown.map((o) => <OrderRow key={o.id + o.status} order={o} onSaved={load} />)}</div>}
+          : orders.length === 0 ? <p className="text-sm text-muted-foreground">No orders here.</p>
+          : <div className="space-y-2">{orders.map((o) => <OrderRow key={o.id + o.status} order={o} onSaved={refresh} />)}</div>}
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>{total === 0 ? "0 orders" : `Showing ${page * PAGE_SIZE + 1}–${Math.min(total, (page + 1) * PAGE_SIZE)} of ${total}`}</span>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" disabled={page === 0 || loading} onClick={() => setPage(page - 1)}>Previous</Button>
+            <span>Page {page + 1} of {pages}</span>
+            <Button size="sm" variant="outline" disabled={page + 1 >= pages || loading} onClick={() => setPage(page + 1)}>Next</Button>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
