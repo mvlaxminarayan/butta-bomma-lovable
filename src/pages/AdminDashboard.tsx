@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { formatINR } from "@/lib/pricing";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trash2, Edit, Plus, Upload, X, CloudUpload, Store, Search, LayoutGrid, List, ChevronLeft, ChevronRight, Package, ClipboardList, Percent, BookOpen } from "lucide-react";
+import { Link } from "react-router-dom";
+import logo from "@/assets/logo.png";
 import {
   BUCKET, LOCAL_ASSETS, productImageRefs, resolveImageUrls, uploadProductImage, FALLBACK_IMAGE,
 } from "@/lib/productImages";
@@ -275,9 +277,14 @@ export default function AdminDashboard() {
   return (
     <div className="container mx-auto p-6">
       <div className="flex flex-wrap gap-4 justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Manage your products, orders and offers</p>
+        <div className="flex items-center gap-3">
+          <Link to="/" aria-label="Go to home page" className="relative p-1.5 bg-gradient-to-br from-background/80 to-background/60 rounded-xl border border-border/30 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
+            <img src={logo} alt="Shop Logo" className="h-10 w-auto object-contain" />
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Manage your products, orders and offers</p>
+          </div>
         </div>
         <Button variant="outline" onClick={() => navigate("/")}>
           <Store className="w-4 h-4 mr-2" />
