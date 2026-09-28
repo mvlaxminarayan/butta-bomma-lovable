@@ -13,6 +13,8 @@ import ShippingDetails from "./pages/ShippingDetails";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
+import TrackOrder from "./pages/TrackOrder";
+import MyOrders from "./pages/MyOrders";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +45,8 @@ const App = () => (
             }} />} />
 
             <Route path="/shipping-details" element={<ShippingDetails />} />
+            <Route path="/track-order" element={<TrackOrder />} />
+            <Route path="/my-orders" element={<MyOrders />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-canceled" element={<PaymentCanceled />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

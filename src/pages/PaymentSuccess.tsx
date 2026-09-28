@@ -8,6 +8,7 @@ const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const shippingComplete = searchParams.get('shipping_complete');
+  const orderNumber = searchParams.get('order');
 
   useEffect(() => {
     document.title = "Order Complete - Thank You!";
@@ -67,6 +68,9 @@ const PaymentSuccess = () => {
         <div className="mb-8">
           <CheckCircle className="h-20 w-20 text-green-600 mx-auto mb-6" />
           <h1 className="text-4xl font-bold mb-4">Order Complete!</h1>
+          {orderNumber && (
+            <p className="text-lg mb-2">Your order number is <span className="font-mono font-semibold text-primary">{orderNumber}</span></p>
+          )}
           <p className="text-lg text-muted-foreground mb-6">
             Thank you for your purchase! Your handcrafted item will be carefully prepared and shipped to you.
           </p>
@@ -119,9 +123,9 @@ const PaymentSuccess = () => {
         </Card>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button onClick={handleViewShippingDetails} variant="outline" className="gap-2">
+          <Button onClick={() => navigate(`/track-order${orderNumber ? `?order=${orderNumber}` : ""}`)} variant="outline" className="gap-2">
             <Eye className="h-4 w-4" />
-            View Shipping Details
+            Track Your Order
           </Button>
           <Button onClick={() => navigate('/')} className="gap-2">
             Continue Shopping
@@ -129,7 +133,7 @@ const PaymentSuccess = () => {
         </div>
 
         <p className="text-sm text-muted-foreground mt-8">
-          A confirmation email has been sent to your email address with order details and tracking information.
+          Save your order number — use it with your email on the Track Order page anytime to see progress and courier tracking.
         </p>
       </div>
     </main>

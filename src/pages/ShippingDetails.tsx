@@ -268,6 +268,7 @@ const ShippingDetails = () => {
                       <SelectValue placeholder="Select country" />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="IN">India</SelectItem>
                       <SelectItem value="US">United States</SelectItem>
                       <SelectItem value="CA">Canada</SelectItem>
                       <SelectItem value="UK">United Kingdom</SelectItem>
