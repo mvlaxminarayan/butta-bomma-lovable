@@ -306,6 +306,7 @@ export default function AdminDashboard() {
               Add Product
             </Button>
           </div>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingProduct ? "Edit Product" : "Add New Product"}</DialogTitle>
@@ -444,7 +445,10 @@ export default function AdminDashboard() {
                   className="rounded-none" onClick={() => setView("grid")} aria-label="Grid view">
                   <LayoutGrid className="w-4 h-4" />
                 </Button>
+              </div>
+            </div>
           </div>
+
 
           <div className="flex flex-wrap gap-2 pt-3">
             <Button size="sm" variant={categoryFilter === "all" ? "default" : "outline"}
@@ -568,17 +572,13 @@ export default function AdminDashboard() {
         </CardContent>
       </Card>
 
-      <div className="mt-6">
-        <OrdersManager />
-      </div>
+        </TabsContent>
 
-      <div className="mt-6">
-        <DiscountsManager />
-      </div>
-
-      <div className="mt-6">
-        <StoryManager />
-      </div>
+        <TabsContent value="orders"><OrdersManager /></TabsContent>
+        <TabsContent value="discounts"><DiscountsManager /></TabsContent>
+        <TabsContent value="story"><StoryManager /></TabsContent>
+      </Tabs>
     </div>
   );
 }
+
