@@ -1,4 +1,5 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import logo from "@/assets/logo.png";
 import { useState, useEffect } from "react";
 import { ArrowLeft, Heart, Share2, ShoppingCart, Star, Plus, Minus, RotateCcw } from "lucide-react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
