@@ -41,29 +41,61 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
     toast({ title: "Coupon applied", description: subtotal < c.min_order ? `Spend ${formatINR(c.min_order)} to use this code.` : c.code });
   };
 
+  const loadRazorpayScript = (): Promise<boolean> =>
+    new Promise((resolve) => {
+      if ((window as any).Razorpay) return resolve(true);
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+
   const handleCheckout = async () => {
     try {
       setIsLoading(true);
-      // Use the Supabase client directly
-      const { data, error } = await supabase.functions.invoke("create-payment", {
+
+      const { data, error } = await supabase.functions.invoke("create-razorpay-order", {
         body: {
           product: cartItems.length === 1 ? cartItems[0].name : `${cartItems.length} items`,
-          amount: Math.round(total * 100),
-          subtotal: Math.round(subtotal * 100) / 100,
-          couponCode: couponOk ? coupon!.code : undefined,
-          currency: "inr",
+          amount: Math.round(total * 100) / 100,
         },
       });
 
-      if (error || !data?.url) {
-        throw new Error(error?.message || "Could not start checkout.");
+      if (error || !data?.orderId) {
+        throw new Error((data as any)?.error || error?.message || "Could not start checkout.");
       }
 
-      // Redirect to Stripe checkout page
-      window.location.href = (data as any).url;
+      const scriptOk = await loadRazorpayScript();
+      if (!scriptOk) throw new Error("Could not load the payment window. Check your connection and try again.");
+
+      const rzp = new (window as any).Razorpay({
+        key: data.keyId,
+        amount: data.amount,
+        currency: data.currency,
+        name: "Buttabomma Shop",
+        description: cartItems.length === 1 ? cartItems[0].name : `${cartItems.length} items`,
+        order_id: data.orderId,
+        theme: { color: "#16a34a" },
+        handler: () => {
+          localStorage.removeItem("cart");
+          window.dispatchEvent(new Event("cart-changed"));
+          window.location.href = "/payment-success";
+        },
+        modal: {
+          ondismiss: () => {
+            setIsLoading(false);
+            toast({ title: "Payment canceled", description: "Your cart is saved — you can check out anytime." });
+          },
+        },
+      });
+      rzp.on("payment.failed", (resp: any) => {
+        setIsLoading(false);
+        toast({ title: "Payment failed", description: resp?.error?.description || "Please try again." });
+      });
+      rzp.open();
     } catch (err: any) {
       toast({ title: "Checkout failed", description: err?.message || "Please try again." });
-    } finally {
       setIsLoading(false);
     }
   };
