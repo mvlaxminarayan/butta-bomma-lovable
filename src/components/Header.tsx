@@ -88,6 +88,10 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
               )}
             </Button>
 
+            <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex">
+              <Link to="/track-order">Track Order</Link>
+            </Button>
+
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -98,6 +102,9 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem>
                     <span className="font-medium">{profile?.full_name || user.email}</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/my-orders">My Orders</Link>
                   </DropdownMenuItem>
                   {profile?.role === "admin" && (
                     <DropdownMenuItem asChild>
@@ -131,6 +138,9 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/?wishlist=1")}>
                   Wishlist{wishlistCount > 0 ? ` (${wishlistCount})` : ""}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/track-order")}>
+                  Track Order
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

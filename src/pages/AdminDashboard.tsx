@@ -17,6 +17,7 @@ import {
 } from "@/lib/productImages";
 import DiscountsManager from "@/components/admin/DiscountsManager";
 import StoryManager from "@/components/admin/StoryManager";
+import OrdersManager from "@/components/admin/OrdersManager";
 
 interface Product {
   id: string;
@@ -553,6 +554,10 @@ export default function AdminDashboard() {
           )}
         </CardContent>
       </Card>
+
+      <div className="mt-6">
+        <OrdersManager />
+      </div>
 
       <div className="mt-6">
         <DiscountsManager />
