@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { formatINR } from "@/lib/pricing";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trash2, Edit, Plus, Upload, X, CloudUpload, Store, Search, LayoutGrid, List, ChevronLeft, ChevronRight, Package, ClipboardList, Percent, BookOpen } from "lucide-react";
+import { Link } from "react-router-dom";
+import logo from "@/assets/logo.png";
 import {
   BUCKET, LOCAL_ASSETS, productImageRefs, resolveImageUrls, uploadProductImage, FALLBACK_IMAGE,
 } from "@/lib/productImages";
