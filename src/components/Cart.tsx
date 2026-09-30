@@ -153,7 +153,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
           <div className="flex items-center justify-between p-6 border-b">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <ShoppingBag className="h-5 w-5" />
-              Shopping Cart
+              {step === "details" ? "Delivery Details" : "Shopping Cart"}
             </h2>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="h-5 w-5" />
