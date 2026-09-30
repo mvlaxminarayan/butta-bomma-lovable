@@ -468,11 +468,11 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <Button
                   onClick={handleAddToCart}
                   disabled={!product.inStock}
-                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                  className="min-w-0 basis-full sm:basis-auto sm:flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
                   size="lg"
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
