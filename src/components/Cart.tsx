@@ -54,20 +54,26 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
       document.body.appendChild(script);
     });
 
+  const FRIENDLY = "Something went wrong on our side. Please wait a moment and try again — your cart and details are saved.";
   const handleCheckout = async (details: CheckoutDetails) => {
     try {
       setIsLoading(true);
 
-      const { data, error } = await supabase.functions.invoke("create-razorpay-order", {
-        body: {
-          product: cartItems.length === 1 ? cartItems[0].name : `${cartItems.length} items`,
-          amount: Math.round(total * 100) / 100,
-        },
-      });
-
-      if (error || !data?.orderId) {
-        throw new Error((data as any)?.error || error?.message || "Could not start checkout.");
+      let data: any = null;
+      for (let attempt = 0; attempt < 3 && !data?.orderId; attempt++) {
+        if (attempt) await new Promise((r) => setTimeout(r, 1200 * attempt));
+        try {
+          const res = await supabase.functions.invoke("create-razorpay-order", {
+            body: {
+              product: cartItems.length === 1 ? cartItems[0].name : `${cartItems.length} items`,
+              amount: Math.round(total * 100) / 100,
+            },
+          });
+          if (!res.error) data = res.data;
+          else console.error("create-razorpay-order failed", res.error);
+        } catch (e) { console.error("create-razorpay-order threw", e); }
       }
+      if (!data?.orderId) throw new Error(FRIENDLY);
 
       const scriptOk = await loadRazorpayScript();
       if (!scriptOk) throw new Error("Could not load the payment window. Check your connection and try again.");
@@ -82,7 +88,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
         theme: { color: "#16a34a" },
         prefill: { name: details.name, email: details.email, contact: details.phone },
         handler: async (resp: any) => {
-          const { data: saved } = await supabase.functions.invoke("orders", {
+          const body = {
             body: {
               action: "create",
               razorpay_order_id: resp.razorpay_order_id,
@@ -104,8 +110,15 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
                   instructions: details.instructions,
                 },
               },
-            },
-          });
+          };
+          let saved: any = null;
+          for (let attempt = 0; attempt < 3 && !saved?.order_number; attempt++) {
+            if (attempt) await new Promise((r) => setTimeout(r, 1500 * attempt));
+            try {
+              const res = await supabase.functions.invoke("orders", { body });
+              if (!res.error) saved = res.data; else console.error("orders create failed", res.error);
+            } catch (e) { console.error("orders create threw", e); }
+          }
           localStorage.removeItem("cart");
           window.dispatchEvent(new Event("cart-changed"));
           if (saved?.order_number) {
@@ -126,11 +139,13 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
       });
       rzp.on("payment.failed", (resp: any) => {
         setIsLoading(false);
-        toast({ title: "Payment failed", description: resp?.error?.description || "Please try again." });
+        console.error("Razorpay payment failed", resp?.error);
+        toast({ title: "Payment didn't go through", description: "No money was taken. Please try again or use another payment method." });
       });
       rzp.open();
     } catch (err: any) {
-      toast({ title: "Checkout failed", description: err?.message || "Please try again." });
+      console.error("Checkout error", err);
+      toast({ title: "We couldn't start your payment", description: FRIENDLY });
       setIsLoading(false);
     }
   };
