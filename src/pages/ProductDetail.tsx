@@ -551,7 +551,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
           <ProductReviews productId={product.id} productName={product.name} />
         </div>
         <div className="mt-8"><ProductQuestions productId={product.id} /></div>
-        <div className="mt-8"><SimilarProductsCompare productId={product.id} category={product.category} /></div>
+        <div className="mt-8"><SimilarProductsCompare current={{ id: product.id, name: product.name, price: product.price, in_stock: product.inStock, image: product.image, specifications: product.specifications }} category={product.category} /></div>
       </main>
     </div>
   );
