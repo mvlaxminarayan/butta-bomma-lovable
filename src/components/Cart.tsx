@@ -89,7 +89,6 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
         prefill: { name: details.name, email: details.email, contact: details.phone },
         handler: async (resp: any) => {
           const body = {
-            body: {
               action: "create",
               razorpay_order_id: resp.razorpay_order_id,
               razorpay_payment_id: resp.razorpay_payment_id,
