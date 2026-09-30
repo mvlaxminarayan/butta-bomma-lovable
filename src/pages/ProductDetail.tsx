@@ -1,7 +1,7 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import { useState, useEffect } from "react";
-import { ArrowLeft, Heart, Share2, ShoppingCart, Star, Plus, Minus, RotateCcw } from "lucide-react";
+import { ArrowLeft, Heart, Share2, ShoppingCart, Star, Plus, Minus, RotateCcw, Zap } from "lucide-react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -193,6 +193,12 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
       title: "Added to cart",
       description: `${quantity} x ${product.name} added to your cart`,
     });
+  };
+
+  const handleBuyNow = () => {
+    onAddToCart(product, quantity);
+    setCartCount(readCartCount());
+    navigate("/?cart=checkout");
   };
 
   const updateQuantity = (newQuantity: number) => {
@@ -402,6 +408,16 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
                   Add to Cart - {formatINR(product.price * quantity)}
+                </Button>
+                <Button
+                  onClick={handleBuyNow}
+                  disabled={!product.inStock}
+                  variant="outline"
+                  size="lg"
+                  className="min-w-0 basis-full sm:basis-auto sm:flex-1 border-primary text-primary hover:bg-primary/10"
+                >
+                  <Zap className="h-5 w-5 mr-2" />
+                  Buy Now
                 </Button>
                 <Button
                   variant="outline"
