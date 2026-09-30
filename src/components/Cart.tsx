@@ -160,6 +160,15 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
             </Button>
           </div>
 
+          {step === "details" ? (
+            <CheckoutForm
+              total={formatINR(total)}
+              isLoading={isLoading}
+              onBack={() => setStep("cart")}
+              onSubmit={handleCheckout}
+            />
+          ) : (
+          <>
           {/* Cart Items */}
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             {cartItems.length === 0 ? (
@@ -264,8 +273,8 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
                 <p className="text-xs text-destructive">Code {coupon.code} needs an order of {formatINR(coupon.min_order)} or more.</p>
               )}
 
-              <Button className="w-full bg-primary hover:bg-primary/90" onClick={handleCheckout} disabled={isLoading}>
-                {isLoading ? "Redirecting..." : "Checkout"}
+              <Button className="w-full bg-primary hover:bg-primary/90" onClick={() => setStep("details")} disabled={isLoading}>
+                Proceed to Checkout
               </Button>
               
               {threshold != null && shipping > 0 && subtotal < threshold && (
@@ -274,6 +283,8 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
                 </p>
               )}
             </div>
+          )}
+          </>
           )}
         </div>
       </div>
