@@ -37,11 +37,11 @@ export default function SimilarProductsCompare({ current, category }: { current:
     <h2 id="compare-title" className="text-2xl font-semibold mt-1 mb-1">Compare similar pieces</h2>
     <p className="text-sm text-muted-foreground mb-5">Compare this piece with others in {category}. Scroll sideways on smaller screens.</p>
     <div className="overflow-x-auto rounded-xl border border-border">
-      <table className="w-full min-w-[640px] text-sm text-left border-collapse">
+      <table className="w-full min-w-[640px] table-fixed text-sm text-left border-collapse">
         <caption className="sr-only">Compare {current.name} with other pieces in {category}</caption>
-        <thead><tr className="bg-card"><th scope="col" className="w-28 p-3 text-muted-foreground font-medium align-top">Piece</th>{compared.map((item, i) => <th scope="col" key={item.id} className="min-w-36 p-3 align-top border-l border-border font-medium">
+        <thead><tr className="bg-card"><th scope="col" className="w-28 p-3 text-muted-foreground font-medium align-top">Piece</th>{compared.map((item, i) => <th scope="col" key={item.id} className="p-3 align-top border-l border-border font-medium">
           <Link to={`/product/${item.id}`} className="group block space-y-2 hover:text-primary">
-            <img src={item.image} alt="" className="w-full h-24 sm:h-36 object-cover rounded-md" loading="lazy" />
+            <img src={item.image} alt="" className="w-full h-24 sm:h-36 object-cover rounded-md" loading="lazy" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = FALLBACK_IMAGE; }} />
             <span className="block">{item.name} {i === 0 && <span className="block text-xs text-primary">This piece</span>}</span>
             {i !== 0 && <span className="block text-xs text-primary">View piece →</span>}
           </Link>
