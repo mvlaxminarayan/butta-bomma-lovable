@@ -11,6 +11,7 @@ import type { Product } from "@/components/ProductCard";
 import { formatINR } from "@/lib/pricing";
 import ProductReviews from "@/components/ProductReviews";
 import ProductQuestions from "@/components/ProductQuestions";
+import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveImageUrls, productImageRefs, FALLBACK_IMAGE } from "@/lib/productImages";
 import { isWishlisted, toggleWishlist } from "@/lib/wishlist";
@@ -474,6 +475,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
         </div>
         <div className="mt-8"><ProductQuestions productId={product.id} /></div>
       </main>
+      <Footer />
     </div>
   );
 };

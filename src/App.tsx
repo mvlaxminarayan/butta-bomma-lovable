@@ -15,6 +15,11 @@ import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import TrackOrder from "./pages/TrackOrder";
 import MyOrders from "./pages/MyOrders";
+import Contact from "./pages/Contact";
+import ShippingPolicy from "./pages/ShippingPolicy";
+import RefundPolicy from "./pages/RefundPolicy";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 const queryClient = new QueryClient();
 
@@ -49,6 +54,11 @@ const App = () => (
             <Route path="/my-orders" element={<MyOrders />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-canceled" element={<PaymentCanceled />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/shipping-policy" element={<ShippingPolicy />} />
+            <Route path="/refund-policy" element={<RefundPolicy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
