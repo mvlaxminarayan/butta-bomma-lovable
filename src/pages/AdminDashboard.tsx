@@ -390,7 +390,7 @@ export default function AdminDashboard() {
                   <Button type="button" variant="outline" size="sm" onClick={() => setSpecs([...specs, { key: "", value: "" }])}>
                     <Plus className="w-4 h-4 mr-1" /> Add specification
                   </Button>
-                  <p className="text-xs text-muted-foreground">Leave empty to show the standard features and specifications.</p>
+                  <p className="text-xs text-muted-foreground">Leave empty to show “Details coming soon” on the product page.</p>
                 </div>
                 <div className="space-y-2">
                   <Label>Photos</Label>
