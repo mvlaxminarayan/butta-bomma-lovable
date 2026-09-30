@@ -52,7 +52,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
       document.body.appendChild(script);
     });
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (details: CheckoutDetails) => {
     try {
       setIsLoading(true);
 
@@ -78,6 +78,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
         description: cartItems.length === 1 ? cartItems[0].name : `${cartItems.length} items`,
         order_id: data.orderId,
         theme: { color: "#16a34a" },
+        prefill: { name: details.name, email: details.email, contact: details.phone },
         handler: async (resp: any) => {
           const { data: saved } = await supabase.functions.invoke("orders", {
             body: {
@@ -88,6 +89,19 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
               items: cartItems.map((i) => ({ id: i.id, quantity: i.quantity })),
               shipping_fee: shipping,
               coupon_code: couponOk ? coupon?.code : null,
+              customer: {
+                name: details.name,
+                email: details.email,
+                phone: details.phone,
+                address: {
+                  address: details.address,
+                  city: details.city,
+                  state: details.state,
+                  zip: details.zip,
+                  country: "India",
+                  instructions: details.instructions,
+                },
+              },
             },
           });
           localStorage.removeItem("cart");
@@ -96,9 +110,9 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
             sessionStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({
               order_number: saved.order_number, payment_id: resp.razorpay_payment_id,
             }));
-            window.location.href = `/shipping-details?order=${saved.order_number}`;
+            window.location.href = `/payment-success?shipping_complete=1&order=${saved.order_number}`;
           } else {
-            window.location.href = "/payment-success";
+            window.location.href = "/payment-success?shipping_complete=1";
           }
         },
         modal: {
@@ -118,6 +132,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
       setIsLoading(false);
     }
   };
+
 
   if (!isOpen) return null;
 
