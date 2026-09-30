@@ -17,7 +17,10 @@ const Index = () => {
     try { return JSON.parse(localStorage.getItem("cart") || "[]"); } catch { return []; }
   });
   const [isCartOpen, setIsCartOpen] = useState(
-    () => new URLSearchParams(window.location.search).get("cart") === "open"
+    () => ["open", "checkout"].includes(new URLSearchParams(window.location.search).get("cart") || "")
+  );
+  const [cartAtCheckout, setCartAtCheckout] = useState(
+    () => new URLSearchParams(window.location.search).get("cart") === "checkout"
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [wishlistOnly, setWishlistOnly] = useState(
@@ -30,7 +33,15 @@ const Index = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get("wishlist") === "1") setWishlistOnly(true);
+    const cartParam = params.get("cart");
+    if (cartParam === "open") { setIsCartOpen(true); setCartAtCheckout(false); }
+    if (cartParam === "checkout") { setIsCartOpen(true); setCartAtCheckout(true); }
   }, [location.search]);
+
+  const closeCart = () => {
+    setIsCartOpen(false);
+    if (new URLSearchParams(location.search).get("cart")) navigate("/", { replace: true });
+  };
 
   useEffect(() => {
     const target = (location.state as { scrollTo?: string } | null)?.scrollTo;
@@ -130,10 +141,11 @@ const Index = () => {
       <Footer />
       <Cart
         isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
+        onClose={closeCart}
         cartItems={cartItems}
         onUpdateQuantity={updateQuantity}
         onRemoveItem={removeFromCart}
+        startAtCheckout={cartAtCheckout}
       />
     </div>
   );
