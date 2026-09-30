@@ -438,9 +438,9 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
 
             {/* Product details fill the space beneath the buying controls. */}
             <div className="space-y-6">
-              {product.features.length > 0 && (
-                <section>
-                  <h2 className="text-lg font-semibold mb-3">Features</h2>
+              <section>
+                <h2 className="text-lg font-semibold mb-3">Features</h2>
+                {product.features.length > 0 ? (
                   <ul className="space-y-2">
                     {product.features.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2">
@@ -449,12 +449,12 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                       </li>
                     ))}
                   </ul>
-                </section>
-              )}
+                ) : <p className="text-sm text-muted-foreground">Feature details coming soon.</p>}
+              </section>
 
-              {Object.keys(product.specifications).length > 0 && (
-                <section>
-                  <h2 className="text-lg font-semibold mb-3">Specifications</h2>
+              <section>
+                <h2 className="text-lg font-semibold mb-3">Specifications</h2>
+                {Object.keys(product.specifications).length > 0 ? (
                   <dl className="divide-y divide-border">
                     {Object.entries(product.specifications).map(([key, value]) => (
                       <div key={key} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] gap-3 py-2 first:pt-0">
@@ -463,8 +463,8 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                       </div>
                     ))}
                   </dl>
-                </section>
-              )}
+                ) : <p className="text-sm text-muted-foreground">Specifications coming soon.</p>}
+              </section>
             </div>
           </div>
         </div>
