@@ -9,6 +9,7 @@ import { Product } from "./ProductCard";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { PENDING_ORDER_KEY } from "@/lib/orders";
+import CheckoutForm, { CheckoutDetails } from "@/components/CheckoutForm";
 
 export interface CartItem extends Product {
   quantity: number;
@@ -24,12 +25,13 @@ interface CartProps {
 
 const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: CartProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState<"cart" | "details">("cart");
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const [settings, setSettings] = useState<StoreSettings>(DEFAULT_SETTINGS);
   const [codeInput, setCodeInput] = useState("");
   const [coupon, setCoupon] = useState<Coupon | null>(null);
   const [checking, setChecking] = useState(false);
-  useEffect(() => { if (isOpen) fetchStoreSettings().then(setSettings); }, [isOpen]);
+  useEffect(() => { if (isOpen) fetchStoreSettings().then(setSettings); else setStep("cart"); }, [isOpen]);
   const { discount, shipping, total, couponOk } = computeTotals(subtotal, settings, coupon);
   const threshold = settings.free_shipping_threshold;
 
@@ -52,7 +54,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
       document.body.appendChild(script);
     });
 
-  const handleCheckout = async () => {
+  const handleCheckout = async (details: CheckoutDetails) => {
     try {
       setIsLoading(true);
 
@@ -78,6 +80,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
         description: cartItems.length === 1 ? cartItems[0].name : `${cartItems.length} items`,
         order_id: data.orderId,
         theme: { color: "#16a34a" },
+        prefill: { name: details.name, email: details.email, contact: details.phone },
         handler: async (resp: any) => {
           const { data: saved } = await supabase.functions.invoke("orders", {
             body: {
@@ -88,6 +91,19 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
               items: cartItems.map((i) => ({ id: i.id, quantity: i.quantity })),
               shipping_fee: shipping,
               coupon_code: couponOk ? coupon?.code : null,
+              customer: {
+                name: details.name,
+                email: details.email,
+                phone: details.phone,
+                address: {
+                  address: details.address,
+                  city: details.city,
+                  state: details.state,
+                  zip: details.zip,
+                  country: "India",
+                  instructions: details.instructions,
+                },
+              },
             },
           });
           localStorage.removeItem("cart");
@@ -96,9 +112,9 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
             sessionStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({
               order_number: saved.order_number, payment_id: resp.razorpay_payment_id,
             }));
-            window.location.href = `/shipping-details?order=${saved.order_number}`;
+            window.location.href = `/payment-success?shipping_complete=1&order=${saved.order_number}`;
           } else {
-            window.location.href = "/payment-success";
+            window.location.href = "/payment-success?shipping_complete=1";
           }
         },
         modal: {
@@ -119,6 +135,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
     }
   };
 
+
   if (!isOpen) return null;
 
   return (
@@ -136,13 +153,22 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
           <div className="flex items-center justify-between p-6 border-b">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <ShoppingBag className="h-5 w-5" />
-              Shopping Cart
+              {step === "details" ? "Delivery Details" : "Shopping Cart"}
             </h2>
             <Button variant="ghost" size="icon" onClick={onClose}>
               <X className="h-5 w-5" />
             </Button>
           </div>
 
+          {step === "details" ? (
+            <CheckoutForm
+              total={formatINR(total)}
+              isLoading={isLoading}
+              onBack={() => setStep("cart")}
+              onSubmit={handleCheckout}
+            />
+          ) : (
+          <>
           {/* Cart Items */}
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             {cartItems.length === 0 ? (
@@ -247,8 +273,8 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
                 <p className="text-xs text-destructive">Code {coupon.code} needs an order of {formatINR(coupon.min_order)} or more.</p>
               )}
 
-              <Button className="w-full bg-primary hover:bg-primary/90" onClick={handleCheckout} disabled={isLoading}>
-                {isLoading ? "Redirecting..." : "Checkout"}
+              <Button className="w-full bg-primary hover:bg-primary/90" onClick={() => setStep("details")} disabled={isLoading}>
+                Proceed to Checkout
               </Button>
               
               {threshold != null && shipping > 0 && subtotal < threshold && (
@@ -257,6 +283,8 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
                 </p>
               )}
             </div>
+          )}
+          </>
           )}
         </div>
       </div>

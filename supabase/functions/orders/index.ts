@@ -102,11 +102,27 @@ Deno.serve(async (req) => {
         if (data?.user) { userId = data.user.id; email = data.user.email ?? null }
       }
 
+      // Delivery details collected before payment
+      const c = body.customer ?? {}
+      const ca = c.address ?? {}
+      const customerName = str(c.name, 120) || null
+      const customerEmail = str(c.email, 255).toLowerCase() || null
+      const shippingAddress = str(ca.address, 300)
+        ? {
+            address: str(ca.address, 300), city: str(ca.city, 100), state: str(ca.state, 100),
+            zip: str(ca.zip, 20), country: str(ca.country, 60) || 'India',
+            instructions: str(ca.instructions, 500),
+          }
+        : null
+
       const order_number = newOrderNumber()
       const { error } = await db.from('orders').insert({
         order_number,
         user_id: userId,
-        email,
+        email: customerEmail ?? email,
+        customer_name: customerName,
+        phone: str(c.phone, 30) || null,
+        shipping_address: shippingAddress,
         items,
         subtotal,
         shipping_fee: shippingFee,
@@ -121,6 +137,7 @@ Deno.serve(async (req) => {
       if (error) { console.error(error); return json({ error: 'Could not save order.' }, 500) }
       return json({ order_number })
     }
+
 
     if (action === 'shipping') {
       const orderNumber = str(body.order_number, 20).toUpperCase()
