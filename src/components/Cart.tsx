@@ -21,9 +21,10 @@ interface CartProps {
   cartItems: CartItem[];
   onUpdateQuantity: (id: string, quantity: number) => void;
   onRemoveItem: (id: string) => void;
+  startAtCheckout?: boolean;
 }
 
-const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: CartProps) => {
+const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem, startAtCheckout = false }: CartProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState<"cart" | "details">("cart");
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -31,7 +32,10 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: Ca
   const [codeInput, setCodeInput] = useState("");
   const [coupon, setCoupon] = useState<Coupon | null>(null);
   const [checking, setChecking] = useState(false);
-  useEffect(() => { if (isOpen) fetchStoreSettings().then(setSettings); else setStep("cart"); }, [isOpen]);
+  useEffect(() => {
+    if (isOpen) { fetchStoreSettings().then(setSettings); setStep(startAtCheckout ? "details" : "cart"); }
+    else setStep("cart");
+  }, [isOpen, startAtCheckout]);
   const { discount, shipping, total, couponOk } = computeTotals(subtotal, settings, coupon);
   const threshold = settings.free_shipping_threshold;
 
