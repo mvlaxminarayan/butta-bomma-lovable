@@ -5,8 +5,6 @@ import { ArrowLeft, Heart, Share2, ShoppingCart, Star, Plus, Minus, RotateCcw } 
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useProductReviews } from "@/hooks/useProductReviews";
 import type { Product } from "@/components/ProductCard";
@@ -314,7 +312,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* Image Gallery */}
           <div className="space-y-4">
             {/* Main Image — zoomable */}
@@ -390,7 +388,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
           </div>
 
           {/* Product Information */}
-          <div className="space-y-6">
+          <div className="space-y-6 min-w-0">
             {/* Basic Info */}
             <div>
               <Badge variant="secondary" className="mb-2">
@@ -470,11 +468,11 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <Button
                   onClick={handleAddToCart}
                   disabled={!product.inStock}
-                  className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
+                  className="min-w-0 basis-full sm:basis-auto sm:flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
                   size="lg"
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
@@ -512,49 +510,42 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                 <span className="text-sm font-medium">Out of Stock</span>
               </div>
             )}
+
+            {/* Product details fill the space beneath the buying controls. */}
+            <div className="space-y-6">
+              {product.features.length > 0 && (
+                <section>
+                  <h2 className="text-lg font-semibold mb-3">Features</h2>
+                  <ul className="space-y-2">
+                    {product.features.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <span className="w-1.5 h-1.5 shrink-0 bg-primary rounded-full mt-2" />
+                        <span className="text-muted-foreground">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+
+              {Object.keys(product.specifications).length > 0 && (
+                <section>
+                  <h2 className="text-lg font-semibold mb-3">Specifications</h2>
+                  <dl className="divide-y divide-border">
+                    {Object.entries(product.specifications).map(([key, value]) => (
+                      <div key={key} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] gap-3 py-2 first:pt-0">
+                        <dt className="font-medium">{key}</dt>
+                        <dd className="text-muted-foreground text-right break-words">{value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </section>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Product Details */}
-        <div className="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Features */}
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-xl font-semibold mb-4">Features</h3>
-              <ul className="space-y-2">
-                {product.features.map((feature, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2"></div>
-                    <span className="text-muted-foreground">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-
-          {/* Specifications */}
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-xl font-semibold mb-4">Specifications</h3>
-              <div className="space-y-3">
-                {Object.entries(product.specifications).map(([key, value], index) => (
-                  <div key={index}>
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">{key}:</span>
-                      <span className="text-muted-foreground">{value}</span>
-                    </div>
-                    {index < Object.entries(product.specifications).length - 1 && (
-                      <Separator className="mt-3" />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Reviews Section */}
-        <div className="mt-16">
+        <div className="mt-8">
           <ProductReviews productId={product.id} productName={product.name} />
         </div>
       </main>
