@@ -9,6 +9,7 @@ import { Product } from "./ProductCard";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { PENDING_ORDER_KEY } from "@/lib/orders";
+import CheckoutForm, { CheckoutDetails } from "@/components/CheckoutForm";
 
 export interface CartItem extends Product {
   quantity: number;
@@ -24,12 +25,13 @@ interface CartProps {
 
 const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem }: CartProps) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [step, setStep] = useState<"cart" | "details">("cart");
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const [settings, setSettings] = useState<StoreSettings>(DEFAULT_SETTINGS);
   const [codeInput, setCodeInput] = useState("");
   const [coupon, setCoupon] = useState<Coupon | null>(null);
   const [checking, setChecking] = useState(false);
-  useEffect(() => { if (isOpen) fetchStoreSettings().then(setSettings); }, [isOpen]);
+  useEffect(() => { if (isOpen) fetchStoreSettings().then(setSettings); else setStep("cart"); }, [isOpen]);
   const { discount, shipping, total, couponOk } = computeTotals(subtotal, settings, coupon);
   const threshold = settings.free_shipping_threshold;
 
