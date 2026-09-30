@@ -7,6 +7,7 @@ import Hero from "@/components/Hero";
 
 import ProductGrid from "@/components/ProductGrid";
 import OurStory from "@/components/OurStory";
+import Footer from "@/components/Footer";
 import Cart, { CartItem } from "@/components/Cart";
 import { Product } from "@/components/ProductCard";
 import { useToast } from "@/hooks/use-toast";
@@ -126,6 +127,7 @@ const Index = () => {
         onExitWishlist={exitWishlist}
       />
       <OurStory />
+      <Footer />
       <Cart
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
