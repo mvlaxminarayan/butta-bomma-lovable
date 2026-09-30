@@ -17,10 +17,12 @@ export default function SimilarProductsCompare({ productId, category }: { produc
         .select("id,name,price,in_stock,images,image_url,specifications")
         .eq("category", category).neq("id", productId).order("in_stock", { ascending: false }).limit(3);
       if (error || !data?.length) return;
-      const urls = await resolveImageUrls(data.map((p: any) => productImageRefs(p)[0]).filter(Boolean));
+      const refs = data.map((p: any) => productImageRefs(p)[0] || "");
+      const urls = await resolveImageUrls(refs.filter(Boolean));
+      const images = Object.fromEntries(refs.filter(Boolean).map((ref: string, i: number) => [ref, urls[i]]));
       if (active) setSimilar(data.map((p: any, i: number) => ({
         id: p.id, name: p.name, price: Number(p.price), in_stock: p.in_stock,
-        image: urls[i] || FALLBACK_IMAGE,
+        image: images[refs[i]] || FALLBACK_IMAGE,
         specifications: p.specifications && typeof p.specifications === "object" && !Array.isArray(p.specifications) ? p.specifications : {},
       })));
     })();

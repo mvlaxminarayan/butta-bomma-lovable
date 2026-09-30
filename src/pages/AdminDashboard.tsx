@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { formatINR } from "@/lib/pricing";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trash2, Edit, Plus, Upload, X, CloudUpload, Store, Search, LayoutGrid, List, ChevronLeft, ChevronRight, Package, ClipboardList, Percent, BookOpen } from "lucide-react";
+import { Trash2, Edit, Plus, Upload, X, CloudUpload, Store, Search, LayoutGrid, List, ChevronLeft, ChevronRight, Package, ClipboardList, Percent, BookOpen, MessageCircleQuestion } from "lucide-react";
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import {
@@ -21,6 +21,7 @@ import {
 import DiscountsManager from "@/components/admin/DiscountsManager";
 import StoryManager from "@/components/admin/StoryManager";
 import OrdersManager from "@/components/admin/OrdersManager";
+import QuestionsManager from "@/components/admin/QuestionsManager";
 
 interface Product {
   id: string;
@@ -296,6 +297,7 @@ export default function AdminDashboard() {
         <TabsList className="h-auto flex-wrap">
           <TabsTrigger value="products" className="gap-1.5"><Package className="w-4 h-4" />Products</TabsTrigger>
           <TabsTrigger value="orders" className="gap-1.5"><ClipboardList className="w-4 h-4" />Orders</TabsTrigger>
+          <TabsTrigger value="questions" className="gap-1.5"><MessageCircleQuestion className="w-4 h-4" />Questions</TabsTrigger>
           <TabsTrigger value="discounts" className="gap-1.5"><Percent className="w-4 h-4" />Discounts</TabsTrigger>
           <TabsTrigger value="story" className="gap-1.5"><BookOpen className="w-4 h-4" />Store Story</TabsTrigger>
         </TabsList>
@@ -580,6 +582,7 @@ export default function AdminDashboard() {
         </TabsContent>
 
         <TabsContent value="orders"><OrdersManager /></TabsContent>
+        <TabsContent value="questions"><QuestionsManager /></TabsContent>
         <TabsContent value="discounts"><DiscountsManager /></TabsContent>
         <TabsContent value="story"><StoryManager /></TabsContent>
       </Tabs>

@@ -10,6 +10,8 @@ import { useProductReviews } from "@/hooks/useProductReviews";
 import type { Product } from "@/components/ProductCard";
 import { formatINR } from "@/lib/pricing";
 import ProductReviews from "@/components/ProductReviews";
+import ProductQuestions from "@/components/ProductQuestions";
+import SimilarProductsCompare from "@/components/SimilarProductsCompare";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveImageUrls, productImageRefs, FALLBACK_IMAGE } from "@/lib/productImages";
 import { isWishlisted, toggleWishlist } from "@/lib/wishlist";
@@ -548,6 +550,8 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
         <div className="mt-8">
           <ProductReviews productId={product.id} productName={product.name} />
         </div>
+        <div className="mt-8"><ProductQuestions productId={product.id} /></div>
+        <div className="mt-8"><SimilarProductsCompare productId={product.id} category={product.category} /></div>
       </main>
     </div>
   );
