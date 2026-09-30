@@ -49,86 +49,9 @@ const getProductById = async (id: string): Promise<(Product & {
     const productImages = resolved.length ? resolved : [FALLBACK_IMAGE];
     const productImage = productImages[0];
 
-    // Enhanced product data based on category and name
-    const getEnhancedData = (product: any) => {
-      const name = product.name.toLowerCase();
-      
-      if (name.includes('mug') || name.includes('ceramic')) {
-        return {
-          features: [
-            "100% handcrafted ceramic",
-            "Microwave and dishwasher safe", 
-            "12 oz capacity",
-            "Comfortable ergonomic handle",
-            "Lead-free glaze"
-          ],
-          specifications: {
-            "Material": "High-quality ceramic",
-            "Capacity": "12 oz (355ml)",
-            "Dimensions": "4.5\" H x 3.5\" W",
-            "Weight": "0.8 lbs",
-            "Care": "Dishwasher and microwave safe"
-          }
-        };
-      } else if (name.includes('basket') || name.includes('woven')) {
-        return {
-          features: [
-            "Handwoven natural materials",
-            "Sustainable and eco-friendly",
-            "Sturdy construction", 
-            "Versatile storage solution",
-            "Beautiful decorative accent"
-          ],
-          specifications: {
-            "Material": "Natural woven fibers",
-            "Dimensions": "16\" L x 12\" W x 10\" H",
-            "Weight": "2.5 lbs",
-            "Care": "Spot clean only"
-          }
-        };
-      } else if (name.includes('cutting board') || name.includes('board')) {
-        return {
-          features: [
-            "Live edge design",
-            "Food-safe finish",
-            "Sustainably sourced hardwood",
-            "Natural wood grain patterns",
-            "Dual-purpose: cutting and serving"
-          ],
-          specifications: {
-            "Material": "Hardwood (Walnut/Maple)",
-            "Dimensions": "18\" L x 12\" W x 1.5\" H", 
-            "Weight": "4.2 lbs",
-            "Care": "Hand wash only, oil monthly"
-          }
-        };
-      } else {
-        // Default enhanced data
-        return {
-          features: [
-            "Handcrafted quality",
-            "Unique design",
-            "Durable construction",
-            "Artisan made",
-            "Premium materials"
-          ],
-          specifications: {
-            "Material": "Premium quality materials",
-            "Care": "Follow care instructions",
-            "Origin": "Handcrafted"
-          }
-        };
-      }
-    };
-
-    const defaults = getEnhancedData(product);
     const savedFeatures: string[] = Array.isArray(product.features) ? product.features.filter(Boolean) : [];
     const savedSpecs: Record<string, string> =
-      product.specifications && typeof product.specifications === "object" ? product.specifications : {};
-    const enhancedData = {
-      features: savedFeatures.length ? savedFeatures : defaults.features,
-      specifications: Object.keys(savedSpecs).length ? savedSpecs : defaults.specifications,
-    };
+      product.specifications && typeof product.specifications === "object" && !Array.isArray(product.specifications) ? product.specifications : {};
 
     const result = {
       id: product.id,
@@ -141,8 +64,8 @@ const getProductById = async (id: string): Promise<(Product & {
       description: product.description || `Beautiful ${product.name.toLowerCase()} crafted with attention to detail. Each piece is unique and brings character to your space.`,
       rating: 0, // Will be updated from reviews
       reviews: 0, // Will be updated from reviews
-      features: enhancedData.features,
-      specifications: enhancedData.specifications
+      features: savedFeatures,
+      specifications: savedSpecs
     };
 
     console.log("Returning product:", result);
