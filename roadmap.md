@@ -1,0 +1,3 @@
+- [ ] Add persistent product questions with seller answers.
+- [ ] Add same-category product comparison on product pages.
+- [ ] Verify both flows and product page layout.
