@@ -179,12 +179,14 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem, star
           </div>
 
           {step === "details" ? (
-            <CheckoutForm
-              total={formatINR(total)}
-              isLoading={isLoading}
-              onBack={() => setStep("cart")}
-              onSubmit={handleCheckout}
-            />
+            <div className="flex-1 min-h-0">
+              <CheckoutForm
+                total={formatINR(total)}
+                isLoading={isLoading}
+                onBack={() => setStep("cart")}
+                onSubmit={handleCheckout}
+              />
+            </div>
           ) : (
           <>
           {/* Cart Items */}
