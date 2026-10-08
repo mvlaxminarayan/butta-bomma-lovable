@@ -1,20 +1,22 @@
 // Business details shown in the footer and policy pages.
-// PLACEHOLDERS — replace with the real registered business details.
 export const STORE_INFO = {
   name: "Buttabomma Shop",
-  legalName: "Buttabomma Handicrafts",
-  email: "support@buttabomma.in",
-  phone: "+91 90000 00000",
-  whatsapp: "919000000000", // digits only, with country code
+  legalName: "Buttabomma Handcrafts",
+  email: "support@buttabommahandcrafts.com",
+  phone: "+91 85198 93747",
+  whatsapp: "918519893747", // digits only, with country code
+  instagram: "buttabomma_crafts",
   addressLines: [
-    "Buttabomma Handicrafts",
-    "Plot 12, Artisan Lane",
-    "Hyderabad, Telangana 500001",
+    "Buttabomma Handcrafts",
+    "GVR Complex, Shop #2, TTD Road",
+    "Nandyal - 518501, Andhra Pradesh",
     "India",
   ],
   hours: "Monday to Saturday, 10:00 AM – 6:00 PM IST",
-  lastUpdated: "30 September 2026",
+  lastUpdated: "8 October 2026",
 };
+
+export const instagramLink = () => `https://instagram.com/${STORE_INFO.instagram}`;
 
 export const whatsappLink = (message = "Hello! I have a question about a product.") =>
   `https://wa.me/${STORE_INFO.whatsapp}?text=${encodeURIComponent(message)}`;

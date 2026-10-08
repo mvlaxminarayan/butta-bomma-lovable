@@ -1,7 +1,7 @@
-import { Mail, Phone, MapPin, Clock, MessageCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, MessageCircle, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PolicyPage, { PolicySection } from "@/components/PolicyPage";
-import { STORE_INFO, whatsappLink } from "@/lib/storeInfo";
+import { STORE_INFO, whatsappLink, instagramLink } from "@/lib/storeInfo";
 
 const Contact = () => (
   <PolicyPage
@@ -21,7 +21,11 @@ const Contact = () => (
       </p>
       <p className="flex gap-2">
         <Phone className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
-        <a className="hover:text-primary" href={`tel:${STORE_INFO.phone.replace(/\s/g, "")}`}>{STORE_INFO.phone}</a>
+        <a className="hover:text-primary" href={whatsappLink()} target="_blank" rel="noopener noreferrer">{STORE_INFO.phone} (WhatsApp)</a>
+      </p>
+      <p className="flex gap-2">
+        <Instagram className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+        <a className="hover:text-primary" href={instagramLink()} target="_blank" rel="noopener noreferrer">@{STORE_INFO.instagram}</a>
       </p>
       <div className="flex flex-wrap gap-3 pt-2">
         <Button asChild>
