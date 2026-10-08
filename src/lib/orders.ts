@@ -19,6 +19,7 @@ export interface Order {
   phone?: string | null;
   shipping_address: { address?: string; city?: string; state?: string; zip?: string; country?: string; instructions?: string };
   created_at: string;
+  updated_at?: string;
 }
 
 export const STATUS_LABELS: Record<OrderStatus, string> = {
