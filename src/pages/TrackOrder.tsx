@@ -41,9 +41,10 @@ const TrackOrder = () => {
     <main className="min-h-screen bg-background px-4 py-10">
       <div className="mx-auto max-w-2xl space-y-6">
         <Button variant="ghost" size="sm" asChild><Link to="/"><ArrowLeft className="mr-1 h-4 w-4" />Back to Shop</Link></Button>
+        <h1 className="text-2xl font-bold tracking-tight">Track Your Order</h1>
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><PackageSearch className="h-5 w-5 text-primary" />Track your order</CardTitle>
+            <CardTitle className="flex items-center gap-2"><PackageSearch className="h-5 w-5 text-primary" />Find your order</CardTitle>
             <p className="text-sm text-muted-foreground">
               Enter the order number from your confirmation and the email you used at checkout.
               {user && <> Signed in? See all your orders in <Link to="/my-orders" className="text-primary underline">My Orders</Link>.</>}

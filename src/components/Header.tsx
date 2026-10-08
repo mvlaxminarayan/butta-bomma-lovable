@@ -34,7 +34,7 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
             <Link to="/" aria-label="Go to home page" className="relative p-2 bg-gradient-to-br from-background/80 to-background/60 rounded-xl border border-border/30 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
               <img 
                 src={logo} 
-                alt="Shop Logo" 
+                alt="Buttabomma Shop logo" 
                 className="h-12 w-auto object-contain filter brightness-100 contrast-110"
               />
             </Link>
@@ -77,6 +77,7 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
               size="icon" 
               className="relative"
               onClick={onCartClick}
+              aria-label="Open cart"
             >
               <ShoppingCart className="h-5 w-5" />
               {cartItems > 0 && (
@@ -95,7 +96,7 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" aria-label="Account menu">
                     <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
