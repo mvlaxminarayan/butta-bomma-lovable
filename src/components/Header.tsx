@@ -160,6 +160,7 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
           </div>
         </div>
       </div>
+    </header>
   );
 };
 
