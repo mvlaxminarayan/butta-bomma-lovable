@@ -248,8 +248,12 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
       <header className="border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link to="/" aria-label="Go to home page" className="relative p-1.5 bg-gradient-to-br from-background/80 to-background/60 rounded-xl border border-border/30 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
-              <img src={logo} alt="Buttabomma Shop logo" className="h-10 w-auto object-contain" />
+            <Link to="/" aria-label="Go to home page" className="flex items-center gap-3 group">
+              <img src={logo} alt="Buttabomma Shop logo" className="h-14 w-14 object-contain rounded-full shadow-sm group-hover:shadow-md transition-all duration-300" />
+              <span className="flex flex-col leading-tight">
+                <span className="text-xl font-bold tracking-tight text-foreground">Buttabomma</span>
+                <span className="text-[11px] uppercase tracking-[0.25em] text-primary font-semibold">Handcrafts</span>
+              </span>
             </Link>
             <Button
               variant="ghost"
