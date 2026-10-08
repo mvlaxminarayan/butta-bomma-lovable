@@ -40,10 +40,11 @@ const PolicyPage = ({ title, intro, children }: PolicyPageProps) => {
       <p className="mt-1 text-xs text-muted-foreground">Last updated: {STORE_INFO.lastUpdated}</p>
       {intro && <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{intro}</p>}
 
-      <div className="mt-8 space-y-7">{children}</div>
+    <div className="mt-8 space-y-7">{children}</div>
     </div>
     <Footer />
   </div>
-);
+  );
+};
 
 export default PolicyPage;

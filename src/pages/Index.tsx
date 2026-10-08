@@ -8,6 +8,7 @@ import Hero from "@/components/Hero";
 import ProductGrid from "@/components/ProductGrid";
 import OurStory from "@/components/OurStory";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
 import Cart, { CartItem } from "@/components/Cart";
 import { Product } from "@/components/ProductCard";
 import { useToast } from "@/hooks/use-toast";
@@ -119,6 +120,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="Buttabomma Shop — Handcrafted Artisan Goods"
+        description="Shop authentic handcrafted artisan goods from Nandyal, Andhra Pradesh — Kondapalli toys, hand-painted ceramics, textiles and more, made with love."
+        path="/"
+      />
       <AnnouncementBar />
       <Header 
         cartItems={totalItems}
