@@ -1,4 +1,5 @@
-import { describe, expect, test } from "bun:test";
+import { describe, it as test } from "node:test";
+import { strict as assert } from "node:assert";
 import type { Order } from "./orders";
 import { loadOrderReadState, markOrderOpened, orderReadKey, orderUnreadLabel } from "./adminOrderRead";
 
@@ -11,21 +12,21 @@ const order: Order = {
 
 describe("individual admin order read state", () => {
   test("unopened orders stay unread until that specific order is opened", () => {
-    expect(orderUnreadLabel(order, {})).toBe("Unopened");
+    assert.equal(orderUnreadLabel(order, {}), "Unopened");
     const seen = markOrderOpened({ ...order, id: "order-2" }, {});
-    expect(orderUnreadLabel(order, seen)).toBe("Unopened");
-    expect(orderUnreadLabel(order, markOrderOpened(order, seen))).toBeNull();
+    assert.equal(orderUnreadLabel(order, seen), "Unopened");
+    assert.equal(orderUnreadLabel(order, markOrderOpened(order, seen)), null);
   });
   test("a status change highlights an opened order again", () => {
     const seen = markOrderOpened(order, {});
     const updated: Order = { ...order, status: "shipped" };
-    expect(orderUnreadLabel(updated, seen)).toBe("Updated");
-    expect(orderUnreadLabel(updated, markOrderOpened(updated, seen))).toBeNull();
+    assert.equal(orderUnreadLabel(updated, seen), "Updated");
+    assert.equal(orderUnreadLabel(updated, markOrderOpened(updated, seen)), null);
   });
   test("read state survives reload and stays scoped to the admin", () => {
     const saved = markOrderOpened(order, {});
     const storage = { getItem: (key: string) => key === orderReadKey("admin-1") ? JSON.stringify(saved) : null };
-    expect(orderUnreadLabel(order, loadOrderReadState(storage, "admin-1"))).toBeNull();
-    expect(orderUnreadLabel(order, loadOrderReadState(storage, "admin-2"))).toBe("Unopened");
+    assert.equal(orderUnreadLabel(order, loadOrderReadState(storage, "admin-1")), null);
+    assert.equal(orderUnreadLabel(order, loadOrderReadState(storage, "admin-2")), "Unopened");
   });
 });
