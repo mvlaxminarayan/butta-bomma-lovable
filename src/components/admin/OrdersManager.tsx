@@ -10,10 +10,12 @@ import { toast } from "@/components/ui/use-toast";
 import { ALL_STATUSES, Order, OrderStatus, STATUS_LABELS } from "@/lib/orders";
 import { formatINR } from "@/lib/pricing";
 import { RefreshCw } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { loadOrderReadState, markOrderOpened, orderIdentity, orderReadKey, orderUnreadLabel, type OrderReadState } from "@/lib/adminOrderRead";
 
 const db = () => (supabase as any).schema("api").from("orders");
 
-const OrderRow = ({ order, onSaved }: { order: Order; onSaved: () => void }) => {
+const OrderRow = ({ order, onSaved, unread, onOpened }: { order: Order; onSaved: () => void; unread: "Unopened" | "Updated" | null; onOpened: () => void }) => {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<OrderStatus>(order.status);
   const [courier, setCourier] = useState(order.courier || "");
@@ -33,20 +35,26 @@ const OrderRow = ({ order, onSaved }: { order: Order; onSaved: () => void }) => 
 
   const a = order.shipping_address || {};
   return (
-    <div className="rounded-md border">
-      <button className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left" onClick={() => setOpen(!open)}>
+    <div className={`rounded-md border transition-colors ${unread ? "border-primary bg-primary/10 ring-1 ring-primary/30" : "border-border"}`}>
+      <Button variant="ghost" aria-expanded={open} aria-controls={`order-details-${orderIdentity(order)}`} className="flex h-auto w-full items-center justify-between gap-3 whitespace-normal px-4 py-3 text-left" onClick={() => {
+        if (!open) onOpened();
+        setOpen(!open);
+      }}>
         <div className="min-w-0">
           <div className="font-medium">{order.order_number} <span className="text-sm font-normal text-muted-foreground">· {order.customer_name || order.email || "Shipping details pending"}</span></div>
           <div className="text-xs text-muted-foreground">
             {new Date(order.created_at).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })} · {order.items?.reduce((s, i) => s + i.quantity, 0)} item(s) · {formatINR(order.total)}
           </div>
         </div>
+        <div className="flex shrink-0 flex-wrap justify-end gap-2">
+        {unread && <Badge>{unread}</Badge>}
         <Badge variant={order.status === "cancelled" || order.status === "refunded" ? "destructive" : order.status === "delivered" ? "default" : "secondary"}>
           {STATUS_LABELS[order.status]}
         </Badge>
-      </button>
+        </div>
+      </Button>
       {open && (
-        <div className="grid gap-4 border-t px-4 py-4 md:grid-cols-2">
+        <div id={`order-details-${orderIdentity(order)}`} className="grid gap-4 border-t px-4 py-4 md:grid-cols-2">
           <div className="space-y-2 text-sm">
             <div className="font-medium">Items</div>
             {order.items?.map((i) => <div key={i.id}>{i.name} × {i.quantity} — {formatINR(i.price * i.quantity)}</div>)}
@@ -85,6 +93,17 @@ const PAGE_SIZE = 25;
 const CLOSED = ["delivered", "cancelled", "refunded"];
 
 const OrdersManager = () => {
+  const { user } = useAuth();
+  const [readState, setReadState] = useState<OrderReadState>(() => user ? loadOrderReadState(localStorage, user.id) : {});
+  useEffect(() => {
+    setReadState(user ? loadOrderReadState(localStorage, user.id) : {});
+  }, [user?.id]);
+  const openOrder = (order: Order) => {
+    if (!user) return;
+    const next = markOrderOpened(order, readState);
+    setReadState(next);
+    try { localStorage.setItem(orderReadKey(user.id), JSON.stringify(next)); } catch { /* Read state remains available for this visit. */ }
+  };
   const [orders, setOrders] = useState<Order[]>([]);
   const [total, setTotal] = useState(0);
   const [counts, setCounts] = useState<Record<string, number>>({});
@@ -152,7 +171,7 @@ const OrdersManager = () => {
         <Input placeholder="Search order number, name or email" value={search} onChange={(e) => setSearch(e.target.value)} />
         {loading ? <p className="text-sm text-muted-foreground">Loading orders...</p>
           : orders.length === 0 ? <p className="text-sm text-muted-foreground">No orders here.</p>
-          : <div className="space-y-2">{orders.map((o) => <OrderRow key={o.id + o.status} order={o} onSaved={refresh} />)}</div>}
+          : <div className="space-y-2">{orders.map((o) => <OrderRow key={orderIdentity(o) + o.status} order={o} onSaved={refresh} unread={orderUnreadLabel(o, readState)} onOpened={() => openOrder(o)} />)}</div>}
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>{total === 0 ? "0 orders" : `Showing ${page * PAGE_SIZE + 1}–${Math.min(total, (page + 1) * PAGE_SIZE)} of ${total}`}</span>
           <div className="flex items-center gap-2">
