@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Order } from "@/lib/orders";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { useAuth } from "@/hooks/useAuth";
+import Seo from "@/components/Seo";
 
 const TrackOrder = () => {
   const [params] = useSearchParams();
@@ -19,7 +20,6 @@ const TrackOrder = () => {
   const [error, setError] = useState("");
   const [order, setOrder] = useState<Order | null>(null);
 
-  useEffect(() => { document.title = "Track Your Order - Buttabomma Shop"; }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,11 +39,17 @@ const TrackOrder = () => {
 
   return (
     <main className="min-h-screen bg-background px-4 py-10">
+      <Seo
+        title="Track Your Order"
+        description="Check the latest status of your Buttabomma Shop order with your order number and email."
+        path="/track-order"
+      />
       <div className="mx-auto max-w-2xl space-y-6">
         <Button variant="ghost" size="sm" asChild><Link to="/"><ArrowLeft className="mr-1 h-4 w-4" />Back to Shop</Link></Button>
+        <h1 className="text-2xl font-bold tracking-tight">Track Your Order</h1>
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><PackageSearch className="h-5 w-5 text-primary" />Track your order</CardTitle>
+            <CardTitle className="flex items-center gap-2"><PackageSearch className="h-5 w-5 text-primary" />Find your order</CardTitle>
             <p className="text-sm text-muted-foreground">
               Enter the order number from your confirmation and the email you used at checkout.
               {user && <> Signed in? See all your orders in <Link to="/my-orders" className="text-primary underline">My Orders</Link>.</>}

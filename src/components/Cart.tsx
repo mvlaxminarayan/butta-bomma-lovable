@@ -173,7 +173,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem, star
               <ShoppingBag className="h-5 w-5" />
               {step === "details" ? "Delivery Details" : "Shopping Cart"}
             </h2>
-            <Button variant="ghost" size="icon" onClick={onClose}>
+            <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close cart">
               <X className="h-5 w-5" />
             </Button>
           </div>
@@ -219,6 +219,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem, star
                           variant="outline"
                           size="icon"
                           className="h-6 w-6"
+                          aria-label={`Decrease quantity of ${item.name}`}
                           onClick={() => onUpdateQuantity(item.id, Math.max(0, item.quantity - 1))}
                         >
                           <Minus className="h-3 w-3" />
@@ -228,6 +229,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem, star
                           variant="outline"
                           size="icon"
                           className="h-6 w-6"
+                          aria-label={`Increase quantity of ${item.name}`}
                           onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
                         >
                           <Plus className="h-3 w-3" />

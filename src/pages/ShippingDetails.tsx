@@ -148,6 +148,7 @@ const ShippingDetails = () => {
           </div>
 
           {/* Shipping Form */}
+          <h2 className="sr-only">Shipping details</h2>
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

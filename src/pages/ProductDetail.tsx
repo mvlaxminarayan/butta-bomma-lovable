@@ -12,6 +12,7 @@ import { formatINR } from "@/lib/pricing";
 import ProductReviews from "@/components/ProductReviews";
 import ProductQuestions from "@/components/ProductQuestions";
 import Footer from "@/components/Footer";
+import Seo, { SITE_URL } from "@/components/Seo";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveImageUrls, productImageRefs, FALLBACK_IMAGE } from "@/lib/productImages";
 import { isWishlisted, toggleWishlist } from "@/lib/wishlist";
@@ -207,14 +208,48 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
     }
   };
 
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    image: product.images,
+    category: product.category,
+    offers: {
+      "@type": "Offer",
+      url: `${SITE_URL}/product/${product.id}`,
+      priceCurrency: "INR",
+      price: product.price,
+      availability: product.inStock
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+    },
+    ...(product.reviews > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: product.rating,
+            reviewCount: product.reviews,
+          },
+        }
+      : {}),
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title={product.name}
+        description={product.description.slice(0, 160)}
+        path={`/product/${product.id}`}
+        image={product.images[0]}
+        jsonLd={productJsonLd}
+      />
       {/* Header */}
       <header className="border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link to="/" aria-label="Go to home page" className="relative p-1.5 bg-gradient-to-br from-background/80 to-background/60 rounded-xl border border-border/30 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
-              <img src={logo} alt="Shop Logo" className="h-10 w-auto object-contain" />
+              <img src={logo} alt="Buttabomma Shop logo" className="h-10 w-auto object-contain" />
             </Link>
             <Button
               variant="ghost"
