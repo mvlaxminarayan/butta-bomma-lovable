@@ -29,8 +29,9 @@ const TrackOrder = () => {
     });
     setLoading(false);
     if (error || !data?.order) {
-      let msg = "No order found with that number and email.";
-      try { const b = await (error as any)?.context?.json(); if (b?.error) msg = b.error; } catch { /* ignore */ }
+      const msg = error
+        ? "We couldn't check your order right now. Please try again in a moment."
+        : data?.error || "No order found with that number and email.";
       setError(msg);
       return;
     }

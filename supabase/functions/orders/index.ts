@@ -161,10 +161,11 @@ Deno.serve(async (req) => {
     if (action === 'track') {
       const orderNumber = str(body.order_number, 20).toUpperCase()
       const email = str(body.email, 255).toLowerCase()
-      if (!orderNumber || !email) return json({ error: 'Enter your order number and email.' }, 400)
+      // "Not found" is a normal answer for lookups, so reply 200 with order: null
+      if (!orderNumber || !email) return json({ order: null, error: 'Enter your order number and email.' })
       const { data } = await db.from('orders').select('*').eq('order_number', orderNumber).maybeSingle()
       if (!data || (data.email ?? '').toLowerCase() !== email) {
-        return json({ error: 'No order found with that number and email.' }, 404)
+        return json({ order: null, error: 'No order found with that number and email.' })
       }
       return json({ order: publicOrder(data) })
     }
