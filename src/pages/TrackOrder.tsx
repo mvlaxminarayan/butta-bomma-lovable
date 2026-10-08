@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Order } from "@/lib/orders";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { useAuth } from "@/hooks/useAuth";
+import Seo from "@/components/Seo";
 
 const TrackOrder = () => {
   const [params] = useSearchParams();
@@ -19,7 +20,6 @@ const TrackOrder = () => {
   const [error, setError] = useState("");
   const [order, setOrder] = useState<Order | null>(null);
 
-  useEffect(() => { document.title = "Track Your Order - Buttabomma Shop"; }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
