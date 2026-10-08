@@ -172,6 +172,19 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
           </div>
         </div>
       </div>
+      {/* TEMP logo preview switcher */}
+      <div className="fixed bottom-4 left-4 z-[60] flex items-center gap-1 rounded-full border border-border bg-background p-1 shadow-lg text-xs">
+        <span className="px-2 text-muted-foreground">Logo preview:</span>
+        {([1, 2] as const).map((n) => (
+          <button
+            key={n}
+            onClick={() => setLogoOption(n)}
+            className={`rounded-full px-3 py-1 font-medium ${logoOption === n ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+          >
+            Option {n}
+          </button>
+        ))}
+      </div>
     </header>
   );
 };
