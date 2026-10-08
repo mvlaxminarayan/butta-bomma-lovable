@@ -1,8 +1,9 @@
 import { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
+import Seo from "@/components/Seo";
 import { STORE_INFO } from "@/lib/storeInfo";
 
 interface PolicyPageProps {
@@ -18,8 +19,15 @@ export const PolicySection = ({ heading, children }: { heading: string; children
   </section>
 );
 
-const PolicyPage = ({ title, intro, children }: PolicyPageProps) => (
+const PolicyPage = ({ title, intro, children }: PolicyPageProps) => {
+  const { pathname } = useLocation();
+  return (
   <div className="min-h-screen bg-background flex flex-col">
+    <Seo
+      title={title}
+      description={intro ?? `${title} for Buttabomma Shop — handcrafted artisan goods from Nandyal, Andhra Pradesh.`}
+      path={pathname}
+    />
     <div className="container mx-auto px-4 py-8 flex-1 max-w-3xl">
       <Button variant="ghost" size="sm" asChild className="mb-4 -ml-2">
         <Link to="/">
