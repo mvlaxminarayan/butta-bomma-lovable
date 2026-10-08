@@ -1,5 +1,6 @@
 import { ShoppingCart, Search, Menu, Heart, User, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,10 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const wishlistCount = useWishlistIds().length;
+  // TEMP preview switch: ?logo=1 (bigger emblem) or ?logo=2 (emblem + name, default)
+  const [logoOption, setLogoOption] = useState<1 | 2>(() =>
+    new URLSearchParams(window.location.search).get("logo") === "1" ? 1 : 2
+  );
 
   const handleSignOut = async () => {
     await signOut();
@@ -31,13 +36,19 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center">
-            <Link to="/" aria-label="Go to home page" className="relative p-2 bg-gradient-to-br from-background/80 to-background/60 rounded-xl border border-border/30 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300">
-              <img 
-                src={logo} 
-                alt="Buttabomma Shop logo" 
-                className="h-12 w-auto object-contain filter brightness-100 contrast-110"
-              />
-            </Link>
+            {logoOption === 1 ? (
+              <Link to="/" aria-label="Go to home page" className="relative p-1.5 rounded-xl border border-border/30 bg-background/70 shadow-sm hover:shadow-md transition-all duration-300">
+                <img src={logo} alt="Buttabomma Shop logo" className="h-16 w-16 object-contain" />
+              </Link>
+            ) : (
+              <Link to="/" aria-label="Go to home page" className="flex items-center gap-3 group">
+                <img src={logo} alt="Buttabomma Shop logo" className="h-14 w-14 object-contain rounded-full shadow-sm group-hover:shadow-md transition-all duration-300" />
+                <span className="flex flex-col leading-tight">
+                  <span className="text-xl md:text-2xl font-bold tracking-tight text-foreground">Buttabomma</span>
+                  <span className="text-[11px] md:text-xs uppercase tracking-[0.25em] text-primary font-semibold">Handcrafts</span>
+                </span>
+              </Link>
+            )}
           </div>
 
           {/* Search Bar */}
@@ -160,6 +171,19 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
             />
           </div>
         </div>
+      </div>
+      {/* TEMP logo preview switcher */}
+      <div className="fixed bottom-4 left-4 z-[60] flex items-center gap-1 rounded-full border border-border bg-background p-1 shadow-lg text-xs">
+        <span className="px-2 text-muted-foreground">Logo preview:</span>
+        {([1, 2] as const).map((n) => (
+          <button
+            key={n}
+            onClick={() => setLogoOption(n)}
+            className={`rounded-full px-3 py-1 font-medium ${logoOption === n ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+          >
+            Option {n}
+          </button>
+        ))}
       </div>
     </header>
   );
