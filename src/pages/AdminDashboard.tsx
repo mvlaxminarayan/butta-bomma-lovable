@@ -22,6 +22,7 @@ import DiscountsManager from "@/components/admin/DiscountsManager";
 import StoryManager from "@/components/admin/StoryManager";
 import OrdersManager from "@/components/admin/OrdersManager";
 import QuestionsManager from "@/components/admin/QuestionsManager";
+import { useAdminUnseen } from "@/hooks/useAdminUnseen";
 
 interface Product {
   id: string;
@@ -69,6 +70,7 @@ export default function AdminDashboard() {
   const [params, setParams] = useSearchParams();
   const tab = params.get("tab") || "products";
   const setTab = (t: string) => setParams(t === "products" ? {} : { tab: t }, { replace: true });
+  const unseen = useAdminUnseen(tab);
 
   useEffect(() => { fetchProducts(); }, []);
 
@@ -296,8 +298,14 @@ export default function AdminDashboard() {
       <Tabs value={tab} onValueChange={setTab} className="space-y-4">
         <TabsList className="h-auto flex-wrap">
           <TabsTrigger value="products" className="gap-1.5"><Package className="w-4 h-4" />Products</TabsTrigger>
-          <TabsTrigger value="orders" className="gap-1.5"><ClipboardList className="w-4 h-4" />Orders</TabsTrigger>
-          <TabsTrigger value="questions" className="gap-1.5"><MessageCircleQuestion className="w-4 h-4" />Questions</TabsTrigger>
+          <TabsTrigger value="orders" className={`gap-1.5 ${unseen.orders ? "ring-2 ring-primary bg-primary/10" : ""}`}>
+            <ClipboardList className="w-4 h-4" />Orders
+            {unseen.orders > 0 && <span aria-label={`${unseen.orders} new`} className="ml-1 rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground animate-pulse">{unseen.orders} new</span>}
+          </TabsTrigger>
+          <TabsTrigger value="questions" className={`gap-1.5 ${unseen.questions ? "ring-2 ring-primary bg-primary/10" : ""}`}>
+            <MessageCircleQuestion className="w-4 h-4" />Questions
+            {unseen.questions > 0 && <span aria-label={`${unseen.questions} new`} className="ml-1 rounded-full bg-primary px-1.5 text-xs font-semibold text-primary-foreground animate-pulse">{unseen.questions} new</span>}
+          </TabsTrigger>
           <TabsTrigger value="discounts" className="gap-1.5"><Percent className="w-4 h-4" />Discounts</TabsTrigger>
           <TabsTrigger value="story" className="gap-1.5"><BookOpen className="w-4 h-4" />Store Story</TabsTrigger>
         </TabsList>
