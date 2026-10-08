@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Mail, MessageCircle, Instagram, MapPin, Clock } from "lucide-react";
 import logo from "@/assets/logo.png";
-import { STORE_INFO } from "@/lib/storeInfo";
+import { STORE_INFO, whatsappLink, instagramLink } from "@/lib/storeInfo";
 
 const Footer = () => {
   const navigate = useNavigate();
@@ -65,8 +65,14 @@ const Footer = () => {
                 <a className="hover:text-primary transition-colors" href={`mailto:${STORE_INFO.email}`}>{STORE_INFO.email}</a>
               </li>
               <li className="flex gap-2">
-                <Phone className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
-                <a className="hover:text-primary transition-colors" href={`tel:${STORE_INFO.phone.replace(/\s/g, "")}`}>{STORE_INFO.phone}</a>
+                <MessageCircle className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                <a className="hover:text-primary transition-colors" href={whatsappLink()} target="_blank" rel="noopener noreferrer">
+                  {STORE_INFO.phone} <span className="text-xs">(WhatsApp)</span>
+                </a>
+              </li>
+              <li className="flex gap-2">
+                <Instagram className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
+                <a className="hover:text-primary transition-colors" href={instagramLink()} target="_blank" rel="noopener noreferrer">@{STORE_INFO.instagram}</a>
               </li>
               <li className="flex gap-2">
                 <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-primary" />
