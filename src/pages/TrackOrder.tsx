@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { Order } from "@/lib/orders";
 import { OrderTimeline } from "@/components/OrderTimeline";
+import { OrderItemThumbs } from "@/components/OrderItemThumbs";
 import { useAuth } from "@/hooks/useAuth";
 import Seo from "@/components/Seo";
 
@@ -82,7 +83,10 @@ const TrackOrder = () => {
               <CardTitle className="text-lg">Order {order.order_number}</CardTitle>
               <p className="text-sm text-muted-foreground">Placed {new Date(order.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}</p>
             </CardHeader>
-            <CardContent><OrderTimeline order={order} /></CardContent>
+            <CardContent className="space-y-5">
+              <OrderItemThumbs items={order.items} />
+              <OrderTimeline order={order} />
+            </CardContent>
           </Card>
         ))}
       </div>
