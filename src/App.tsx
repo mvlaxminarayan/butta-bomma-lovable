@@ -12,6 +12,7 @@ import PaymentCanceled from "./pages/PaymentCanceled";
 import ShippingDetails from "./pages/ShippingDetails";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import AdminDashboard from "./pages/AdminDashboard";
 import TrackOrder from "./pages/TrackOrder";
 import MyOrders from "./pages/MyOrders";
@@ -33,6 +34,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route 
               path="/admin" 
               element={

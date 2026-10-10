@@ -32,7 +32,7 @@ export default function Auth() {
 
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -45,6 +45,11 @@ export default function Auth() {
 
     if (error) {
       toast.error(error.message);
+    } else if (data.user && (data.user.identities?.length ?? 0) === 0) {
+      // Email already registered: no confirmation email is sent in this case.
+      toast.error("An account with this email already exists. Please sign in, or use \"Forgot password?\" to reset it.");
+    } else if (data.session) {
+      navigate("/");
     } else {
       toast.success("Check your email to confirm your account!");
     }
@@ -61,11 +66,27 @@ export default function Auth() {
     });
 
     if (error) {
-      toast.error(error.message);
+      toast.error(error.message === "Invalid login credentials"
+        ? "Wrong email or password. Try again or use \"Forgot password?\"."
+        : error.message);
     } else {
       navigate("/");
     }
     setLoading(false);
+  };
+
+  const forgotPassword = async () => {
+    if (!email) {
+      toast.error("Enter your email above first.");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) toast.error("Couldn't send the reset email. Please try again in a moment.");
+    else toast.success("If that email has an account, a password reset link is on its way.");
   };
 
   return (
@@ -107,6 +128,9 @@ export default function Auth() {
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Signing in..." : "Sign In"}
                 </Button>
+                <button type="button" onClick={forgotPassword} className="w-full text-sm text-primary hover:underline" disabled={loading}>
+                  Forgot password?
+                </button>
               </form>
             </TabsContent>
             
