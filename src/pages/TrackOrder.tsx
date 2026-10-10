@@ -23,9 +23,12 @@ const TrackOrder = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [page, setPage] = useState(0);
   const [filter, setFilter] = useState<OrderFilter>("all");
+  const [search, setSearch] = useState("");
 
-
-  const filtered = orders.filter((o) => matchesOrderFilter(o, filter));
+  const q = search.trim().toLowerCase();
+  const matched = orders.filter((o) =>
+    !q || o.order_number.toLowerCase().includes(q) || (o.items || []).some((i) => i.name.toLowerCase().includes(q)));
+  const filtered = matched.filter((o) => matchesOrderFilter(o, filter));
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
