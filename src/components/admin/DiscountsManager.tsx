@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Trash2, Plus } from "lucide-react";
+import { formatINR } from "@/lib/pricing";
 
 const api = () => (supabase as any).schema("api");
 
@@ -78,7 +79,7 @@ export default function DiscountsManager() {
 
   const describe = (c: CouponRow) =>
     c.discount_type === "percent" ? `${Number(c.discount_value)}% off`
-    : c.discount_type === "fixed" ? `$${Number(c.discount_value).toFixed(2)} off` : "Free shipping";
+    : c.discount_type === "fixed" ? `${formatINR(Number(c.discount_value))} off` : "Free shipping";
 
   return (
     <div className="space-y-6">
