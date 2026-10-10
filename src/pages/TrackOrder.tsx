@@ -87,18 +87,8 @@ const TrackOrder = () => {
         </Card>
 
         {orders.length > 0 && (
-          <div className="space-y-3">
-            <div className="flex flex-wrap gap-2">
-              {ORDER_FILTERS.map((f) => (
-                <Button key={f.key} size="sm" variant={filter === f.key ? "default" : "outline"}
-                  onClick={() => { setFilter(f.key); setPage(0); }}>
-                  {f.label} ({matched.filter((o) => matchesOrderFilter(o, f.key)).length})
-                </Button>
-              ))}
-            </div>
-            <Input placeholder="Search by order number or product name" value={search} maxLength={100}
-              onChange={(e) => { setSearch(e.target.value); setPage(0); }} />
-          </div>
+          <OrderControls orders={orders} filter={filter} onFilterChange={(f) => { setFilter(f); setPage(0); }}
+            search={search} onSearchChange={(v) => { setSearch(v); setPage(0); }} />
         )}
         {orders.length > 0 && filtered.length === 0 && (
           <Card><CardContent className="p-6 text-center text-sm text-muted-foreground">No orders match your search or filter.</CardContent></Card>
