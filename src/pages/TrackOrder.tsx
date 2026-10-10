@@ -13,6 +13,7 @@ import { OrderItemThumbs } from "@/components/OrderItemThumbs";
 import { useAuth } from "@/hooks/useAuth";
 import { OrderPager, ORDERS_PER_PAGE } from "@/components/OrderPager";
 import OrderControls from "@/components/OrderControls";
+import Seo from "@/components/Seo";
 
 const TrackOrder = () => {
   const [params] = useSearchParams();
