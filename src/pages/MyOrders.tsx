@@ -10,12 +10,30 @@ import { Order, STATUS_LABELS } from "@/lib/orders";
 import { formatINR } from "@/lib/pricing";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { OrderItemThumbs } from "@/components/OrderItemThumbs";
+import { OrderPager, ORDERS_PER_PAGE } from "@/components/OrderPager";
+import { Input } from "@/components/ui/input";
+
+type Filter = "all" | "active" | "delivered" | "closed";
+const FILTERS: { key: Filter; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "active", label: "In progress" },
+  { key: "delivered", label: "Delivered" },
+  { key: "closed", label: "Cancelled / Refunded" },
+];
+const matchesFilter = (o: Order, f: Filter) =>
+  f === "all" ? true
+  : f === "delivered" ? o.status === "delivered"
+  : f === "closed" ? o.status === "cancelled" || o.status === "refunded"
+  : !["delivered", "cancelled", "refunded"].includes(o.status);
 
 const MyOrders = () => {
   const { user, loading: authLoading } = useAuth() as any;
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState<string | null>(null);
+  const [filter, setFilter] = useState<Filter>("all");
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(0);
 
   useEffect(() => { document.title = "My Orders - Buttabomma Shop"; }, []);
 
@@ -29,6 +47,13 @@ const MyOrders = () => {
         setLoading(false);
       });
   }, [user]);
+
+  const q = search.trim().toLowerCase();
+  const filtered = orders.filter((o) => matchesFilter(o, filter) &&
+    (!q || o.order_number.toLowerCase().includes(q) || (o.items || []).some((i) => i.name.toLowerCase().includes(q))));
+  const pageCount = Math.max(1, Math.ceil(filtered.length / ORDERS_PER_PAGE));
+  const safePage = Math.min(page, pageCount - 1);
+  const visible = filtered.slice(safePage * ORDERS_PER_PAGE, (safePage + 1) * ORDERS_PER_PAGE);
 
   if (!authLoading && !user) return <Navigate to="/auth" replace />;
 
@@ -45,7 +70,23 @@ const MyOrders = () => {
             No orders yet. Orders placed while signed in appear here.
             <div className="mt-2">Ordered as a guest? <Link to="/track-order" className="text-primary underline">Track it here</Link>.</div>
           </CardContent></Card>
-        ) : orders.map((o) => (
+        ) : (<>
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {FILTERS.map((f) => (
+                <Button key={f.key} size="sm" variant={filter === f.key ? "default" : "outline"}
+                  onClick={() => { setFilter(f.key); setPage(0); }}>
+                  {f.label} ({orders.filter((o) => matchesFilter(o, f.key)).length})
+                </Button>
+              ))}
+            </div>
+            <Input placeholder="Search by order number or product name" value={search} maxLength={100}
+              onChange={(e) => { setSearch(e.target.value); setPage(0); }} />
+          </div>
+          {filtered.length === 0 && (
+            <Card><CardContent className="p-6 text-center text-sm text-muted-foreground">No orders match your filter.</CardContent></Card>
+          )}
+          {visible.map((o) => (
           <Card key={o.order_number}>
             <CardHeader className="cursor-pointer" onClick={() => setOpen(open === o.order_number ? null : o.order_number)}>
               <div className="flex items-center justify-between gap-3">
@@ -61,7 +102,9 @@ const MyOrders = () => {
             <div className="px-6 pb-4"><OrderItemThumbs items={o.items} /></div>
             {open === o.order_number && <CardContent><OrderTimeline order={o} /></CardContent>}
           </Card>
-        ))}
+          ))}
+          <OrderPager page={safePage} total={filtered.length} onPage={(p) => { setPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }} />
+        </>)}
       </div>
     </main>
   );
