@@ -6,12 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Order, STATUS_LABELS, OrderFilter as Filter, ORDER_FILTERS as FILTERS, matchesOrderFilter as matchesFilter } from "@/lib/orders";
+import { Order, STATUS_LABELS, OrderFilter as Filter, matchesOrderFilter } from "@/lib/orders";
 import { formatINR } from "@/lib/pricing";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { OrderItemThumbs } from "@/components/OrderItemThumbs";
 import { OrderPager, ORDERS_PER_PAGE } from "@/components/OrderPager";
-import { Input } from "@/components/ui/input";
+import OrderControls from "@/components/OrderControls";
 
 const MyOrders = () => {
   const { user, loading: authLoading } = useAuth() as any;
@@ -36,7 +36,7 @@ const MyOrders = () => {
   }, [user]);
 
   const q = search.trim().toLowerCase();
-  const filtered = orders.filter((o) => matchesFilter(o, filter) &&
+  const filtered = orders.filter((o) => matchesOrderFilter(o, filter) &&
     (!q || o.order_number.toLowerCase().includes(q) || (o.items || []).some((i) => i.name.toLowerCase().includes(q))));
   const pageCount = Math.max(1, Math.ceil(filtered.length / ORDERS_PER_PAGE));
   const safePage = Math.min(page, pageCount - 1);
@@ -58,18 +58,8 @@ const MyOrders = () => {
             <div className="mt-2">Ordered as a guest? <Link to="/track-order" className="text-primary underline">Track it here</Link>.</div>
           </CardContent></Card>
         ) : (<>
-          <div className="space-y-3">
-            <div className="flex flex-wrap gap-2">
-              {FILTERS.map((f) => (
-                <Button key={f.key} size="sm" variant={filter === f.key ? "default" : "outline"}
-                  onClick={() => { setFilter(f.key); setPage(0); }}>
-                  {f.label} ({orders.filter((o) => matchesFilter(o, f.key)).length})
-                </Button>
-              ))}
-            </div>
-            <Input placeholder="Search by order number or product name" value={search} maxLength={100}
-              onChange={(e) => { setSearch(e.target.value); setPage(0); }} />
-          </div>
+          <OrderControls orders={orders} filter={filter} onFilterChange={(f) => { setFilter(f); setPage(0); }}
+            search={search} onSearchChange={(v) => { setSearch(v); setPage(0); }} />
           {filtered.length === 0 && (
             <Card><CardContent className="p-6 text-center text-sm text-muted-foreground">No orders match your filter.</CardContent></Card>
           )}
