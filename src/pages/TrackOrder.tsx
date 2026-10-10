@@ -57,21 +57,29 @@ const TrackOrder = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><PackageSearch className="h-5 w-5 text-primary" />Find your order</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Enter the order number from your confirmation and the email you used at checkout.
+              Enter the order number from your confirmation, plus either the email you used at checkout
+              or the tracking number from your shipping message.
               {user && <> Signed in? See all your orders in <Link to="/my-orders" className="text-primary underline">My Orders</Link>.</>}
             </p>
           </CardHeader>
           <CardContent>
-            <form onSubmit={submit} className="grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+            <form onSubmit={submit} className="grid gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="order-number">Order number</Label>
                 <Input id="order-number" placeholder="BB-XXXXXXX" value={orderNumber} maxLength={20}
                   onChange={(e) => setOrderNumber(e.target.value)} required />
               </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="track-email">Email</Label>
-                <Input id="track-email" type="email" value={email} maxLength={255}
-                  onChange={(e) => setEmail(e.target.value)} required />
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="track-email">Email <span className="font-normal text-muted-foreground">(any one is enough)</span></Label>
+                  <Input id="track-email" type="email" value={email} maxLength={255}
+                    onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="track-tracking">or Tracking number</Label>
+                  <Input id="track-tracking" value={tracking} maxLength={60}
+                    onChange={(e) => setTracking(e.target.value)} placeholder="e.g. AWB / consignment no." />
+                </div>
               </div>
               <Button type="submit" disabled={loading}>{loading ? "Checking..." : "Track"}</Button>
             </form>
