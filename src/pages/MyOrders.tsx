@@ -71,6 +71,23 @@ const MyOrders = () => {
                 <Badge variant={o.status === "cancelled" || o.status === "refunded" ? "destructive" : "secondary"}>{STATUS_LABELS[o.status]}</Badge>
               </div>
             </CardHeader>
+            <div className="flex flex-wrap gap-2 px-6 pb-4">
+              {(o.items || []).map((item) => (
+                <Link key={item.id} to={`/product/${item.id}`} className="group relative block"
+                  aria-label={`View ${item.name}`}>
+                  <img
+                    src={thumbs[item.id] || FALLBACK_IMAGE}
+                    alt={item.name}
+                    className="h-16 w-16 rounded-md border object-cover transition-opacity group-hover:opacity-90"
+                  />
+                  {item.quantity > 1 && (
+                    <span className="absolute -right-1.5 -top-1.5 rounded-full bg-primary px-1.5 text-[10px] font-semibold leading-4 text-primary-foreground">
+                      ×{item.quantity}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </div>
             {open === o.order_number && <CardContent><OrderTimeline order={o} /></CardContent>}
           </Card>
         ))}
