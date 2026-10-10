@@ -58,18 +58,8 @@ const MyOrders = () => {
             <div className="mt-2">Ordered as a guest? <Link to="/track-order" className="text-primary underline">Track it here</Link>.</div>
           </CardContent></Card>
         ) : (<>
-          <div className="space-y-3">
-            <div className="flex flex-wrap gap-2">
-              {FILTERS.map((f) => (
-                <Button key={f.key} size="sm" variant={filter === f.key ? "default" : "outline"}
-                  onClick={() => { setFilter(f.key); setPage(0); }}>
-                  {f.label} ({orders.filter((o) => matchesFilter(o, f.key)).length})
-                </Button>
-              ))}
-            </div>
-            <Input placeholder="Search by order number or product name" value={search} maxLength={100}
-              onChange={(e) => { setSearch(e.target.value); setPage(0); }} />
-          </div>
+          <OrderControls orders={orders} filter={filter} onFilterChange={(f) => { setFilter(f); setPage(0); }}
+            search={search} onSearchChange={(v) => { setSearch(v); setPage(0); }} />
           {filtered.length === 0 && (
             <Card><CardContent className="p-6 text-center text-sm text-muted-foreground">No orders match your filter.</CardContent></Card>
           )}
