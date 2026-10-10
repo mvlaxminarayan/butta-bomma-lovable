@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { Order } from "@/lib/orders";
+import { Order, STATUS_LABELS, ORDER_FILTERS, OrderFilter, matchesOrderFilter } from "@/lib/orders";
+import { Badge } from "@/components/ui/badge";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { OrderItemThumbs } from "@/components/OrderItemThumbs";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,7 +22,10 @@ const TrackOrder = () => {
   const [error, setError] = useState("");
   const [orders, setOrders] = useState<Order[]>([]);
   const [page, setPage] = useState(0);
+  const [filter, setFilter] = useState<OrderFilter>("all");
 
+
+  const filtered = orders.filter((o) => matchesOrderFilter(o, filter));
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +34,7 @@ const TrackOrder = () => {
       setError("Enter your order number or the email you used at checkout.");
       return;
     }
-    setLoading(true); setError(""); setOrders([]); setPage(0);
+    setLoading(true); setError(""); setOrders([]); setPage(0); setFilter("all");
     const body = value.includes("@")
       ? { action: "track", email: value }
       : { action: "track", order_number: value };
@@ -79,10 +83,26 @@ const TrackOrder = () => {
           </CardContent>
         </Card>
 
-        {orders.slice(page * ORDERS_PER_PAGE, (page + 1) * ORDERS_PER_PAGE).map((order) => (
+        {orders.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {ORDER_FILTERS.map((f) => (
+              <Button key={f.key} size="sm" variant={filter === f.key ? "default" : "outline"}
+                onClick={() => { setFilter(f.key); setPage(0); }}>
+                {f.label} ({orders.filter((o) => matchesOrderFilter(o, f.key)).length})
+              </Button>
+            ))}
+          </div>
+        )}
+        {orders.length > 0 && filtered.length === 0 && (
+          <Card><CardContent className="p-6 text-center text-sm text-muted-foreground">No orders match this filter.</CardContent></Card>
+        )}
+        {filtered.slice(page * ORDERS_PER_PAGE, (page + 1) * ORDERS_PER_PAGE).map((order) => (
           <Card key={order.order_number}>
             <CardHeader>
-              <CardTitle className="text-lg">Order {order.order_number}</CardTitle>
+              <div className="flex items-center justify-between gap-3">
+                <CardTitle className="text-lg">Order {order.order_number}</CardTitle>
+                <Badge variant={order.status === "cancelled" || order.status === "refunded" ? "destructive" : "secondary"}>{STATUS_LABELS[order.status]}</Badge>
+              </div>
               <p className="text-sm text-muted-foreground">Placed {new Date(order.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}</p>
             </CardHeader>
             <CardContent className="space-y-5">
@@ -91,7 +111,7 @@ const TrackOrder = () => {
             </CardContent>
           </Card>
         ))}
-        <OrderPager page={page} total={orders.length} onPage={(p) => { setPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }} />
+        <OrderPager page={page} total={filtered.length} onPage={(p) => { setPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }} />
       </div>
     </main>
   );

@@ -36,3 +36,16 @@ export const PROGRESS_STEPS: OrderStatus[] = ["paid", "packed", "shipped", "out_
 export const ALL_STATUSES: OrderStatus[] = [...PROGRESS_STEPS, "cancelled", "refunded"];
 
 export const PENDING_ORDER_KEY = "pending_order";
+
+export type OrderFilter = "all" | "active" | "delivered" | "closed";
+export const ORDER_FILTERS: { key: OrderFilter; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "active", label: "In progress" },
+  { key: "delivered", label: "Delivered" },
+  { key: "closed", label: "Cancelled / Refunded" },
+];
+export const matchesOrderFilter = (o: Order, f: OrderFilter) =>
+  f === "all" ? true
+  : f === "delivered" ? o.status === "delivered"
+  : f === "closed" ? o.status === "cancelled" || o.status === "refunded"
+  : !["delivered", "cancelled", "refunded"].includes(o.status);
