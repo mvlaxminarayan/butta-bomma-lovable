@@ -6,13 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { Order, STATUS_LABELS, ORDER_FILTERS, OrderFilter, matchesOrderFilter } from "@/lib/orders";
+import { Order, STATUS_LABELS, OrderFilter } from "@/lib/orders";
 import { Badge } from "@/components/ui/badge";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { OrderItemThumbs } from "@/components/OrderItemThumbs";
 import { useAuth } from "@/hooks/useAuth";
 import { OrderPager, ORDERS_PER_PAGE } from "@/components/OrderPager";
-import Seo from "@/components/Seo";
+import OrderControls from "@/components/OrderControls";
 
 const TrackOrder = () => {
   const [params] = useSearchParams();

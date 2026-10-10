@@ -6,12 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Order, STATUS_LABELS, OrderFilter as Filter, ORDER_FILTERS as FILTERS, matchesOrderFilter as matchesFilter } from "@/lib/orders";
+import { Order, STATUS_LABELS, OrderFilter as Filter } from "@/lib/orders";
 import { formatINR } from "@/lib/pricing";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { OrderItemThumbs } from "@/components/OrderItemThumbs";
 import { OrderPager, ORDERS_PER_PAGE } from "@/components/OrderPager";
-import { Input } from "@/components/ui/input";
+import OrderControls from "@/components/OrderControls";
 
 const MyOrders = () => {
   const { user, loading: authLoading } = useAuth() as any;
