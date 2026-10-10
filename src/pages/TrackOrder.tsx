@@ -10,6 +10,7 @@ import { Order } from "@/lib/orders";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { OrderItemThumbs } from "@/components/OrderItemThumbs";
 import { useAuth } from "@/hooks/useAuth";
+import { OrderPager, ORDERS_PER_PAGE } from "@/components/OrderPager";
 import Seo from "@/components/Seo";
 
 const TrackOrder = () => {
@@ -19,6 +20,7 @@ const TrackOrder = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [orders, setOrders] = useState<Order[]>([]);
+  const [page, setPage] = useState(0);
 
 
   const submit = async (e: React.FormEvent) => {
@@ -28,7 +30,7 @@ const TrackOrder = () => {
       setError("Enter your order number or the email you used at checkout.");
       return;
     }
-    setLoading(true); setError(""); setOrders([]);
+    setLoading(true); setError(""); setOrders([]); setPage(0);
     const body = value.includes("@")
       ? { action: "track", email: value }
       : { action: "track", order_number: value };
@@ -77,7 +79,7 @@ const TrackOrder = () => {
           </CardContent>
         </Card>
 
-        {orders.map((order) => (
+        {orders.slice(page * ORDERS_PER_PAGE, (page + 1) * ORDERS_PER_PAGE).map((order) => (
           <Card key={order.order_number}>
             <CardHeader>
               <CardTitle className="text-lg">Order {order.order_number}</CardTitle>
@@ -89,6 +91,7 @@ const TrackOrder = () => {
             </CardContent>
           </Card>
         ))}
+        <OrderPager page={page} total={orders.length} onPage={(p) => { setPage(p); window.scrollTo({ top: 0, behavior: "smooth" }); }} />
       </div>
     </main>
   );
