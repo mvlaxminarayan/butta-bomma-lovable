@@ -14,33 +14,35 @@ import Seo from "@/components/Seo";
 const TrackOrder = () => {
   const [params] = useSearchParams();
   const { user } = useAuth();
-  const [orderNumber, setOrderNumber] = useState(params.get("order") || "");
-  const [email, setEmail] = useState("");
-  const [tracking, setTracking] = useState("");
+  const [identifier, setIdentifier] = useState(params.get("order") || "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [order, setOrder] = useState<Order | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
 
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() && !tracking.trim()) {
-      setError("Enter either your email or the tracking number.");
+    const value = identifier.trim();
+    if (!value) {
+      setError("Enter your order number or the email you used at checkout.");
       return;
     }
-    setLoading(true); setError(""); setOrder(null);
-    const { data, error } = await supabase.functions.invoke("orders", {
-      body: { action: "track", order_number: orderNumber, email, tracking_number: tracking },
-    });
+    setLoading(true); setError(""); setOrders([]);
+    const body = value.includes("@")
+      ? { action: "track", email: value }
+      : { action: "track", order_number: value };
+    const { data, error } = await supabase.functions.invoke("orders", { body });
     setLoading(false);
-    if (error || !data?.order) {
-      const msg = error
-        ? "We couldn't check your order right now. Please try again in a moment."
-        : data?.error || "No order found with those details.";
-      setError(msg);
+    if (error) {
+      setError("We couldn't check your order right now. Please try again in a moment.");
       return;
     }
-    setOrder(data.order);
+    const found: Order[] = data?.order ? [data.order] : Array.isArray(data?.orders) ? data.orders : [];
+    if (!found.length) {
+      setError(data?.error || "No order found. Check your order number or email and try again.");
+      return;
+    }
+    setOrders(found);
   };
 
   return (
