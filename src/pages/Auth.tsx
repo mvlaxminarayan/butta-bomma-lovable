@@ -85,8 +85,15 @@ export default function Auth() {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setLoading(false);
-    if (error) toast.error("Couldn't send the reset email. Please try again in a moment.");
-    else toast.success("If that email has an account, a password reset link is on its way.");
+    if (error) {
+      console.error("Password reset error:", error.status, error.message);
+      const msg = (error.message || "").toLowerCase();
+      if (error.status === 429 || msg.includes("rate limit") || msg.includes("security purposes")) {
+        toast.error("Too many reset emails were requested. Please wait a few minutes and try again.");
+      } else {
+        toast.error("Couldn't send the reset email. Please try again in a moment.");
+      }
+    } else toast.success("If that email has an account, a password reset link is on its way.");
   };
 
   return (
