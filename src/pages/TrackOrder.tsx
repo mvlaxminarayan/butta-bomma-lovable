@@ -37,7 +37,7 @@ const TrackOrder = () => {
       setError("Enter your order number or the email you used at checkout.");
       return;
     }
-    setLoading(true); setError(""); setOrders([]); setPage(0); setFilter("all");
+    setLoading(true); setError(""); setOrders([]); setPage(0); setFilter("all"); setSearch("");
     const body = value.includes("@")
       ? { action: "track", email: value }
       : { action: "track", order_number: value };
@@ -87,17 +87,21 @@ const TrackOrder = () => {
         </Card>
 
         {orders.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {ORDER_FILTERS.map((f) => (
-              <Button key={f.key} size="sm" variant={filter === f.key ? "default" : "outline"}
-                onClick={() => { setFilter(f.key); setPage(0); }}>
-                {f.label} ({orders.filter((o) => matchesOrderFilter(o, f.key)).length})
-              </Button>
-            ))}
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {ORDER_FILTERS.map((f) => (
+                <Button key={f.key} size="sm" variant={filter === f.key ? "default" : "outline"}
+                  onClick={() => { setFilter(f.key); setPage(0); }}>
+                  {f.label} ({matched.filter((o) => matchesOrderFilter(o, f.key)).length})
+                </Button>
+              ))}
+            </div>
+            <Input placeholder="Search by order number or product name" value={search} maxLength={100}
+              onChange={(e) => { setSearch(e.target.value); setPage(0); }} />
           </div>
         )}
         {orders.length > 0 && filtered.length === 0 && (
-          <Card><CardContent className="p-6 text-center text-sm text-muted-foreground">No orders match this filter.</CardContent></Card>
+          <Card><CardContent className="p-6 text-center text-sm text-muted-foreground">No orders match your search or filter.</CardContent></Card>
         )}
         {filtered.slice(page * ORDERS_PER_PAGE, (page + 1) * ORDERS_PER_PAGE).map((order) => (
           <Card key={order.order_number}>
