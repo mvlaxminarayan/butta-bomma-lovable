@@ -161,18 +161,19 @@ Deno.serve(async (req) => {
     if (action === 'track') {
       const orderNumber = str(body.order_number, 20).toUpperCase()
       const email = str(body.email, 255).toLowerCase()
-      const tracking = str(body.tracking_number, 60)
       // "Not found" is a normal answer for lookups, so reply 200 with order: null
-      if (!orderNumber || (!email && !tracking)) {
-        return json({ order: null, error: 'Enter your order number and either your email or tracking number.' })
+      if (!orderNumber && !email.includes('@')) {
+        return json({ order: null, error: 'Enter your order number or the email you used at checkout.' })
+      }
+      // Email lookup: return all orders for that email, newest first
+      if (email.includes('@')) {
+        const { data } = await db.from('orders').select('*')
+          .eq('email', email).order('created_at', { ascending: false }).limit(10)
+        if (!data || !data.length) return json({ orders: [], error: 'No orders found for that email.' })
+        return json({ orders: data.map(publicOrder) })
       }
       const { data } = await db.from('orders').select('*').eq('order_number', orderNumber).maybeSingle()
-      if (!data) return json({ order: null, error: 'No order found with those details.' })
-      const emailMatch = !!email && (data.email ?? '').toLowerCase() === email
-      const trackingMatch = !!tracking && (data.tracking_number ?? '').toLowerCase() === tracking.toLowerCase()
-      if (!emailMatch && !trackingMatch) {
-        return json({ order: null, error: 'No order found with those details.' })
-      }
+      if (!data) return json({ order: null, error: 'No order found with that order number.' })
       return json({ order: publicOrder(data) })
     }
 
