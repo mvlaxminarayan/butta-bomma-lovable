@@ -76,15 +76,15 @@ const TrackOrder = () => {
           </CardContent>
         </Card>
 
-        {order && (
-          <Card>
+        {orders.map((order) => (
+          <Card key={order.order_number}>
             <CardHeader>
               <CardTitle className="text-lg">Order {order.order_number}</CardTitle>
               <p className="text-sm text-muted-foreground">Placed {new Date(order.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}</p>
             </CardHeader>
             <CardContent><OrderTimeline order={order} /></CardContent>
           </Card>
-        )}
+        ))}
       </div>
     </main>
   );
