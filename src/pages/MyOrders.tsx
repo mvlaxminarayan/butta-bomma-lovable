@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Order, STATUS_LABELS, OrderFilter as Filter } from "@/lib/orders";
+import { Order, STATUS_LABELS, OrderFilter as Filter, matchesOrderFilter } from "@/lib/orders";
 import { formatINR } from "@/lib/pricing";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { OrderItemThumbs } from "@/components/OrderItemThumbs";
@@ -36,7 +36,7 @@ const MyOrders = () => {
   }, [user]);
 
   const q = search.trim().toLowerCase();
-  const filtered = orders.filter((o) => matchesFilter(o, filter) &&
+  const filtered = orders.filter((o) => matchesOrderFilter(o, filter) &&
     (!q || o.order_number.toLowerCase().includes(q) || (o.items || []).some((i) => i.name.toLowerCase().includes(q))));
   const pageCount = Math.max(1, Math.ceil(filtered.length / ORDERS_PER_PAGE));
   const safePage = Math.min(page, pageCount - 1);
