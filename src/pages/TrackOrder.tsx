@@ -14,33 +14,35 @@ import Seo from "@/components/Seo";
 const TrackOrder = () => {
   const [params] = useSearchParams();
   const { user } = useAuth();
-  const [orderNumber, setOrderNumber] = useState(params.get("order") || "");
-  const [email, setEmail] = useState("");
-  const [tracking, setTracking] = useState("");
+  const [identifier, setIdentifier] = useState(params.get("order") || "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [order, setOrder] = useState<Order | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
 
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email.trim() && !tracking.trim()) {
-      setError("Enter either your email or the tracking number.");
+    const value = identifier.trim();
+    if (!value) {
+      setError("Enter your order number or the email you used at checkout.");
       return;
     }
-    setLoading(true); setError(""); setOrder(null);
-    const { data, error } = await supabase.functions.invoke("orders", {
-      body: { action: "track", order_number: orderNumber, email, tracking_number: tracking },
-    });
+    setLoading(true); setError(""); setOrders([]);
+    const body = value.includes("@")
+      ? { action: "track", email: value }
+      : { action: "track", order_number: value };
+    const { data, error } = await supabase.functions.invoke("orders", { body });
     setLoading(false);
-    if (error || !data?.order) {
-      const msg = error
-        ? "We couldn't check your order right now. Please try again in a moment."
-        : data?.error || "No order found with those details.";
-      setError(msg);
+    if (error) {
+      setError("We couldn't check your order right now. Please try again in a moment.");
       return;
     }
-    setOrder(data.order);
+    const found: Order[] = data?.order ? [data.order] : Array.isArray(data?.orders) ? data.orders : [];
+    if (!found.length) {
+      setError(data?.error || "No order found. Check your order number or email and try again.");
+      return;
+    }
+    setOrders(found);
   };
 
   return (
@@ -57,29 +59,16 @@ const TrackOrder = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><PackageSearch className="h-5 w-5 text-primary" />Find your order</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Enter the order number from your confirmation, plus either the email you used at checkout
-              or the tracking number from your shipping message.
+              Enter your order number, or just the email you used at checkout — either one is enough.
               {user && <> Signed in? See all your orders in <Link to="/my-orders" className="text-primary underline">My Orders</Link>.</>}
             </p>
           </CardHeader>
           <CardContent>
-            <form onSubmit={submit} className="grid gap-4">
+            <form onSubmit={submit} className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
               <div className="space-y-1.5">
-                <Label htmlFor="order-number">Order number</Label>
-                <Input id="order-number" placeholder="BB-XXXXXXX" value={orderNumber} maxLength={20}
-                  onChange={(e) => setOrderNumber(e.target.value)} required />
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor="track-email">Email <span className="font-normal text-muted-foreground">(any one is enough)</span></Label>
-                  <Input id="track-email" type="email" value={email} maxLength={255}
-                    onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="track-tracking">or Tracking number</Label>
-                  <Input id="track-tracking" value={tracking} maxLength={60}
-                    onChange={(e) => setTracking(e.target.value)} placeholder="e.g. AWB / consignment no." />
-                </div>
+                <Label htmlFor="order-identifier">Order number or email</Label>
+                <Input id="order-identifier" placeholder="BB-XXXXXXX or you@example.com" value={identifier} maxLength={255}
+                  onChange={(e) => setIdentifier(e.target.value)} required />
               </div>
               <Button type="submit" disabled={loading}>{loading ? "Checking..." : "Track"}</Button>
             </form>
@@ -87,15 +76,15 @@ const TrackOrder = () => {
           </CardContent>
         </Card>
 
-        {order && (
-          <Card>
+        {orders.map((order) => (
+          <Card key={order.order_number}>
             <CardHeader>
               <CardTitle className="text-lg">Order {order.order_number}</CardTitle>
               <p className="text-sm text-muted-foreground">Placed {new Date(order.created_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}</p>
             </CardHeader>
             <CardContent><OrderTimeline order={order} /></CardContent>
           </Card>
-        )}
+        ))}
       </div>
     </main>
   );
