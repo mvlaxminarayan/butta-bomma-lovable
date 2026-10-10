@@ -15,7 +15,7 @@ import { loadOrderReadState, markOrderOpened, orderIdentity, orderReadKey, order
 
 const db = () => (supabase as any).schema("api").from("orders");
 
-const OrderRow = ({ order, onSaved, unread, onOpened }: { order: Order; onSaved: () => void; unread: "Unopened" | "Updated" | null; onOpened: () => void }) => {
+const OrderRow = ({ order, onSaved, unread, onOpened }: { order: Order; onSaved: (updated?: Order) => void; unread: "Unopened" | "Updated" | null; onOpened: () => void }) => {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState<OrderStatus>(order.status);
   const [courier, setCourier] = useState(order.courier || "");
@@ -24,13 +24,13 @@ const OrderRow = ({ order, onSaved, unread, onOpened }: { order: Order; onSaved:
 
   const save = async () => {
     setSaving(true);
-    const { error } = await db().update({
+    const { data: updated, error } = await db().update({
       status, courier: courier.trim() || null, tracking_number: tracking.trim() || null,
-    }).eq("id", order.id);
+    }).eq("id", order.id).select("*").maybeSingle();
     setSaving(false);
     if (error) { toast({ title: "Could not update order", description: error.message }); return; }
     toast({ title: "Order updated", description: `${order.order_number}: ${STATUS_LABELS[status]}` });
-    onSaved();
+    onSaved(updated || undefined);
   };
 
   const a = order.shipping_address || {};
@@ -150,7 +150,11 @@ const OrdersManager = () => {
   useEffect(() => { load(); }, [filter, query, page]);
   useEffect(() => { loadCounts(); }, []);
 
-  const refresh = () => { load(); loadCounts(); };
+  // The admin's own edit counts as seen: record the saved revision before reloading.
+  const refresh = (updated?: Order) => {
+    if (updated) openOrder(updated);
+    load(); loadCounts();
+  };
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const tabs: ("open" | "all" | OrderStatus)[] = ["open", "paid", "packed", "shipped", "out_for_delivery", "delivered", "cancelled", "refunded", "all"];
 
@@ -158,7 +162,7 @@ const OrdersManager = () => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle>Orders</CardTitle>
-        <Button variant="outline" size="sm" onClick={refresh}><RefreshCw className="mr-1 h-4 w-4" />Refresh</Button>
+        <Button variant="outline" size="sm" onClick={() => refresh()}><RefreshCw className="mr-1 h-4 w-4" />Refresh</Button>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-wrap gap-2">
