@@ -16,6 +16,7 @@ const TrackOrder = () => {
   const { user } = useAuth();
   const [orderNumber, setOrderNumber] = useState(params.get("order") || "");
   const [email, setEmail] = useState("");
+  const [tracking, setTracking] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [order, setOrder] = useState<Order | null>(null);
@@ -23,15 +24,19 @@ const TrackOrder = () => {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email.trim() && !tracking.trim()) {
+      setError("Enter either your email or the tracking number.");
+      return;
+    }
     setLoading(true); setError(""); setOrder(null);
     const { data, error } = await supabase.functions.invoke("orders", {
-      body: { action: "track", order_number: orderNumber, email },
+      body: { action: "track", order_number: orderNumber, email, tracking_number: tracking },
     });
     setLoading(false);
     if (error || !data?.order) {
       const msg = error
         ? "We couldn't check your order right now. Please try again in a moment."
-        : data?.error || "No order found with that number and email.";
+        : data?.error || "No order found with those details.";
       setError(msg);
       return;
     }
