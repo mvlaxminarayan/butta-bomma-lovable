@@ -9,12 +9,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { Order, STATUS_LABELS } from "@/lib/orders";
 import { formatINR } from "@/lib/pricing";
 import { OrderTimeline } from "@/components/OrderTimeline";
+import { productImageRefs, resolveImageUrls, FALLBACK_IMAGE } from "@/lib/productImages";
 
 const MyOrders = () => {
   const { user, loading: authLoading } = useAuth() as any;
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState<string | null>(null);
+  const [thumbs, setThumbs] = useState<Record<string, string>>({});
 
   useEffect(() => { document.title = "My Orders - Buttabomma Shop"; }, []);
 
@@ -22,7 +24,23 @@ const MyOrders = () => {
     if (!user) return;
     (supabase as any).schema("api").from("orders").select("*").eq("user_id", user.id)
       .order("created_at", { ascending: false })
-      .then(({ data }: any) => { setOrders(data || []); setLoading(false); });
+      .then(async ({ data }: any) => {
+        const list: Order[] = data || [];
+        setOrders(list);
+        setLoading(false);
+        const ids = Array.from(new Set(list.flatMap((o) => (o.items || []).map((i) => i.id).filter(Boolean))));
+        if (!ids.length) return;
+        const { data: prods } = await (supabase as any).schema("api").from("products")
+          .select("id, image_url, images").in("id", ids);
+        const map: Record<string, string> = {};
+        for (const p of prods || []) {
+          const [ref] = productImageRefs(p as any);
+          if (!ref) continue;
+          const [url] = await resolveImageUrls([ref]);
+          if (url) map[p.id] = url;
+        }
+        setThumbs(map);
+      });
   }, [user]);
 
   if (!authLoading && !user) return <Navigate to="/auth" replace />;
