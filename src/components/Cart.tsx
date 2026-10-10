@@ -213,7 +213,15 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem, star
                   <div className="flex-1 space-y-2">
                     <h3 className="font-medium text-sm">{item.name}</h3>
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-price">{formatINR(item.price)}</span>
+                      <span className="font-semibold text-price">
+                        {formatINR(item.price * item.quantity)}
+                        {item.quantity > 1 && (
+                          <span className="block text-xs font-normal text-muted-foreground">
+                            {formatINR(item.price)} each
+                          </span>
+                        )}
+                      </span>
+
                       <div className="flex items-center gap-2">
                         <Button
                           variant="outline"
