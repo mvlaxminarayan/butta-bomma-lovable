@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { Order, STATUS_LABELS, OrderFilter } from "@/lib/orders";
+import { Order, STATUS_LABELS, OrderFilter, matchesOrderFilter } from "@/lib/orders";
 import { Badge } from "@/components/ui/badge";
 import { OrderTimeline } from "@/components/OrderTimeline";
 import { OrderItemThumbs } from "@/components/OrderItemThumbs";
@@ -26,10 +26,7 @@ const TrackOrder = () => {
   const [filter, setFilter] = useState<OrderFilter>("all");
   const [search, setSearch] = useState("");
 
-  const q = search.trim().toLowerCase();
-  const matched = orders.filter((o) =>
-    !q || o.order_number.toLowerCase().includes(q) || (o.items || []).some((i) => i.name.toLowerCase().includes(q)));
-  const filtered = matched.filter((o) => matchesOrderFilter(o, filter));
+  const filtered = orders.filter((o) => matchesOrderFilter(o, filter));
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
