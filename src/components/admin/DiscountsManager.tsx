@@ -170,7 +170,7 @@ export default function DiscountsManager() {
                   <TableRow key={c.id}>
                     <TableCell className="font-mono font-medium">{c.code}</TableCell>
                     <TableCell>{describe(c)}</TableCell>
-                    <TableCell>{Number(c.min_order) > 0 ? `$${Number(c.min_order).toFixed(2)}` : "-"}</TableCell>
+                    <TableCell>{Number(c.min_order) > 0 ? formatINR(Number(c.min_order)) : "-"}</TableCell>
                     <TableCell>
                       {c.expires_at ? new Date(c.expires_at).toLocaleDateString() : "Never"}
                       {expired && <Badge variant="destructive" className="ml-2">Expired</Badge>}
