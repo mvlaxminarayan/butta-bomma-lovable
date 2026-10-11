@@ -156,19 +156,6 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
           </div>
         </div>
       </div>
-      {layout === "twoTier" && (
-        <nav aria-label="Quick links" className="hidden md:block border-t border-border/50">
-          <ul className="container mx-auto flex items-center justify-center gap-8 px-4 py-2 text-sm font-medium">
-            {[["All Crafts","products"],["Our Story","our-story"]].map(([l,id]) => (
-              <li key={l}><button className="hover:text-primary" onClick={() => navigate("/", { state: { scrollTo: id } })}>{l}</button></li>
-            ))}
-            {["Kondapalli Toys","Wooden Crafts","Home Decor"].map((c) => (
-              <li key={c}><button className="hover:text-primary" onClick={() => { onSearchChange?.(c); navigate("/", { state: { scrollTo: "products" } }); }}>{c}</button></li>
-            ))}
-            <li><Link to="/track-order" className="hover:text-primary">Track Order</Link></li>
-          </ul>
-        </nav>
-      )}
     </header>
   );
 };
