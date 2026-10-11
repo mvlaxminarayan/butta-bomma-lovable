@@ -15,6 +15,8 @@ interface ProductGridProps {
   onViewDetails: (product: Product) => void;
   searchQuery?: string;
   onClearSearch?: () => void;
+  category?: string;
+  onCategoryChange?: (c: string) => void;
   wishlistOnly?: boolean;
   onExitWishlist?: () => void;
 }
@@ -137,7 +139,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
   }
 };
 
-const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSearch, wishlistOnly = false, onExitWishlist }: ProductGridProps) => {
+const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSearch, category: categoryProp, onCategoryChange, wishlistOnly = false, onExitWishlist }: ProductGridProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -158,7 +160,9 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
     return () => { cancelled = true; };
   }, []);
 
-  const [category, setCategory] = useState<string>("All");
+  const [localCategory, setLocalCategory] = useState<string>("All");
+  const category = categoryProp ?? localCategory;
+  const setCategory = (c: string) => { setLocalCategory(c); onCategoryChange?.(c); };
   const [sort, setSort] = useState<string>("featured");
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 12;

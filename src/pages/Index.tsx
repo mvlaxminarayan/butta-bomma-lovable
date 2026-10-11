@@ -25,6 +25,7 @@ const Index = () => {
     () => new URLSearchParams(window.location.search).get("cart") === "checkout"
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [category, setCategory] = useState("All");
   const [wishlistOnly, setWishlistOnly] = useState(
     () => new URLSearchParams(window.location.search).get("wishlist") === "1"
   );
@@ -134,13 +135,15 @@ const Index = () => {
         onSearchChange={setSearchQuery}
       />
       <Hero />
-      <CategoryTiles onPick={(c) => { setSearchQuery(c); setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }), 50); }} />
+      <CategoryTiles onPick={(c) => { setSearchQuery(""); setCategory(c); setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }), 50); }} />
 
       <ProductGrid 
 
         onAddToCart={addToCart}
         onViewDetails={handleViewDetails}
         searchQuery={searchQuery}
+        category={category}
+        onCategoryChange={setCategory}
         onClearSearch={() => setSearchQuery("")}
         wishlistOnly={wishlistOnly}
         onExitWishlist={exitWishlist}
