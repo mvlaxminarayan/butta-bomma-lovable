@@ -47,15 +47,18 @@ export const BrandLogo = ({ size = "lg" }: Props) => {
     <span
       className="inline-flex shrink-0 items-center gap-1 leading-none"
       role="img"
-      aria-label="బుట్ట బొమ్మ"
+      aria-label="బుట్ట బొమ్మ — Buttabomma Crafts"
     >
       <Lettering variant="left" className={left} />
       <img
         src={logo}
-        alt="Buttabomma Handcrafts logo"
+        alt="Buttabomma Crafts logo"
         className="h-14 w-14 md:h-16 md:w-16 object-contain rounded-full"
       />
       <Lettering variant="right" className={right} />
+      <span className="ml-1 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.3em] text-foreground/70 sm:text-xs">
+        Crafts
+      </span>
     </span>
   );
 };
