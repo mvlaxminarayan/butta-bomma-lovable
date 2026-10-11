@@ -92,7 +92,7 @@ export const MakerBanner = () => (
   <section aria-label="About the maker" className="container mx-auto px-4 pt-8">
     <div className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card px-5 py-4 text-center sm:flex-row sm:justify-between sm:text-left">
       <div>
-        <p className="font-serif text-lg">{STORE_INFO.name} Artisan Studio</p>
+        <p className="font-serif text-lg">Buttabomma Crafts</p>
         <p className="text-sm text-muted-foreground">Nandyal, Andhra Pradesh · Handmade to order · Dispatches in 1–3 days</p>
       </div>
       <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">★ Direct from the maker</span>
