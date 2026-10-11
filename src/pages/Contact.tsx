@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Mail, MapPin, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PolicyPage, { PolicySection } from "@/components/PolicyPage";
 import { WhatsAppIcon, InstagramIcon } from "@/components/icons/BrandIcons";
