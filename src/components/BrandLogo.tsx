@@ -1,54 +1,52 @@
 import logo from "@/assets/logo.png";
+import { useId } from "react";
+import { brandLettering } from "./brandLettering";
 
 type Props = { size?: "md" | "lg" };
 
-/** Hand-drawn flourishes under each Telugu word, modelled on the signboard. */
-const Swash = ({ variant }: { variant: "left" | "right" }) => (
+/** Preserve the sign painter's lettering and its integrated flourishes. */
+const Lettering = ({ variant, className }: { variant: "left" | "right"; className: string }) => (
   <svg
-    viewBox="0 0 120 18"
+    viewBox={brandLettering[variant].viewBox}
     aria-hidden="true"
-    className="block w-full h-3 md:h-3.5 mt-1.5 overflow-visible text-brand-script"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.6"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    preserveAspectRatio="none"
+    className={`block shrink-0 text-brand-script ${className}`}
+    fill="currentColor"
   >
-    {variant === "left" ? (
-      <path d="M8 9 C 18 4, 30 4, 40 9 C 46 13, 55 12, 53 8 C 51 5, 45 9, 51 14 C 60 17, 76 10, 92 9" />
-    ) : (
-      <path d="M4 11 C 20 5, 36 5, 50 10 C 56 13, 63 12, 61 9 C 59 6, 54 10, 59 14 C 72 17, 96 13, 110 6 C 115 2, 120 3, 118 7" />
-    )}
+    <path d={brandLettering[variant].path} fillRule="evenodd" />
   </svg>
 );
 
 /** Signboard-style lockup: బుట్ట [doll emblem] బొమ్మ, framed like the shop board. */
 export const BrandLogo = ({ size = "lg" }: Props) => {
+  const patternId = `brand-weave-${useId().replace(/:/g, "")}`;
   const emblem = size === "lg" ? "h-16 w-16" : "h-14 w-14";
-  const word = size === "lg" ? "text-4xl md:text-5xl" : "text-3xl md:text-4xl";
+  const left = size === "lg" ? "w-[68px] md:w-[78px]" : "w-[60px] md:w-[68px]";
+  const right = size === "lg" ? "w-[88px] md:w-[100px]" : "w-[78px] md:w-[88px]";
   return (
-    <span className="inline-flex flex-col leading-none rounded-md bg-brand-script p-[3px] shadow-sm group-hover:shadow-md transition-shadow duration-300">
-      {/* thin light line between the red frame and the lace band */}
+    <span className="inline-flex shrink-0 flex-col leading-none rounded-md bg-brand-script p-[3px] shadow-sm group-hover:shadow-md transition-shadow duration-300">
       <span className="rounded-[5px] bg-background p-[2px]">
-        {/* lace band */}
-        <span className="flex flex-col items-center rounded-lg border-2 border-dotted border-brand-script/30 bg-card px-3 pt-1 pb-1">
-          <span className="flex items-center gap-1.5">
-            <span className="flex flex-col items-center">
-              <span className={`font-telugu ${word} text-brand-script pb-1`} lang="te">బుట్ట</span>
-              <Swash variant="left" />
-            </span>
+        <span className="relative flex flex-col items-center rounded-[4px] bg-card px-3 pt-2.5 pb-2">
+          <svg aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full text-brand-script/50">
+            <defs>
+              <pattern id={patternId} width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M5 0 C12 4 -2 6 5 10 C12 6 -2 4 5 0Z" fill="none" stroke="currentColor" strokeWidth="0.65" />
+              </pattern>
+            </defs>
+            <rect x="5" y="3" width="calc(100% - 10px)" height="6" fill={`url(#${patternId})`} />
+            <rect x="5" y="calc(100% - 9px)" width="calc(100% - 10px)" height="6" fill={`url(#${patternId})`} />
+            <rect x="3" y="9" width="6" height="calc(100% - 18px)" fill={`url(#${patternId})`} />
+            <rect x="calc(100% - 9px)" y="9" width="6" height="calc(100% - 18px)" fill={`url(#${patternId})`} />
+          </svg>
+          <span className="flex items-center gap-1" role="img" aria-label="బుట్ట బొమ్మ">
+            <Lettering variant="left" className={left} />
             <img
               src={logo}
               alt="Buttabomma Handcrafts logo"
               className={`${emblem} object-contain rounded-full`}
             />
-            <span className="flex flex-col items-center">
-              <span className={`font-telugu ${word} text-brand-script pb-1`} lang="te">బొమ్మ</span>
-              <Swash variant="right" />
-            </span>
+            <Lettering variant="right" className={right} />
           </span>
-          <span className="mt-0.5 text-[9px] uppercase tracking-[0.35em] text-brand-script/80 font-semibold">
+          <span className="mt-0.5 text-[9px] uppercase text-brand-script/80 font-semibold">
             Handcrafts
           </span>
         </span>
