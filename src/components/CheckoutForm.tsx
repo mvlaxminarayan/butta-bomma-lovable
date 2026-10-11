@@ -37,13 +37,14 @@ export const checkoutSchema = z.object({
 interface Props {
   total: string;
   summary: ReactNode;
+  isPricingLoading?: boolean;
   backLabel?: string;
   isLoading: boolean;
   onBack: () => void;
   onSubmit: (details: CheckoutDetails) => void;
 }
 
-const CheckoutForm = ({ total, summary, backLabel = "Back to cart", isLoading, onBack, onSubmit }: Props) => {
+const CheckoutForm = ({ total, summary, isPricingLoading = false, backLabel = "Back to cart", isLoading, onBack, onSubmit }: Props) => {
   const { user, profile } = useAuth();
   const [form, setForm] = useState<CheckoutDetails>(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -143,8 +144,8 @@ const CheckoutForm = ({ total, summary, backLabel = "Back to cart", isLoading, o
 
       <div className="shrink-0 border-t p-4 sm:p-6 space-y-3">
         {summary}
-        <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
-          {isLoading ? "Opening payment..." : `Pay ${total}`}
+        <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading || isPricingLoading}>
+          {isPricingLoading ? "Loading total..." : isLoading ? "Opening payment..." : `Pay ${total}`}
         </Button>
         <Button type="button" variant="ghost" className="w-full" onClick={onBack} disabled={isLoading}>
           {backLabel}
