@@ -119,7 +119,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
         price: Number(product.price),
         image: images[0] || FALLBACK_IMAGE,
         images,
-        category: product.category || "Uncategorized",
+        category: (product.category || "").trim() || "Uncategorized",
         inStock: product.in_stock,
         rating: averageRating || 0,
         reviews: reviewCount
