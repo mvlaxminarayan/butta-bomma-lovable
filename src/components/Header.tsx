@@ -28,9 +28,9 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 transition-all duration-300">
       <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-y-2 sm:flex-nowrap">
           {/* Logo */}
-          <Link to="/" aria-label="Go to home page" className="flex items-center gap-3 group">
+          <Link to="/" aria-label="Go to home page" className="flex items-center gap-3 group mx-auto sm:mx-0">
             <BrandLogo size="lg" />
           </Link>
 
@@ -49,7 +49,7 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center space-x-4">
+          <div className="flex w-full shrink-0 items-center justify-end gap-2 sm:w-auto lg:gap-4">
             <Button
               variant="ghost"
               size="icon"
