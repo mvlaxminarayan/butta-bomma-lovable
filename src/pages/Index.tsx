@@ -9,7 +9,7 @@ import ProductGrid from "@/components/ProductGrid";
 import OurStory from "@/components/OurStory";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
-import { CategoryTiles } from "@/components/HomeSections";
+import { CategoryTiles, TrustBar, MakerBanner } from "@/components/HomeSections";
 import Cart, { CartItem } from "@/components/Cart";
 import { Product } from "@/components/ProductCard";
 import { useToast } from "@/hooks/use-toast";
@@ -135,6 +135,8 @@ const Index = () => {
         onSearchChange={setSearchQuery}
       />
       <Hero />
+      <TrustBar />
+      <MakerBanner />
       <CategoryTiles onPick={(c) => { setSearchQuery(""); setCategory(c); setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }), 50); }} />
 
       <ProductGrid 
