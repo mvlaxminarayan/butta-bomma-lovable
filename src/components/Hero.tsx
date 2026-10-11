@@ -89,38 +89,14 @@ const Hero = () => {
           {/* Content */}
           <div className="space-y-8">
             <div className="space-y-4">
-              <div className="rounded-xl border border-border bg-card/80 p-3 space-y-1" aria-label="Font preview">
-                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground px-2">
-                  Heading style preview — tap one to apply
-                </div>
-                {HERO_FONTS.map((f, i) => (
-                  <button
-                    key={f.label}
-                    type="button"
-                    onClick={() => setFontIdx(i)}
-                    className={`flex w-full items-center justify-between gap-3 rounded-lg border px-3 py-1.5 text-left transition-colors ${
-                      fontIdx === i
-                        ? "border-primary bg-primary/10"
-                        : "border-transparent hover:border-primary/50"
-                    }`}
-                  >
-                    <span
-                      className="text-2xl leading-tight"
-                      style={f.family ? { fontFamily: f.family, fontWeight: f.weight } : { fontWeight: 700 }}
-                    >
-                      Buttabomma Shop
-                    </span>
-                    <span className="shrink-0 text-xs text-muted-foreground">{f.label}</span>
-                  </button>
-                ))}
-              </div>
               <h1
-                className="text-4xl md:text-6xl font-bold leading-tight"
-                style={HERO_FONTS[fontIdx].family ? { fontFamily: HERO_FONTS[fontIdx].family, fontWeight: HERO_FONTS[fontIdx].weight } : undefined}
+                className="text-4xl md:text-6xl leading-tight"
+                style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}
               >
-                Buttabomma Shop
-                <span className="block text-primary">Authentic Handcrafted Artisan Treasures</span>
+                Buttabomma: Celebrating Heritage
+                <span className="block text-primary">with Authentic, Handcrafted Treasures.</span>
               </h1>
+
               <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
                 Carefully curated handmade items that bring warmth and character to your home
               </p>
