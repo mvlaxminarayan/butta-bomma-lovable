@@ -43,23 +43,29 @@ const Lettering = ({ variant, className }: { variant: "left" | "right"; classNam
 /** Signboard-style lockup: బుట్ట [doll emblem] బొమ్మ, framed like the shop board. */
 export const BrandLogo = ({ size = "lg" }: Props) => {
   const patternId = `brand-weave-${useId().replace(/:/g, "")}`;
-  const emblem = size === "lg" ? "h-16 w-16" : "h-14 w-14";
-  const left = size === "lg" ? "w-[68px] md:w-[78px]" : "w-[60px] md:w-[68px]";
-  const right = size === "lg" ? "w-[88px] md:w-[100px]" : "w-[78px] md:w-[88px]";
+  const verticalPatternId = `${patternId}-vertical`;
+  const motifId = `${patternId}-motif`;
+  const emblem = size === "lg" ? "h-14 w-14 md:h-16 md:w-16" : "h-14 w-14 md:h-16 md:w-16";
+  const left = size === "lg" ? "w-[64px] sm:w-[70px] md:w-[78px]" : "w-[64px] sm:w-[68px] md:w-[74px]";
+  const right = size === "lg" ? "w-[82px] sm:w-[90px] md:w-[100px]" : "w-[82px] sm:w-[88px] md:w-[96px]";
   return (
     <span className="inline-flex shrink-0 flex-col leading-none rounded-md bg-brand-script p-[3px] shadow-sm group-hover:shadow-md transition-shadow duration-300">
       <span className="rounded-[5px] bg-background p-[2px]">
         <span className="relative flex flex-col items-center rounded-[4px] bg-card px-3 pt-2.5 pb-3.5">
           <svg aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full text-brand-script/50">
             <defs>
-              <pattern id={patternId} width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M5 0 C12 4 -2 6 5 10 C12 6 -2 4 5 0Z" fill="none" stroke="currentColor" strokeWidth="0.65" />
+              <path id={motifId} d="M0 3 C3 -0.5 7 -0.5 10 3 C7 6.5 3 6.5 0 3Z" fill="none" stroke="currentColor" strokeWidth="0.65" />
+              <pattern id={patternId} width="10" height="6" patternUnits="userSpaceOnUse" x="5" y="3">
+                <use href={`#${motifId}`} />
+              </pattern>
+              <pattern id={verticalPatternId} width="6" height="10" patternUnits="userSpaceOnUse" x="3" y="9">
+                <use href={`#${motifId}`} transform="translate(6 0) rotate(90)" />
               </pattern>
             </defs>
             <rect x="5" y="3" width="calc(100% - 10px)" height="6" fill={`url(#${patternId})`} />
             <rect x="5" y="calc(100% - 9px)" width="calc(100% - 10px)" height="6" fill={`url(#${patternId})`} />
-            <rect x="3" y="9" width="6" height="calc(100% - 18px)" fill={`url(#${patternId})`} />
-            <rect x="calc(100% - 9px)" y="9" width="6" height="calc(100% - 18px)" fill={`url(#${patternId})`} />
+            <rect x="3" y="9" width="6" height="calc(100% - 18px)" fill={`url(#${verticalPatternId})`} />
+            <rect x="calc(100% - 9px)" y="9" width="6" height="calc(100% - 18px)" fill={`url(#${verticalPatternId})`} />
           </svg>
           <span className="flex items-center gap-1" role="img" aria-label="బుట్ట బొమ్మ">
             <Lettering variant="left" className={left} />
@@ -70,7 +76,7 @@ export const BrandLogo = ({ size = "lg" }: Props) => {
             />
             <Lettering variant="right" className={right} />
           </span>
-          <span className="mt-1 text-[9px] leading-3 uppercase text-brand-script font-bold">
+          <span className="mt-1 text-[10px] leading-3 uppercase text-brand-script font-bold">
             Handcrafts
           </span>
         </span>

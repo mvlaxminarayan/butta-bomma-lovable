@@ -247,17 +247,18 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
       {/* Header */}
       <header className="border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-1 sm:gap-3">
             <Link to="/" aria-label="Go to home page" className="flex items-center gap-3 group">
               <BrandLogo size="md" />
             </Link>
             <Button
               variant="ghost"
               onClick={() => navigate("/")}
-              className="gap-2"
+              className="gap-2 px-2 sm:px-4"
+              aria-label="Back to Shop"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Shop
+              <span className="hidden sm:inline">Back to Shop</span>
             </Button>
           </div>
           <Button
