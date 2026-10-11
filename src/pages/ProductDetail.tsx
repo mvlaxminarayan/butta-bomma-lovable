@@ -16,6 +16,7 @@ import Seo, { SITE_URL } from "@/components/Seo";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveImageUrls, productImageRefs, FALLBACK_IMAGE } from "@/lib/productImages";
 import { isWishlisted, toggleWishlist } from "@/lib/wishlist";
+import Cart from "@/components/Cart";
 
 // Enhanced product data fetching from database
 const getProductById = async (id: string): Promise<(Product & { 
@@ -93,6 +94,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
   const { toast } = useToast();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [isBuyNowOpen, setIsBuyNowOpen] = useState(false);
   const [zoomScale, setZoomScale] = useState(1);
   const [wishlisted, setWishlisted] = useState(false);
 
@@ -197,9 +199,8 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
   };
 
   const handleBuyNow = () => {
-    onAddToCart(product, quantity);
-    setCartCount(readCartCount());
-    navigate("/?cart=checkout");
+    if (!product.inStock) return;
+    setIsBuyNowOpen(true);
   };
 
   const updateQuantity = (newQuantity: number) => {
@@ -455,6 +456,17 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                   <Zap className="h-5 w-5 mr-2" />
                   Buy Now
                 </Button>
+                {isBuyNowOpen && (
+                  <Cart
+                    isOpen
+                    onClose={() => setIsBuyNowOpen(false)}
+                    cartItems={[]}
+                    buyNowItem={{ ...product, quantity }}
+                    onUpdateQuantity={(_, next) => updateQuantity(next)}
+                    onRemoveItem={() => setIsBuyNowOpen(false)}
+                    startAtCheckout
+                  />
+                )}
                 <Button
                   variant="outline"
                   size="lg"

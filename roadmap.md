@@ -1,0 +1,3 @@
+- [x] Keep Buy Now independent of the saved cart, including payment completion (cart preservation covered by tests).
+- [x] Show product cost, shipping, discounts when applicable, and total above payment.
+- [x] Test Buy Now and regular cart checkout in the preview (no payment charged).

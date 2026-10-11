@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { PENDING_ORDER_KEY } from "@/lib/orders";
 import CheckoutForm, { CheckoutDetails } from "@/components/CheckoutForm";
+import { checkoutItems, clearPurchasedCart } from "@/lib/checkoutCart";
 
 export interface CartItem extends Product {
   quantity: number;
@@ -22,18 +23,25 @@ interface CartProps {
   onUpdateQuantity: (id: string, quantity: number) => void;
   onRemoveItem: (id: string) => void;
   startAtCheckout?: boolean;
+  buyNowItem?: CartItem;
 }
 
-const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem, startAtCheckout = false }: CartProps) => {
+const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, onRemoveItem, startAtCheckout = false, buyNowItem }: CartProps) => {
+  const cartItems = checkoutItems(savedCartItems, buyNowItem);
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState<"cart" | "details">("cart");
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const [settings, setSettings] = useState<StoreSettings>(DEFAULT_SETTINGS);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
   const [codeInput, setCodeInput] = useState("");
   const [coupon, setCoupon] = useState<Coupon | null>(null);
   const [checking, setChecking] = useState(false);
   useEffect(() => {
-    if (isOpen) { fetchStoreSettings().then(setSettings); setStep(startAtCheckout ? "details" : "cart"); }
+    if (isOpen) {
+      setSettingsLoaded(false);
+      fetchStoreSettings().then(next => { setSettings(next); setSettingsLoaded(true); });
+      setStep(startAtCheckout ? "details" : "cart");
+    }
     else setStep("cart");
   }, [isOpen, startAtCheckout]);
   const { discount, shipping, total, couponOk } = computeTotals(subtotal, settings, coupon);
@@ -122,8 +130,8 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem, star
               if (!res.error) saved = res.data; else console.error("orders create failed", res.error);
             } catch (e) { console.error("orders create threw", e); }
           }
-          localStorage.removeItem("cart");
-          window.dispatchEvent(new Event("cart-changed"));
+          clearPurchasedCart(localStorage, buyNowItem);
+          if (!buyNowItem) window.dispatchEvent(new Event("cart-changed"));
           if (saved?.order_number) {
             sessionStorage.setItem(PENDING_ORDER_KEY, JSON.stringify({
               order_number: saved.order_number, payment_id: resp.razorpay_payment_id,
@@ -182,8 +190,26 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem, star
             <div className="flex-1 min-h-0">
               <CheckoutForm
                 total={formatINR(total)}
+                isPricingLoading={!settingsLoaded}
+                summary={
+                  <div className="space-y-2" aria-label="Order summary">
+                    <div className="max-h-24 overflow-y-auto space-y-2">
+                    {cartItems.map(item => (
+                      <div key={item.id} className="flex items-center gap-3 text-sm">
+                        <img src={item.image} alt={item.name} className="h-10 w-10 shrink-0 rounded object-cover" />
+                        <span className="min-w-0 break-words">{item.name} × {item.quantity}</span>
+                      </div>
+                    ))}
+                    </div>
+                    <div className="flex justify-between gap-3 text-sm"><span>Product cost</span><span>{formatINR(subtotal)}</span></div>
+                    {couponOk && discount > 0 && <div className="flex justify-between gap-3 text-sm text-primary"><span>Discount ({coupon?.code})</span><span>−{formatINR(discount)}</span></div>}
+                    <div className="flex justify-between gap-3 text-sm"><span>Shipping cost</span><span>{!settingsLoaded ? "Loading…" : shipping === 0 ? "Free" : formatINR(shipping)}</span></div>
+                    <div className="flex justify-between gap-3 border-t pt-2 font-semibold"><span>Total</span><span>{settingsLoaded ? formatINR(total) : "Loading…"}</span></div>
+                  </div>
+                }
+                backLabel={buyNowItem ? "Back to product" : "Back to cart"}
                 isLoading={isLoading}
-                onBack={() => setStep("cart")}
+                onBack={() => buyNowItem ? onClose() : setStep("cart")}
                 onSubmit={handleCheckout}
               />
             </div>
@@ -268,7 +294,7 @@ const Cart = ({ isOpen, onClose, cartItems, onUpdateQuantity, onRemoveItem, star
                 </div>
                 {couponOk && discount > 0 && (
                   <div className="flex justify-between text-sm text-primary">
-                    <span>Discount ({coupon!.code})</span>
+                    <span>Discount ({coupon?.code})</span>
                     <span>-{formatINR(discount)}</span>
                   </div>
                 )}
