@@ -93,9 +93,12 @@ const Hero = () => {
                 className="text-4xl md:text-6xl leading-tight"
                 style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}
               >
-                Buttabomma: Celebrating Heritage
-                <span className="block text-primary">with Authentic, Handcrafted Treasures.</span>
+                Buttabomma
+                <span className="block text-primary text-3xl md:text-5xl">
+                  Celebrating Heritage with Authentic, Handcrafted Treasures.
+                </span>
               </h1>
+
 
               <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
                 Carefully curated handmade items that bring warmth and character to your home
