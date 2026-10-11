@@ -19,10 +19,20 @@ const DEFAULT_SLIDES: Slide[] = [
   { id: null, name: "", price: null, image: heroImage1 },
 ];
 
+// Temporary font preview options for the hero heading
+const HERO_FONTS: { label: string; family?: string; weight?: number }[] = [
+  { label: "Current" },
+  { label: "Artisan Brush", family: "'Kalam', cursive", weight: 700 },
+  { label: "Heritage Art", family: "'Rozha One', serif", weight: 400 },
+  { label: "Painted Signboard", family: "'Caveat Brush', cursive", weight: 400 },
+  { label: "Fine Art Gallery", family: "'Cormorant Garamond', serif", weight: 600 },
+];
+
 const Hero = () => {
   const navigate = useNavigate();
   const [slides, setSlides] = useState<Slide[]>(DEFAULT_SLIDES);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [fontIdx, setFontIdx] = useState(0);
 
   const scrollTo = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -87,7 +97,26 @@ const Hero = () => {
           {/* Content */}
           <div className="space-y-8">
             <div className="space-y-4">
-              <h1 className="text-4xl md:text-6xl font-bold leading-tight">
+              <div className="flex flex-wrap gap-2" aria-label="Font preview">
+                {HERO_FONTS.map((f) => (
+                  <button
+                    key={f.label}
+                    type="button"
+                    onClick={() => setFontIdx(HERO_FONTS.indexOf(f))}
+                    className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+                      HERO_FONTS[fontIdx] === f
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background text-foreground hover:border-primary"
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+              <h1
+                className="text-4xl md:text-6xl font-bold leading-tight"
+                style={HERO_FONTS[fontIdx].family ? { fontFamily: HERO_FONTS[fontIdx].family, fontWeight: HERO_FONTS[fontIdx].weight } : undefined}
+              >
                 Buttabomma Shop
                 <span className="block text-primary">Authentic Handcrafted Artisan Treasures</span>
               </h1>
