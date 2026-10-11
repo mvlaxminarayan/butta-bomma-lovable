@@ -4,7 +4,7 @@
 
 @layer utilities {
   .font-telugu {
-    font-family: "Mallanna", "Noto Sans Telugu", sans-serif;
+    font-family: "NTR", "Noto Sans Telugu", sans-serif;
   }
 }
 
@@ -45,6 +45,9 @@ All colors MUST be HSL.
     --border: 45 20% 85%;
     --input: 45 15% 90%;
     --ring: 120 85% 35%;
+
+    /* Signboard lettering red */
+    --brand-script: 2 52% 38%;
 
     --radius: 0.75rem;
 
