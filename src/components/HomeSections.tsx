@@ -8,7 +8,7 @@ const trust = [
   { icon: Hand, title: "100% Handcrafted", text: "Made by hand in Nandyal" },
   { icon: Leaf, title: "Natural Wood & Dyes", text: "Eco-friendly materials" },
   { icon: Users, title: "Direct from Artisans", text: "Fair pay, no middlemen" },
-  { icon: Truck, title: "Pan-India Shipping", text: "Free over ₹999" },
+  { icon: Truck, title: "Pan-India Shipping", text: "Free over ₹5,000" },
 ];
 
 export const TrustBar = () => (

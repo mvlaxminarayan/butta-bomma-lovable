@@ -43,8 +43,7 @@ const Contact = () => (
 
     <PolicySection heading="Response Time">
       <p>
-        We reply to emails and WhatsApp messages within one business day. Messages received on Sundays
-        and public holidays are answered on the next working day.
+        We reply to emails and WhatsApp messages within one business day.
       </p>
     </PolicySection>
 
