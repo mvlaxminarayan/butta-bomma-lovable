@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Hand, Leaf, Users, Truck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { productImageRefs, resolveImageUrls } from "@/lib/productImages";
+import { STORE_INFO } from "@/lib/storeInfo";
 
 const trust = [
   { icon: Hand, title: "100% Handcrafted", text: "Made by hand in Nandyal" },
@@ -41,16 +43,25 @@ const FALLBACK_CATS = ["Kondapalli Toys", "Wooden Crafts", "Home Decor", "Cerami
 export const CategoryTiles = ({ onPick }: { onPick: (c: string) => void }) => {
   // Use the same live product categories the "Browse Collections" gallery shows.
   const [cats, setCats] = useState<string[]>(FALLBACK_CATS);
+  const [photos, setPhotos] = useState<Record<string, string>>({});
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const { data, error } = await (supabase as any).schema("api").from("products").select("category");
+        const { data, error } = await (supabase as any).schema("api").from("products").select("*");
         if (error || !data) return;
-        const set = new Set<string>();
-        data.forEach((r: any) => { const c = (r.category || "").trim(); if (c) set.add(c); });
-        const list = Array.from(set).sort((a, b) => a.localeCompare(b));
-        if (!cancelled && list.length > 0) setCats(list);
+        const firstRef: Record<string, string> = {};
+        data.forEach((r: any) => {
+          const c = (r.category || "").trim();
+          if (!c) return;
+          if (!(c in firstRef)) firstRef[c] = "";
+          if (!firstRef[c]) firstRef[c] = productImageRefs(r)[0] || "";
+        });
+        const list = Object.keys(firstRef).sort((a, b) => a.localeCompare(b));
+        if (cancelled || list.length === 0) return;
+        setCats(list);
+        const urls = await resolveImageUrls(list.map((c) => firstRef[c]));
+        if (!cancelled) setPhotos(Object.fromEntries(list.map((c, i) => [c, urls[i]])));
       } catch {
         // keep fallback tiles
       }
@@ -64,8 +75,10 @@ export const CategoryTiles = ({ onPick }: { onPick: (c: string) => void }) => {
       <div className="flex gap-6 overflow-x-auto pb-2 md:justify-center">
         {cats.map((c, i) => (
           <button key={c} onClick={() => onPick(c)} className="group flex shrink-0 flex-col items-center gap-2">
-            <span className={`flex h-20 w-20 items-center justify-center rounded-full border-2 border-primary/30 text-2xl font-serif text-primary transition group-hover:border-primary md:h-24 md:w-24 ${i % 2 ? "bg-accent/20" : "bg-primary/10"}`}>
-              {c[0]}
+            <span className={`flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-primary/30 text-2xl font-serif text-primary transition group-hover:border-primary group-hover:shadow-md md:h-24 md:w-24 ${i % 2 ? "bg-accent/20" : "bg-primary/10"}`}>
+              {photos[c] ? (
+                <img src={photos[c]} alt={c} loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" />
+              ) : c[0]}
             </span>
             <span className="text-xs font-medium md:text-sm">{c}</span>
           </button>
@@ -74,3 +87,15 @@ export const CategoryTiles = ({ onPick }: { onPick: (c: string) => void }) => {
     </section>
   );
 };
+
+export const MakerBanner = () => (
+  <section aria-label="About the maker" className="container mx-auto px-4 pt-8">
+    <div className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card px-5 py-4 text-center sm:flex-row sm:justify-between sm:text-left">
+      <div>
+        <p className="font-serif text-lg">{STORE_INFO.name} Artisan Studio</p>
+        <p className="text-sm text-muted-foreground">Nandyal, Andhra Pradesh · Handmade to order · Dispatches in 1–3 days</p>
+      </div>
+      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">★ Direct from the maker</span>
+    </div>
+  </section>
+);
