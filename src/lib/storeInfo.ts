@@ -2,7 +2,7 @@
 export const STORE_INFO = {
   name: "Buttabomma Shop",
   legalName: "Buttabomma Handcrafts",
-  email: "support@buttabommahandcrafts.com",
+  email: "support@buttabommacrafts.com",
   phone: "+91 85198 93747",
   whatsapp: "918519893747", // digits only, with country code
   instagram: "buttabomma_crafts",
