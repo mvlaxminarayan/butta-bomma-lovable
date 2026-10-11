@@ -7,6 +7,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAuth } from "@/hooks/useAuth";
 import { useWishlistIds } from "@/hooks/useWishlist";
 import { BrandLogo } from "@/components/BrandLogo";
+import { useLayoutChoice } from "@/lib/layoutPreview";
 
 interface HeaderProps {
   cartItems: number;
@@ -19,6 +20,8 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const wishlistCount = useWishlistIds().length;
+  const { header: layout } = useLayoutChoice();
+  const centered = layout === "centered";
 
   const handleSignOut = async () => {
     await signOut();
@@ -30,13 +33,13 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
       <div className="container mx-auto px-4 py-4">
         <div className="flex flex-wrap items-center justify-between gap-y-2 sm:flex-nowrap">
           {/* Logo */}
-          <Link to="/" aria-label="Go to home page" className="flex items-center gap-3 group mx-auto sm:mx-0">
+          <Link to="/" aria-label="Go to home page" className={`flex items-center gap-3 group mx-auto sm:mx-0 ${centered ? "sm:order-2 sm:mx-auto" : ""}`}>
             <BrandLogo size="lg" />
           </Link>
 
 
           {/* Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
+          <div className={`hidden md:flex flex-1 ${centered ? "order-1 max-w-[240px] mr-6" : "max-w-md mx-8"}`}>
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input 
@@ -49,7 +52,7 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
           </div>
 
           {/* Action Buttons */}
-          <div className="flex w-full shrink-0 items-center justify-end gap-2 sm:w-auto lg:gap-4">
+          <div className={`flex w-full shrink-0 items-center justify-end gap-2 sm:w-auto lg:gap-4 ${centered ? "sm:order-3 md:flex-1 md:max-w-[240px] md:ml-6" : ""}`}>
             <Button
               variant="ghost"
               size="icon"
@@ -156,6 +159,19 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
           </div>
         </div>
       </div>
+      {layout === "twoTier" && (
+        <nav aria-label="Quick links" className="hidden md:block border-t border-border/50">
+          <ul className="container mx-auto flex items-center justify-center gap-8 px-4 py-2 text-sm font-medium">
+            {[["All Crafts","products"],["Our Story","our-story"]].map(([l,id]) => (
+              <li key={l}><button className="hover:text-primary" onClick={() => navigate("/", { state: { scrollTo: id } })}>{l}</button></li>
+            ))}
+            {["Kondapalli Toys","Wooden Crafts","Home Decor"].map((c) => (
+              <li key={c}><button className="hover:text-primary" onClick={() => { onSearchChange?.(c); navigate("/", { state: { scrollTo: "products" } }); }}>{c}</button></li>
+            ))}
+            <li><Link to="/track-order" className="hover:text-primary">Track Order</Link></li>
+          </ul>
+        </nav>
+      )}
     </header>
   );
 };
