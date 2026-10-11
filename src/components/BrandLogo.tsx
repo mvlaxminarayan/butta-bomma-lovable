@@ -58,8 +58,14 @@ export const BrandLogo = ({ size = "lg" }: Props) => {
               <pattern id={patternId} width="10" height="10" patternUnits="userSpaceOnUse">
                 <use href={`#${motifId}`} />
               </pattern>
-              <pattern id={verticalPatternId} width="6" height="10" patternUnits="userSpaceOnUse">
-                <use href={`#${motifId}`} transform="translate(-3 10) rotate(-90)" />
+              <pattern
+                id={verticalPatternId}
+                width="10"
+                height="10"
+                patternUnits="userSpaceOnUse"
+                patternTransform="translate(-3 10) rotate(-90)"
+              >
+                <use href={`#${motifId}`} />
               </pattern>
             </defs>
             <rect x="5" y="3" width="calc(100% - 10px)" height="6" fill={`url(#${patternId})`} />
