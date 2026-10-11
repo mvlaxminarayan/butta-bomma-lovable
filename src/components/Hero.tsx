@@ -19,14 +19,6 @@ const DEFAULT_SLIDES: Slide[] = [
   { id: null, name: "", price: null, image: heroImage1 },
 ];
 
-// Temporary font preview options for the hero heading
-const HERO_FONTS: { label: string; family?: string; weight?: number }[] = [
-  { label: "Current" },
-  { label: "Artisan Brush", family: "'Kalam', cursive", weight: 700 },
-  { label: "Heritage Art", family: "'Rozha One', serif", weight: 400 },
-  { label: "Painted Signboard", family: "'Caveat Brush', cursive", weight: 400 },
-  { label: "Fine Art Gallery", family: "'Cormorant Garamond', serif", weight: 600 },
-];
 
 const Hero = () => {
   const navigate = useNavigate();
