@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,12 +36,14 @@ export const checkoutSchema = z.object({
 
 interface Props {
   total: string;
+  summary: ReactNode;
+  backLabel?: string;
   isLoading: boolean;
   onBack: () => void;
   onSubmit: (details: CheckoutDetails) => void;
 }
 
-const CheckoutForm = ({ total, isLoading, onBack, onSubmit }: Props) => {
+const CheckoutForm = ({ total, summary, backLabel = "Back to cart", isLoading, onBack, onSubmit }: Props) => {
   const { user, profile } = useAuth();
   const [form, setForm] = useState<CheckoutDetails>(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -96,7 +98,7 @@ const CheckoutForm = ({ total, isLoading, onBack, onSubmit }: Props) => {
 
   return (
     <form onSubmit={submit} className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div className="min-h-0 flex-1 overflow-y-auto p-6 space-y-4">
         <p className="text-sm text-muted-foreground">
           We need these details to deliver your order. We deliver within India only.
         </p>
@@ -139,12 +141,13 @@ const CheckoutForm = ({ total, isLoading, onBack, onSubmit }: Props) => {
         </div>
       </div>
 
-      <div className="border-t p-6 space-y-3">
+      <div className="shrink-0 border-t p-4 sm:p-6 space-y-3">
+        {summary}
         <Button type="submit" className="w-full bg-primary hover:bg-primary/90" disabled={isLoading}>
           {isLoading ? "Opening payment..." : `Pay ${total}`}
         </Button>
         <Button type="button" variant="ghost" className="w-full" onClick={onBack} disabled={isLoading}>
-          Back to cart
+          {backLabel}
         </Button>
       </div>
     </form>
