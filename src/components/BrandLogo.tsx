@@ -13,6 +13,15 @@ const Lettering = ({ variant, className }: { variant: "left" | "right"; classNam
     fill="currentColor"
   >
     <path d={brandLettering[variant].path} fillRule="evenodd" />
+    {variant === "left" && (
+      <path
+        d="M177 161 C181 168 190 171 198 162"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="6"
+        strokeLinecap="round"
+      />
+    )}
   </svg>
 );
 
@@ -25,7 +34,7 @@ export const BrandLogo = ({ size = "lg" }: Props) => {
   return (
     <span className="inline-flex shrink-0 flex-col leading-none rounded-md bg-brand-script p-[3px] shadow-sm group-hover:shadow-md transition-shadow duration-300">
       <span className="rounded-[5px] bg-background p-[2px]">
-        <span className="relative flex flex-col items-center rounded-[4px] bg-card px-3 pt-2.5 pb-2">
+        <span className="relative flex flex-col items-center rounded-[4px] bg-card px-3 pt-2.5 pb-3.5">
           <svg aria-hidden="true" className="pointer-events-none absolute inset-0 h-full w-full text-brand-script/50">
             <defs>
               <pattern id={patternId} width="10" height="10" patternUnits="userSpaceOnUse">
@@ -46,7 +55,7 @@ export const BrandLogo = ({ size = "lg" }: Props) => {
             />
             <Lettering variant="right" className={right} />
           </span>
-          <span className="mt-0.5 text-[9px] uppercase text-brand-script/80 font-semibold">
+          <span className="mt-1 text-[9px] leading-3 uppercase text-brand-script/80 font-semibold">
             Handcrafts
           </span>
         </span>
