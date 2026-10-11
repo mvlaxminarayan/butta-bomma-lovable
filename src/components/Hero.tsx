@@ -24,7 +24,7 @@ const Hero = () => {
   const navigate = useNavigate();
   const [slides, setSlides] = useState<Slide[]>(DEFAULT_SLIDES);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [fontIdx, setFontIdx] = useState(0);
+
 
   const scrollTo = (id: string) =>
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
