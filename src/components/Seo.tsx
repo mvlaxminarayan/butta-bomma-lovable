@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 
 export const SITE_NAME = "Buttabomma Shop";
-export const SITE_URL = "https://buttabommahandcrafts.com";
+export const SITE_URL = "https://buttabommacrafts.com";
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/og-image.jpg`;
 
 interface SeoProps {

@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://buttabommahandcrafts.com/sitemap.xml
+Sitemap: https://buttabommacrafts.com/sitemap.xml
