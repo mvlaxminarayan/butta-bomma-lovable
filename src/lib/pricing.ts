@@ -30,7 +30,7 @@ export const formatINR = (amount: number): string =>
 
 export const DEFAULT_SETTINGS: StoreSettings = {
   shipping_fee: 99,
-  free_shipping_threshold: 999,
+  free_shipping_threshold: 5000,
   story_title: null,
   story_text: null,
   story_image: null,

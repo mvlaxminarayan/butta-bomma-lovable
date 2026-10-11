@@ -12,7 +12,7 @@ export const STORE_INFO = {
     "Nandyal - 518501, Andhra Pradesh",
     "India",
   ],
-  hours: "Monday to Saturday, 10:00 AM – 6:00 PM IST",
+  hours: "Open all days, 10:00 AM – 9:00 PM IST",
   lastUpdated: "8 October 2026",
 };
 
