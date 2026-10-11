@@ -12,7 +12,22 @@ const Lettering = ({ variant, className }: { variant: "left" | "right"; classNam
     className={`block shrink-0 text-brand-script ${className}`}
     fill="currentColor"
   >
-    <path d={brandLettering[variant].path} fillRule="evenodd" />
+    <path
+      d={brandLettering[variant].path}
+      fillRule="evenodd"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+    />
+    {variant === "right" && (
+      <path
+        d="M60 152 C64 152 67 150 71 148"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
+    )}
     {variant === "left" && (
       <path
         d="M177 161 C181 168 190 171 198 162"
@@ -55,7 +70,7 @@ export const BrandLogo = ({ size = "lg" }: Props) => {
             />
             <Lettering variant="right" className={right} />
           </span>
-          <span className="mt-1 text-[9px] leading-3 uppercase text-brand-script/80 font-semibold">
+          <span className="mt-1 text-[9px] leading-3 uppercase text-brand-script font-bold">
             Handcrafts
           </span>
         </span>
