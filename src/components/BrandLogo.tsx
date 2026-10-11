@@ -2,20 +2,24 @@ import logo from "@/assets/logo.png";
 
 type Props = { size?: "md" | "lg" };
 
-/** Hand-drawn swash that sits under each Telugu word, like the signboard. */
-const Swash = ({ flip = false }: { flip?: boolean }) => (
+/** Hand-drawn flourishes under each Telugu word, modelled on the signboard. */
+const Swash = ({ variant }: { variant: "left" | "right" }) => (
   <svg
-    viewBox="0 0 120 14"
+    viewBox="0 0 120 18"
     aria-hidden="true"
-    className={`block w-full h-2.5 md:h-3 text-brand-script ${flip ? "-scale-x-100" : ""}`}
+    className="block w-full h-3 md:h-3.5 mt-1.5 overflow-visible text-brand-script"
     fill="none"
     stroke="currentColor"
     strokeWidth="1.6"
     strokeLinecap="round"
+    strokeLinejoin="round"
     preserveAspectRatio="none"
   >
-    <path d="M4 7 C 22 2, 38 12, 58 7 S 94 2, 108 7" />
-    <path d="M108 7 C 116 9, 117 3, 112 3 C 108 3, 109 8, 113 8" />
+    {variant === "left" ? (
+      <path d="M8 9 C 18 4, 30 4, 40 9 C 46 13, 55 12, 53 8 C 51 5, 45 9, 51 14 C 60 17, 76 10, 92 9" />
+    ) : (
+      <path d="M4 11 C 20 5, 36 5, 50 10 C 56 13, 63 12, 61 9 C 59 6, 54 10, 59 14 C 72 17, 96 13, 110 6 C 115 2, 120 3, 118 7" />
+    )}
   </svg>
 );
 
@@ -31,8 +35,8 @@ export const BrandLogo = ({ size = "lg" }: Props) => {
         <span className="flex flex-col items-center rounded-lg border-2 border-dotted border-brand-script/30 bg-card px-3 pt-1 pb-1">
           <span className="flex items-center gap-1.5">
             <span className="flex flex-col items-center">
-              <span className={`font-telugu ${word} text-brand-script`} lang="te">బుట్ట</span>
-              <Swash />
+              <span className={`font-telugu ${word} text-brand-script pb-1`} lang="te">బుట్ట</span>
+              <Swash variant="left" />
             </span>
             <img
               src={logo}
@@ -40,8 +44,8 @@ export const BrandLogo = ({ size = "lg" }: Props) => {
               className={`${emblem} object-contain rounded-full`}
             />
             <span className="flex flex-col items-center">
-              <span className={`font-telugu ${word} text-brand-script`} lang="te">బొమ్మ</span>
-              <Swash flip />
+              <span className={`font-telugu ${word} text-brand-script pb-1`} lang="te">బొమ్మ</span>
+              <Swash variant="right" />
             </span>
           </span>
           <span className="mt-0.5 text-[9px] uppercase tracking-[0.35em] text-brand-script/80 font-semibold">
