@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { Hand, Leaf, Users, Truck } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const trust = [
   { icon: Hand, title: "100% Handcrafted", text: "Made by hand in Nandyal" },
@@ -33,20 +35,42 @@ export const StoryTeaser = () => (
   </section>
 );
 
-const cats = ["Kondapalli Toys", "Wooden Crafts", "Home Decor", "Ceramics", "Textiles", "Gifts"];
+// Fallback tiles when the store has no products loaded yet.
+const FALLBACK_CATS = ["Kondapalli Toys", "Wooden Crafts", "Home Decor", "Ceramics", "Textiles", "Gifts"];
 
-export const CategoryTiles = ({ onPick }: { onPick: (c: string) => void }) => (
-  <section aria-label="Shop by category" className="container mx-auto px-4 py-10">
-    <h2 className="mb-6 text-center font-serif text-2xl">Shop by Category</h2>
-    <div className="flex gap-6 overflow-x-auto pb-2 md:justify-center">
-      {cats.map((c, i) => (
-        <button key={c} onClick={() => onPick(c)} className="group flex shrink-0 flex-col items-center gap-2">
-          <span className={`flex h-20 w-20 items-center justify-center rounded-full border-2 border-primary/30 text-2xl font-serif text-primary transition group-hover:border-primary md:h-24 md:w-24 ${i % 2 ? "bg-accent/20" : "bg-primary/10"}`}>
-            {c[0]}
-          </span>
-          <span className="text-xs font-medium md:text-sm">{c}</span>
-        </button>
-      ))}
-    </div>
-  </section>
-);
+export const CategoryTiles = ({ onPick }: { onPick: (c: string) => void }) => {
+  // Use the same live product categories the "Browse Collections" gallery shows.
+  const [cats, setCats] = useState<string[]>(FALLBACK_CATS);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data, error } = await (supabase as any).schema("api").from("products").select("category");
+        if (error || !data) return;
+        const set = new Set<string>();
+        data.forEach((r: any) => { const c = (r.category || "").trim(); if (c) set.add(c); });
+        const list = Array.from(set).sort((a, b) => a.localeCompare(b));
+        if (!cancelled && list.length > 0) setCats(list);
+      } catch {
+        // keep fallback tiles
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  return (
+    <section aria-label="Shop by category" className="container mx-auto px-4 py-10">
+      <h2 className="mb-6 text-center font-serif text-2xl">Shop by Category</h2>
+      <div className="flex gap-6 overflow-x-auto pb-2 md:justify-center">
+        {cats.map((c, i) => (
+          <button key={c} onClick={() => onPick(c)} className="group flex shrink-0 flex-col items-center gap-2">
+            <span className={`flex h-20 w-20 items-center justify-center rounded-full border-2 border-primary/30 text-2xl font-serif text-primary transition group-hover:border-primary md:h-24 md:w-24 ${i % 2 ? "bg-accent/20" : "bg-primary/10"}`}>
+              {c[0]}
+            </span>
+            <span className="text-xs font-medium md:text-sm">{c}</span>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+};
