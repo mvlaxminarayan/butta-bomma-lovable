@@ -92,8 +92,7 @@ const Hero = () => {
                 <span className="block text-primary">Authentic Handcrafted Artisan Treasures</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
-                Discover unique, artisanal pieces made by skilled craftspeople. 
-                Each item tells a story of tradition, quality, and care.
+                Carefully curated handmade items that bring warmth and character to your home
               </p>
             </div>
             
@@ -160,6 +159,9 @@ const Hero = () => {
                 />
               ))}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+              <div className="absolute top-4 left-4 rounded-full bg-background/90 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary shadow">
+                Featured Spotlight
+              </div>
 
               {active?.id && (
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-primary-foreground">

@@ -217,7 +217,7 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Featured <span className="text-primary">Collection</span>
+              Our Handcrafted <span className="text-primary">Collection</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Loading our handcrafted collection...
@@ -265,14 +265,14 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
               </>
             ) : (
               <>
-                Featured <span className="text-primary">Collection</span>
+                Our Handcrafted <span className="text-primary">Collection</span>
               </>
             )}
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             {wishlistOnly
               ? "Items you've saved for later — tap the heart on any product to add more"
-              : "Carefully curated handmade items that bring warmth and character to your home"}
+              : "Explore every piece in our shop — filter by category to find your favourite"}
           </p>
         </div>
 
