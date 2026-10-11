@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { useWishlistIds } from "@/hooks/useWishlist";
-import logo from "@/assets/logo.png";
+import { BrandLogo } from "@/components/BrandLogo";
 
 interface HeaderProps {
   cartItems: number;
@@ -31,11 +31,7 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" aria-label="Go to home page" className="flex items-center gap-3 group">
-            <img src={logo} alt="Buttabomma Shop logo" className="h-16 w-16 object-contain rounded-full shadow-sm group-hover:shadow-md transition-all duration-300" />
-            <span className="flex flex-col leading-tight">
-              <span className="text-2xl font-bold tracking-tight text-foreground">Buttabomma</span>
-              <span className="text-[11px] uppercase tracking-[0.25em] text-primary font-semibold">Handcrafts</span>
-            </span>
+            <BrandLogo size="lg" />
           </Link>
 
 
