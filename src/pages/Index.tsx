@@ -9,9 +9,7 @@ import ProductGrid from "@/components/ProductGrid";
 import OurStory from "@/components/OurStory";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
-import LayoutSwitcher from "@/components/LayoutSwitcher";
-import { TrustBar, StoryTeaser, CategoryTiles } from "@/components/HomeSections";
-import { useLayoutChoice } from "@/lib/layoutPreview";
+import { CategoryTiles } from "@/components/HomeSections";
 import Cart, { CartItem } from "@/components/Cart";
 import { Product } from "@/components/ProductCard";
 import { useToast } from "@/hooks/use-toast";
@@ -33,7 +31,6 @@ const Index = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const layout = useLayoutChoice();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -137,10 +134,7 @@ const Index = () => {
         onSearchChange={setSearchQuery}
       />
       <Hero />
-      {layout.home === "story" && (<><TrustBar /><StoryTeaser /></>)}
-      {layout.home === "categories" && (
-        <CategoryTiles onPick={(c) => { setSearchQuery(c); setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }), 50); }} />
-      )}
+      <CategoryTiles onPick={(c) => { setSearchQuery(c); setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }), 50); }} />
 
       <ProductGrid 
 
@@ -153,7 +147,6 @@ const Index = () => {
       />
       <OurStory />
       <Footer />
-      <LayoutSwitcher />
       <Cart
         isOpen={isCartOpen}
         onClose={closeCart}
