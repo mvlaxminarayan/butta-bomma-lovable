@@ -19,6 +19,8 @@ interface ProductGridProps {
   onCategoryChange?: (c: string) => void;
   wishlistOnly?: boolean;
   onExitWishlist?: () => void;
+  featuredOnly?: boolean;
+  onExitFeatured?: () => void;
 }
 
 // Fallback product data for when database is empty
@@ -121,6 +123,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
         images,
         category: (product.category || "").trim() || "Uncategorized",
         inStock: product.in_stock,
+        featured: !!product.is_featured,
         rating: averageRating || 0,
         reviews: reviewCount
       };
@@ -139,7 +142,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
   }
 };
 
-const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSearch, category: categoryProp, onCategoryChange, wishlistOnly = false, onExitWishlist }: ProductGridProps) => {
+const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSearch, category: categoryProp, onCategoryChange, wishlistOnly = false, onExitWishlist, featuredOnly = false, onExitFeatured }: ProductGridProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -191,6 +194,7 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
   const visibleProducts = useMemo(() => {
     let list = products.filter((p) =>
       (!wishlistOnly || wishlistIds.includes(p.id)) &&
+      (!featuredOnly || wishlistOnly || p.featured) &&
       (category === "All" || (p.category || "Uncategorized") === category) &&
       (!query || p.name.toLowerCase().includes(query) || (p.category || "").toLowerCase().includes(query))
     );
@@ -198,9 +202,9 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
     else if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
     else if (sort === "name") list = [...list].sort((a, b) => a.name.localeCompare(b.name));
     return list;
-  }, [products, category, query, sort, wishlistOnly, wishlistIds]);
+  }, [products, category, query, sort, wishlistOnly, wishlistIds, featuredOnly]);
 
-  useEffect(() => { setPage(1); }, [category, query, sort, wishlistOnly]);
+  useEffect(() => { setPage(1); }, [category, query, sort, wishlistOnly, featuredOnly]);
 
   const totalPages = Math.max(1, Math.ceil(visibleProducts.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -275,6 +279,20 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
               : "Explore every piece in our shop — filter by category to find your favourite"}
           </p>
         </div>
+
+        {featuredOnly && !wishlistOnly && (
+          <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-3 rounded-xl border border-primary/30 bg-primary/10 px-5 py-3">
+            <span className="text-sm md:text-base font-medium text-primary">
+              Showing Featured Artisan Creations ({visibleProducts.length})
+            </span>
+            <button
+              onClick={() => onExitFeatured?.()}
+              className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+            >
+              <X className="w-4 h-4" /> View all items
+            </button>
+          </div>
+        )}
 
         {/* Category organization bar */}
         <div className="border-y border-border py-5 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
@@ -414,10 +432,10 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
           </div>
         )}
 
-        {(wishlistOnly || query || category !== "All") && (
+        {(wishlistOnly || featuredOnly || query || category !== "All") && (
           <div className="text-center mt-8">
             <button
-              onClick={() => { setCategory("All"); onClearSearch?.(); onExitWishlist?.(); }}
+              onClick={() => { setCategory("All"); onClearSearch?.(); onExitWishlist?.(); onExitFeatured?.(); }}
               className="text-primary font-semibold hover:underline transition-all duration-300"
             >
               View All Products →

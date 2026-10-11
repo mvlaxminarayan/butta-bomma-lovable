@@ -20,7 +20,7 @@ const DEFAULT_SLIDES: Slide[] = [
 ];
 
 
-const Hero = () => {
+const Hero = ({ onViewFeatured }: { onViewFeatured?: () => void }) => {
   const navigate = useNavigate();
   const [slides, setSlides] = useState<Slide[]>(DEFAULT_SLIDES);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -168,9 +168,15 @@ const Hero = () => {
                 />
               ))}
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-              <div className="absolute top-4 left-4 rounded-full bg-background/90 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary shadow">
-                Featured Spotlight
-              </div>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); onViewFeatured?.(); }}
+                onKeyDown={(e) => e.stopPropagation()}
+                aria-label="View all featured items"
+                className="absolute top-4 left-4 z-10 rounded-full bg-background/90 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary shadow transition-colors hover:bg-primary hover:text-primary-foreground"
+              >
+                Featured Spotlight · View all →
+              </button>
 
               {active?.id && (
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-primary-foreground">

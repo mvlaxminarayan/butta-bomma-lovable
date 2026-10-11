@@ -17,6 +17,7 @@ export interface Product {
   reviews: number;
   category: string;
   inStock: boolean;
+  featured?: boolean;
 }
 
 interface ProductCardProps {

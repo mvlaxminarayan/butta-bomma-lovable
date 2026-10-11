@@ -26,6 +26,7 @@ const Index = () => {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState("All");
+  const [featuredOnly, setFeaturedOnly] = useState(false);
   const [wishlistOnly, setWishlistOnly] = useState(
     () => new URLSearchParams(window.location.search).get("wishlist") === "1"
   );
@@ -134,10 +135,13 @@ const Index = () => {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
-      <Hero />
+      <Hero onViewFeatured={() => {
+        setSearchQuery(""); setCategory("All"); setFeaturedOnly(true);
+        setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+      }} />
       <TrustBar />
       <MakerBanner />
-      <CategoryTiles onPick={(c) => { setSearchQuery(""); setCategory(c); setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }), 50); }} />
+      <CategoryTiles onPick={(c) => { setSearchQuery(""); setFeaturedOnly(false); setCategory(c); setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }), 50); }} />
 
       <ProductGrid 
 
@@ -149,6 +153,8 @@ const Index = () => {
         onClearSearch={() => setSearchQuery("")}
         wishlistOnly={wishlistOnly}
         onExitWishlist={exitWishlist}
+        featuredOnly={featuredOnly}
+        onExitFeatured={() => setFeaturedOnly(false)}
       />
       <OurStory />
       <Footer />
