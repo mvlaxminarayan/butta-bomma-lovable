@@ -93,7 +93,7 @@ const Hero = ({ onViewFeatured }: { onViewFeatured?: () => void }) => {
                 className="text-4xl md:text-6xl leading-tight"
                 style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}
               >
-                Buttabomma
+                Buttabomma <span className="whitespace-nowrap">Crafts</span>
                 <span className="block text-primary text-3xl md:text-5xl">
                   Celebrating Heritage with Authentic, Handcrafted Treasures.
                 </span>
