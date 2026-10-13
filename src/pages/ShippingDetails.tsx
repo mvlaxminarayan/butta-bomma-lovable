@@ -43,7 +43,7 @@ const ShippingDetails = () => {
   });
 
   useEffect(() => {
-    document.title = "Shipping Details - Complete Your Order";
+    document.title = "Shipping Details — Buttabomma Crafts";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) metaDesc.setAttribute("content", "Enter your shipping details to complete your handcrafted item order.");
   }, []);

@@ -59,7 +59,7 @@ const TrackOrder = () => {
     <main className="min-h-screen bg-background px-4 py-10">
       <Seo
         title="Track Your Order"
-        description="Check the latest status of your Buttabomma Shop order with your order number and email."
+        description="Check the latest status of your Buttabomma Crafts order with your order number and email."
         path="/track-order"
       />
       <div className="mx-auto max-w-2xl space-y-6">
