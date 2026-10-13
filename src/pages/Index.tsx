@@ -124,8 +124,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title="Buttabomma Shop — Handcrafted Artisan Goods"
-        description="Shop authentic handcrafted artisan goods from Nandyal, Andhra Pradesh — Kondapalli toys, hand-painted ceramics, textiles and more, made with love."
+        title="Buttabomma Crafts — Handcrafted Artisan Goods"
+        description="Buttabomma Crafts celebrates heritage with authentic handcrafted treasures. Shop artisan toys, ceramics, textiles and home decor from Nandyal, Andhra Pradesh."
         path="/"
       />
       <AnnouncementBar />

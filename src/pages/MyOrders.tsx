@@ -22,7 +22,7 @@ const MyOrders = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
 
-  useEffect(() => { document.title = "My Orders - Buttabomma Shop"; }, []);
+  useEffect(() => { document.title = "My Orders — Buttabomma Crafts"; }, []);
 
   useEffect(() => {
     if (!user) return;

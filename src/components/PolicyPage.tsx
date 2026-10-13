@@ -25,7 +25,7 @@ const PolicyPage = ({ title, intro, children }: PolicyPageProps) => {
   <div className="min-h-screen bg-background flex flex-col">
     <Seo
       title={title}
-      description={intro ?? `${title} for Buttabomma Shop — handcrafted artisan goods from Nandyal, Andhra Pradesh.`}
+      description={intro ?? `${title} for Buttabomma Crafts — handcrafted artisan goods from Nandyal, Andhra Pradesh.`}
       path={pathname}
     />
     <div className="container mx-auto px-4 py-8 flex-1 max-w-3xl">

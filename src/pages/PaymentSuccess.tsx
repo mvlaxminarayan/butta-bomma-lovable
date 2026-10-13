@@ -11,7 +11,7 @@ const PaymentSuccess = () => {
   const orderNumber = searchParams.get('order');
 
   useEffect(() => {
-    document.title = "Order Complete - Thank You!";
+    document.title = "Order Complete — Buttabomma Crafts";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) metaDesc.setAttribute("content", "Thank you for your purchase! Your handcrafted item order has been completed successfully.");
     

@@ -6,7 +6,7 @@ const PaymentCanceled = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    document.title = "Payment Canceled - Handcrafted Ceramic Mug";
+    document.title = "Payment Canceled — Buttabomma Crafts";
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) metaDesc.setAttribute("content", "Your payment was canceled. You can retry checkout anytime.");
     let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
