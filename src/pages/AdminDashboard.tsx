@@ -149,8 +149,8 @@ export default function AdminDashboard() {
       if (!file.type.startsWith("image/")) { toast.error(`${file.name} is not an image`); continue; }
       if (file.size > 10 * 1024 * 1024) { toast.error(`${file.name} is over 10MB`); continue; }
       try {
-        const ext = file.name.split(".").pop() || "jpg";
-        added.push(await uploadProductImage(file, ext));
+        const stamped = await watermarkImage(file);
+        added.push(await uploadProductImage(new File([stamped], "photo.jpg", { type: "image/jpeg" }), "jpg"));
       } catch (e: any) {
         toast.error(`Upload failed: ${e.message}`);
       }

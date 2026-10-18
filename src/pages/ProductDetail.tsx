@@ -282,7 +282,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
           {/* Image Gallery */}
-          <div className="space-y-4">
+          <div className="space-y-4 protected-img" onContextMenu={(e) => e.preventDefault()}>
             {/* Main Image — zoomable */}
             <div className="relative aspect-square rounded-xl overflow-hidden bg-product-card group/zoom">
               <TransformWrapper
@@ -348,6 +348,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                   <img
                     src={image}
                     alt={`${product.name} view ${index + 1}`}
+                    draggable={false}
                     className="w-full h-full object-cover"
                   />
                 </button>
