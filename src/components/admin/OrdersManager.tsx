@@ -33,6 +33,19 @@ const OrderRow = ({ order, onSaved, unread, onOpened }: { order: Order; onSaved:
     onSaved(updated || undefined);
   };
 
+  const shiprocket = async (action: "ship" | "label") => {
+    setSaving(true);
+    const { data, error } = await supabase.functions.invoke("shiprocket", { body: { action, order_id: order.id } });
+    setSaving(false);
+    const msg = data?.error || (error ? (await (error as any).context?.json?.().catch(() => null))?.error || error.message : null);
+    if (msg) { toast({ title: "Shiprocket", description: msg }); return; }
+    if (action === "label") { window.open(data.label_url, "_blank"); return; }
+    const u = data.order as Order;
+    setStatus(u.status); setCourier(u.courier || ""); setTracking(u.tracking_number || "");
+    toast({ title: "Shipment booked", description: `${u.courier} · ${u.tracking_number}` });
+    onSaved(u);
+  };
+
   const a = order.shipping_address || {};
   return (
     <div className={`rounded-md border transition-colors ${unread ? "border-primary bg-primary/10 ring-1 ring-primary/30" : "border-border"}`}>
@@ -81,7 +94,15 @@ const OrderRow = ({ order, onSaved, unread, onOpened }: { order: Order; onSaved:
               <Label>Tracking number</Label>
               <Input value={tracking} maxLength={60} onChange={(e) => setTracking(e.target.value)} />
             </div>
-            <Button onClick={save} disabled={saving}>{saving ? "Saving..." : "Save changes"}</Button>
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={save} disabled={saving}>{saving ? "Saving..." : "Save changes"}</Button>
+              {!order.tracking_number && !["cancelled", "refunded", "delivered"].includes(order.status) && (
+                <Button variant="secondary" disabled={saving} onClick={() => shiprocket("ship")}>Ship via Shiprocket</Button>
+              )}
+              {order.tracking_number && (order.status_history as any[])?.some((h) => h?.shiprocket_shipment_id) && (
+                <Button variant="outline" disabled={saving} onClick={() => shiprocket("label")}>Print label</Button>
+              )}
+            </div>
           </div>
         </div>
       )}
