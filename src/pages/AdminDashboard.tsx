@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { watermarkImage } from "@/lib/watermark";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
