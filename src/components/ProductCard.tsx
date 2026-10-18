@@ -46,10 +46,11 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
   return (
     <div className="group relative bg-product-card hover:bg-product-card-hover rounded-xl shadow-[var(--shadow-product)] hover:shadow-[var(--shadow-product-hover)] transition-all duration-300 hover:-translate-y-2 cursor-pointer">
       {/* Product Image */}
-      <div className="relative overflow-hidden rounded-t-xl">
+      <div className="relative overflow-hidden rounded-t-xl protected-img" onContextMenu={(e) => e.preventDefault()}>
         <img
           src={photos[photoIndex] || product.image}
           alt={product.name}
+          draggable={false}
           className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
           onClick={() => onViewDetails(product)}
         />

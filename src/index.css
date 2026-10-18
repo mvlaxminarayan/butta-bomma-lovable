@@ -145,3 +145,10 @@ All colors MUST be HSL.
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Deter casual saving of product photos */
+.protected-img img, img.protected-img {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
