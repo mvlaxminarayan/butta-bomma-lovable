@@ -2,5 +2,6 @@
 - [x] Show product cost, shipping, discounts when applicable, and total above payment.
 - [x] Test Buy Now and regular cart checkout in the preview (no payment charged).
 - [x] Preserve Shiprocket label references during status changes and verify paid/packed order regressions.
-- [ ] Remove admin sample photo fallbacks during loading and uploads; verify both views and upload previews.
-- [ ] Keep out-of-stock details accessible and block Add to Cart and Buy Now; verify navigation and purchase guards.
+- [x] Remove admin sample photo fallbacks during loading and uploads in both views and upload previews.
+- [ ] Verify signed-in admin photo loading/uploads: blocked by external Supabase session unavailable to automated checks.
+- [x] Keep out-of-stock details accessible and block Add to Cart and Buy Now; verified real product image navigation and disabled purchase controls, with passing purchase guard tests.

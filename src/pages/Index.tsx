@@ -13,6 +13,7 @@ import { CategoryTiles, TrustBar, MakerBanner } from "@/components/HomeSections"
 import Cart, { CartItem } from "@/components/Cart";
 import { Product } from "@/components/ProductCard";
 import { useToast } from "@/hooks/use-toast";
+import { canPurchaseProduct } from "@/lib/productAvailability";
 
 const Index = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
@@ -76,6 +77,7 @@ const Index = () => {
   }, [cartItems]);
 
   const addToCart = (product: Product) => {
+    if (!canPurchaseProduct(product)) return;
     setCartItems(prev => {
       const existingItem = prev.find(item => item.id === product.id);
       if (existingItem) {
