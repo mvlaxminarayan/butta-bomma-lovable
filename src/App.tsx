@@ -21,6 +21,7 @@ import ShippingPolicy from "./pages/ShippingPolicy";
 import RefundPolicy from "./pages/RefundPolicy";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import { canPurchaseProduct } from "@/lib/productAvailability";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
               } 
             />
             <Route path="/product/:id" element={<ProductDetail onAddToCart={(product, quantity) => {
+              if (!canPurchaseProduct(product)) return;
               const cart = JSON.parse(localStorage.getItem("cart") || "[]");
               const existing = cart.find((i: any) => i.id === product.id);
               if (existing) existing.quantity += quantity;

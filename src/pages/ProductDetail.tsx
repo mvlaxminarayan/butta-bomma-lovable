@@ -17,6 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { resolveImageUrls, productImageRefs, FALLBACK_IMAGE } from "@/lib/productImages";
 import { isWishlisted, toggleWishlist } from "@/lib/wishlist";
 import Cart from "@/components/Cart";
+import { canPurchaseProduct } from "@/lib/productAvailability";
 
 // Enhanced product data fetching from database
 const getProductById = async (id: string): Promise<(Product & { 
@@ -190,6 +191,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
   const isOnSale = product.originalPrice && product.originalPrice > product.price;
 
   const handleAddToCart = () => {
+    if (!canPurchaseProduct(product)) return;
     onAddToCart(product, quantity);
     setCartCount(readCartCount());
     toast({
@@ -199,7 +201,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
   };
 
   const handleBuyNow = () => {
-    if (!product.inStock) return;
+    if (!canPurchaseProduct(product)) return;
     setIsBuyNowOpen(true);
   };
 
@@ -440,7 +442,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
               <div className="flex flex-wrap gap-3">
                 <Button
                   onClick={handleAddToCart}
-                  disabled={!product.inStock}
+                  disabled={!canPurchaseProduct(product)}
                   className="min-w-0 basis-full sm:basis-auto sm:flex-1 bg-primary hover:bg-primary/90 text-primary-foreground"
                   size="lg"
                 >
@@ -449,7 +451,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                 </Button>
                 <Button
                   onClick={handleBuyNow}
-                  disabled={!product.inStock}
+                  disabled={!canPurchaseProduct(product)}
                   variant="outline"
                   size="lg"
                   className="min-w-0 basis-full sm:basis-auto sm:flex-1 border-primary text-primary hover:bg-primary/10"

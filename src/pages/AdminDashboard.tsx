@@ -17,8 +17,9 @@ import { Trash2, Edit, Plus, Upload, X, CloudUpload, Store, Search, LayoutGrid, 
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import {
-  BUCKET, LOCAL_ASSETS, productImageRefs, resolveImageUrls, uploadProductImage, FALLBACK_IMAGE,
+  BUCKET, LOCAL_ASSETS, productImageRefs, resolveImageUrls, uploadProductImage,
 } from "@/lib/productImages";
+import ProductPhoto from "@/components/admin/ProductPhoto";
 import DiscountsManager from "@/components/admin/DiscountsManager";
 import StoryManager from "@/components/admin/StoryManager";
 import OrdersManager from "@/components/admin/OrdersManager";
@@ -81,6 +82,7 @@ export default function AdminDashboard() {
       toast.error("Failed to fetch products");
     } else {
       const list: Product[] = (data || []).map((p: any) => ({ ...p, price: Number(p.price) }));
+      setThumbs({});
       setProducts(list);
     }
     setLoading(false);
@@ -157,8 +159,8 @@ export default function AdminDashboard() {
       }
     }
     if (added.length) {
-      setImages((prev) => [...prev, ...added]);
       await loadPreviews(added);
+      setImages((prev) => [...prev, ...added]);
       toast.success(`${added.length} photo(s) uploaded`);
     }
     setUploading(false);
@@ -223,6 +225,7 @@ export default function AdminDashboard() {
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     const refs = productImageRefs(product);
+    setPreviews({});
     setImages(refs);
     loadPreviews(refs);
     setFormData({
@@ -241,6 +244,7 @@ export default function AdminDashboard() {
   const resetForm = () => {
     setEditingProduct(null);
     setImages([]);
+    setPreviews({});
     setFeatures([]);
     setSpecs([]);
     setFormData({ name: "", description: "", price: "", category: "", stock_quantity: "", is_featured: false });
@@ -407,9 +411,9 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-4 gap-2">
                       {images.map((ref, i) => (
                         <div key={ref} className="relative group">
-                          <img src={previews[ref] || FALLBACK_IMAGE} alt={`Photo ${i + 1}`}
-                            className="w-full h-20 object-cover rounded-md border cursor-pointer"
-                            onClick={() => makeCover(ref)} title="Click to make cover photo" />
+                          <Button type="button" variant="ghost" className="w-full h-20 p-0" onClick={() => makeCover(ref)} title="Click to make cover photo">
+                            <ProductPhoto src={previews[ref]} alt={`Photo ${i + 1}`} className="w-full h-20 object-cover rounded-md border" />
+                          </Button>
                           {i === 0 && <Badge className="absolute bottom-1 left-1 text-[10px] px-1 py-0">Cover</Badge>}
                           <button type="button" onClick={() => removeImage(ref)}
                             className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-0.5"
@@ -499,7 +503,7 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {pageItems.map((product) => (
                 <div key={product.id} className="border rounded-lg overflow-hidden flex flex-col">
-                  <img src={thumbs[product.id] || FALLBACK_IMAGE} alt={product.name}
+                  <ProductPhoto src={thumbs[product.id]} alt={product.name}
                     className="w-full h-36 object-cover" />
                   <div className="p-3 flex flex-col gap-1 flex-1">
                     <p className="font-medium text-sm line-clamp-1">{product.name}</p>
@@ -539,7 +543,7 @@ export default function AdminDashboard() {
                 {pageItems.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>
-                      <img src={thumbs[product.id] || FALLBACK_IMAGE} alt={product.name}
+                      <ProductPhoto src={thumbs[product.id]} alt={product.name}
                         className="w-12 h-12 object-cover rounded-md" />
                     </TableCell>
                     <TableCell className="font-medium">{product.name}</TableCell>

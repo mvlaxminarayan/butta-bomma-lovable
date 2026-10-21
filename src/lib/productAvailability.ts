@@ -1,0 +1,1 @@
+export const canPurchaseProduct = (product: { inStock: boolean }): boolean => product.inStock === true;

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { toggleWishlist } from "@/lib/wishlist";
 import { formatINR } from "@/lib/pricing";
 import { useWishlistIds } from "@/hooks/useWishlist";
+import { canPurchaseProduct } from "@/lib/productAvailability";
 
 export interface Product {
   id: string;
@@ -104,7 +105,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
 
         {/* Stock Status */}
         {!product.inStock && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-background/50 flex items-center justify-center pointer-events-none">
             <Badge variant="destructive">Out of Stock</Badge>
           </div>
         )}
@@ -159,8 +160,8 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
 
         {/* Add to Cart Button */}
         <Button
-          onClick={() => onAddToCart(product)}
-          disabled={!product.inStock}
+          onClick={() => { if (canPurchaseProduct(product)) onAddToCart(product); }}
+          disabled={!canPurchaseProduct(product)}
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 hover:shadow-lg"
         >
           <ShoppingCart className="h-4 w-4 mr-2" />
