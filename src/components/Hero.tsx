@@ -22,7 +22,7 @@ const DEFAULT_SLIDES: Slide[] = [
 
 const Hero = ({ onViewFeatured }: { onViewFeatured?: () => void }) => {
   const navigate = useNavigate();
-  const [slides, setSlides] = useState<Slide[]>(DEFAULT_SLIDES);
+  const [slides, setSlides] = useState<Slide[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
 
@@ -41,7 +41,10 @@ const Hero = ({ onViewFeatured }: { onViewFeatured?: () => void }) => {
           .eq("is_featured", true)
           .order("created_at", { ascending: false })
           .limit(8);
-        if (error || !data || data.length === 0) return;
+        if (error || !data || data.length === 0) {
+          if (!cancelled) setSlides(DEFAULT_SLIDES);
+          return;
+        }
 
         const refs = data
           .map((p: any) => productImageRefs(p)[0])
@@ -64,8 +67,9 @@ const Hero = ({ onViewFeatured }: { onViewFeatured?: () => void }) => {
           setSlides(built);
           setCurrentIndex(0);
         }
+        else if (!cancelled) setSlides(DEFAULT_SLIDES);
       } catch {
-        /* keep default slides */
+        if (!cancelled) setSlides(DEFAULT_SLIDES);
       }
     })();
     return () => { cancelled = true; };
