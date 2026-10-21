@@ -1,4 +1,4 @@
 - [x] Keep Buy Now independent of the saved cart, including payment completion (cart preservation covered by tests).
 - [x] Show product cost, shipping, discounts when applicable, and total above payment.
 - [x] Test Buy Now and regular cart checkout in the preview (no payment charged).
-- [ ] Preserve Shiprocket label references during status changes and verify paid/packed order regressions.
+- [x] Preserve Shiprocket label references during status changes and verify paid/packed order regressions.
