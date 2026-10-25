@@ -15,6 +15,7 @@ export default function Auth() {
   const [username, setUsername] = useState("");
   const [identifier, setIdentifier] = useState("");
   const [loading, setLoading] = useState(false);
+  const [pending, setPending] = useState<{ email: string; password: string } | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,7 +27,54 @@ export default function Auth() {
       }
     };
     checkUser();
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (session) navigate("/");
+    });
+    return () => sub.subscription.unsubscribe();
   }, [navigate]);
+
+  // After signup, wait for the email to be confirmed (possibly on another device),
+  // then sign this browser in automatically.
+  useEffect(() => {
+    if (!pending) return;
+    let stopped = false;
+    const started = Date.now();
+    const tick = async () => {
+      if (stopped) return;
+      const { data, error } = await supabase.auth.signInWithPassword(pending);
+      if (stopped) return;
+      if (!error && data.session) {
+        toast.success("Email confirmed — welcome!");
+        navigate("/");
+        return;
+      }
+      if (Date.now() - started > 30 * 60 * 1000) { setPending(null); return; }
+      timer = window.setTimeout(tick, 5000);
+    };
+    let timer = window.setTimeout(tick, 5000);
+    return () => { stopped = true; window.clearTimeout(timer); };
+  }, [pending, navigate]);
+
+  if (pending) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-secondary/20 p-4">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold">Check your email</CardTitle>
+            <CardDescription>
+              We sent a confirmation link to <strong>{pending.email}</strong>. Open it on any device —
+              this page will sign you in automatically once you confirm.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <p className="text-sm text-muted-foreground">Waiting for confirmation…</p>
+            <Button variant="outline" onClick={() => setPending(null)}>Back to sign in</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +113,7 @@ export default function Auth() {
     } else if (data.session) {
       navigate("/");
     } else {
-      toast.success("Check your email to confirm your account!");
+      setPending({ email, password });
     }
     setLoading(false);
   };
