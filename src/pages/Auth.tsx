@@ -12,6 +12,8 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -28,7 +30,18 @@ export default function Auth() {
 
   const signUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    const uname = username.trim().toLowerCase();
+    if (!/^[a-z0-9_]{3,20}$/.test(uname)) {
+      toast.error("Username must be 3–20 letters, numbers or underscores.");
+      return;
+    }
     setLoading(true);
+    const { data: free } = await (supabase as any).schema("api").rpc("username_available", { _username: uname });
+    if (free === false) {
+      toast.error("That username is taken. Please choose another.");
+      setLoading(false);
+      return;
+    }
 
     const redirectUrl = `${window.location.origin}/`;
     
@@ -38,7 +51,8 @@ export default function Auth() {
       options: {
         emailRedirectTo: redirectUrl,
         data: {
-          full_name: fullName
+          full_name: fullName,
+          username: uname,
         }
       }
     });
@@ -60,28 +74,38 @@ export default function Auth() {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      toast.error(error.message === "Invalid login credentials"
+    const id = identifier.trim();
+    let errMsg: string | null = null;
+    if (id.includes("@")) {
+      const { error } = await supabase.auth.signInWithPassword({ email: id, password });
+      if (error) errMsg = error.message === "Invalid login credentials"
         ? "Wrong email or password. Try again or use \"Forgot password?\"."
-        : error.message);
+        : error.message;
     } else {
-      navigate("/");
+      const { data, error } = await supabase.functions.invoke("username-login", { body: { username: id, password } });
+      if (error || !data?.access_token) {
+        let m = "Wrong username or password.";
+        try { const b = await (error as any)?.context?.json?.(); if (b?.error) m = b.error; } catch { /* ignore */ }
+        errMsg = data?.error || m;
+      } else {
+        const { error: se } = await supabase.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token });
+        if (se) errMsg = se.message;
+      }
     }
+
+    if (errMsg) toast.error(errMsg);
+    else navigate("/");
     setLoading(false);
   };
 
   const forgotPassword = async () => {
-    if (!email) {
-      toast.error("Enter your email above first.");
+    const resetEmail = identifier.includes("@") ? identifier.trim() : email;
+    if (!resetEmail) {
+      toast.error("Enter your email above first (password reset needs your email).");
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setLoading(false);
@@ -113,12 +137,13 @@ export default function Auth() {
             <TabsContent value="signin">
               <form onSubmit={signIn} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="identifier">Username or email</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="identifier"
+                    type="text"
+                    autoComplete="username"
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
                     required
                   />
                 </div>
@@ -154,9 +179,24 @@ export default function Auth() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="username">Username</Label>
                   <Input
-                    id="email"
+                    id="username"
+                    type="text"
+                    autoComplete="username"
+                    placeholder="e.g. lakshmi_22"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
+                    required
+                    minLength={3}
+                    maxLength={20}
+                  />
+                  <p className="text-xs text-muted-foreground">3–20 letters, numbers or underscores.</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email">Email</Label>
+                  <Input
+                    id="signup-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
