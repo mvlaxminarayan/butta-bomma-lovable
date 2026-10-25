@@ -97,7 +97,7 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem>
-                    <span className="font-medium">{profile?.full_name || user.email}</span>
+                    <span className="font-medium">{profile?.username ? `@${profile.username}` : profile?.full_name || user.email}</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link to="/my-orders">My Orders</Link>

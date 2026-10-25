@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
     const u = String(username || '').trim().toLowerCase()
     if (!/^[a-z0-9_]{3,20}$/.test(u) || !password) return json({ error: 'Wrong username or password.' }, 400)
     const url = Deno.env.get('SUPABASE_URL')!
-    const admin = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } })
+    const admin = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { db: { schema: 'api' }, auth: { persistSession: false } })
     const { data: prof } = await admin.from('profiles').select('email').ilike('username', u).maybeSingle()
     if (!prof?.email) return json({ error: 'Wrong username or password.' }, 401)
     const anon = createClient(url, Deno.env.get('SUPABASE_ANON_KEY')!, { auth: { persistSession: false } })
