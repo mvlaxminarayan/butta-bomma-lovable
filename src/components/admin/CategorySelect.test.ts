@@ -15,7 +15,9 @@ test("dropdown offers exactly the shop's eight categories, in order", () => {
 });
 
 test("older categories a product still uses stay selectable, without duplicates", () => {
+  // "Kondapalli Toys " is the same category as the official "Kondapalli toys",
+  // so it is not offered twice; "Wall decor yellow" is genuinely different.
   expect(
     extraCategories(["Wall decor yellow", " Kondapalli Toys ", null, "", "Etikoppaka toys"])
-  ).toEqual(["Kondapalli Toys", "Wall decor yellow"]);
+  ).toEqual(["Wall decor yellow"]);
 });
