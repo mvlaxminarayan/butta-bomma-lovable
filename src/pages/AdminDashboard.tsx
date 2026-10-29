@@ -49,6 +49,7 @@ const db = () => (supabase as any).schema("api").from("products");
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
+  const [savedCategories, setSavedCategories] = useState<string[]>([]);
   const [thumbs, setThumbs] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -78,6 +79,23 @@ export default function AdminDashboard() {
   const unseen = useAdminUnseen(tab);
 
   useEffect(() => { fetchProducts(); }, []);
+  useEffect(() => {
+    (supabase as any).schema("api").from("categories").select("name").order("name")
+      .then(({ data, error }: { data: { name: string }[] | null; error: { message: string } | null }) => {
+        if (error) toast.error("Could not load saved categories: " + error.message);
+        else setSavedCategories((data || []).map((category) => category.name));
+      });
+  }, []);
+
+  const createCategory = async (name: string): Promise<string> => {
+    const { data, error } = await (supabase as any).schema("api").from("categories")
+      .insert({ name: name.trim() }).select("name").single();
+    if (error) throw new Error(error.message);
+    if (!data?.name) throw new Error("Category was not saved. Please try again.");
+    setSavedCategories((previous) => [...previous, data.name]);
+    toast.success("Category saved");
+    return data.name;
+  };
 
   const fetchProducts = async () => {
     const { data, error } = await db().select("*").order("created_at", { ascending: false });
@@ -104,9 +122,9 @@ export default function AdminDashboard() {
   // category a product still uses, then "No category".
   const categoryOptions = useMemo<CategoryOption[]>(() => [
     ...STORE_CATEGORIES.map((c) => ({ value: c, label: c })),
-    ...extraCategories([...products.map((p) => p.category), formData.category]).map((c) => ({ value: c, label: c })),
+    ...extraCategories([...savedCategories, ...products.map((p) => p.category), formData.category]).map((c) => ({ value: c, label: c })),
     { value: "", label: "No category" },
-  ], [products, formData.category]);
+  ], [products, formData.category, savedCategories]);
 
   const categoryFilterOptions = useMemo<CategoryOption[]>(() => [
     { value: "all", label: "All categories", count: products.length },
@@ -384,6 +402,7 @@ export default function AdminDashboard() {
                     onChange={(category) => setFormData({ ...formData, category })}
                     options={categoryOptions}
                     allowCreate
+                    onCreate={createCategory}
                     placeholder="Choose a category"
                     searchPlaceholder="Search or add a category..."
                     className="w-full"

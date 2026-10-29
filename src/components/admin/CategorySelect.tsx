@@ -66,6 +66,7 @@ interface CategorySelectProps {
   id?: string;
   ariaLabel?: string;
   allowCreate?: boolean;
+  onCreate?: (name: string) => Promise<string>;
 }
 
 export function CategorySelect({
@@ -80,20 +81,32 @@ export function CategorySelect({
   id,
   ariaLabel = "Category",
   allowCreate = false,
+  onCreate,
 }: CategorySelectProps) {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
   const [creating, setCreating] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
+  const [saveError, setSaveError] = React.useState("");
   const newName = allowCreate ? newCategoryName(query, options) : null;
   const selected = options.find((o) => o.value === value);
   // A product may already carry a category that is not in the list — show it as-is.
   const label = value ? selected?.label ?? value : "";
-  const addCategory = () => {
-    if (!newName) return;
-    onChange(newName);
-    setQuery("");
-    setCreating(false);
-    setOpen(false);
+  const addCategory = async () => {
+    if (!newName || saving) return;
+    setSaving(true);
+    setSaveError("");
+    try {
+      const name = onCreate ? await onCreate(newName) : newName;
+      onChange(name);
+      setQuery("");
+      setCreating(false);
+      setOpen(false);
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Could not save category. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -141,8 +154,9 @@ export function CategorySelect({
               }}
             />
             {query.trim() && !newName && <p className="text-sm text-muted-foreground">This category already exists.</p>}
-            <Button type="button" className="w-full" disabled={!newName} onClick={addCategory}>
-              <Plus className="mr-2 h-4 w-4" />Add category
+            {saveError && <p role="alert" className="text-sm text-destructive">{saveError}</p>}
+            <Button type="button" className="w-full" disabled={!newName || saving} onClick={addCategory}>
+              <Plus className="mr-2 h-4 w-4" />{saving ? "Saving..." : "Add category"}
             </Button>
           </div>
         ) : <>
@@ -155,11 +169,8 @@ export function CategorySelect({
                 <CommandItem
                   value={`__create__${newName}`}
                   forceMount
-                  onSelect={() => {
-                    onChange(newName);
-                    setQuery("");
-                    setOpen(false);
-                  }}
+                  disabled={saving}
+                  onSelect={() => { void addCategory(); }}
                   className="gap-2 text-primary"
                 >
                   <Plus className="h-4 w-4 shrink-0" />
@@ -197,6 +208,7 @@ export function CategorySelect({
             </CommandGroup>
           </CommandList>
         </Command>
+        {saveError && <p role="alert" className="px-3 py-2 text-sm text-destructive">{saveError}</p>}
         {allowCreate && <div className="border-t p-1">
           <Button type="button" variant="ghost" className="w-full justify-start" onClick={() => {
             setCreating(true);
