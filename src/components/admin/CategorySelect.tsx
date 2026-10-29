@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,9 +39,18 @@ export function extraCategories(used: (string | null)[]): string[] {
     const trimmed = (c || "").trim();
     if (!trimmed) return;
     if (known.has(trimmed.toLowerCase())) return;
+    known.add(trimmed.toLowerCase());
     extras.add(trimmed);
   });
   return [...extras].sort((a, b) => a.localeCompare(b));
+}
+
+export function newCategoryName(query: string, options: CategoryOption[]): string | null {
+  const name = query.trim();
+  if (!name || options.some((option) => option.value.trim().toLowerCase() === name.toLowerCase())) {
+    return null;
+  }
+  return name;
 }
 
 interface CategorySelectProps {
@@ -55,6 +64,7 @@ interface CategorySelectProps {
   className?: string;
   id?: string;
   ariaLabel?: string;
+  allowCreate?: boolean;
 }
 
 export function CategorySelect({
@@ -68,14 +78,20 @@ export function CategorySelect({
   className,
   id,
   ariaLabel = "Category",
+  allowCreate = false,
 }: CategorySelectProps) {
   const [open, setOpen] = React.useState(false);
+  const [query, setQuery] = React.useState("");
+  const newName = allowCreate ? newCategoryName(query, options) : null;
   const selected = options.find((o) => o.value === value);
   // A product may already carry a category that is not in the list — show it as-is.
   const label = value ? selected?.label ?? value : "";
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={(nextOpen) => {
+      setOpen(nextOpen);
+      if (!nextOpen) setQuery("");
+    }}>
       <PopoverTrigger asChild>
         <Button
           id={id}
@@ -97,9 +113,26 @@ export function CategorySelect({
         className="w-[var(--radix-popover-trigger-width)] min-w-64 p-0"
       >
         <Command>
-          <CommandInput placeholder={searchPlaceholder} className="h-10" />
+          <CommandInput value={query} onValueChange={setQuery} placeholder={searchPlaceholder} className="h-10" />
           <CommandList>
             <CommandEmpty>{emptyText}</CommandEmpty>
+            {newName && (
+              <CommandGroup>
+                <CommandItem
+                  value={`__create__${newName}`}
+                  forceMount
+                  onSelect={() => {
+                    onChange(newName);
+                    setQuery("");
+                    setOpen(false);
+                  }}
+                  className="gap-2 text-primary"
+                >
+                  <Plus className="h-4 w-4 shrink-0" />
+                  <span className="min-w-0 break-words">Add “{newName}”</span>
+                </CommandItem>
+              </CommandGroup>
+            )}
             <CommandGroup heading={groupHeading}>
               {options.map((o) => (
                 <CommandItem
@@ -108,6 +141,7 @@ export function CategorySelect({
                   keywords={[o.label]}
                   onSelect={() => {
                     onChange(o.value);
+                    setQuery("");
                     setOpen(false);
                   }}
                   className="flex items-center justify-between gap-2"

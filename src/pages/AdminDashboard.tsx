@@ -104,9 +104,9 @@ export default function AdminDashboard() {
   // category a product still uses, then "No category".
   const categoryOptions = useMemo<CategoryOption[]>(() => [
     ...STORE_CATEGORIES.map((c) => ({ value: c, label: c })),
-    ...extraCategories(products.map((p) => p.category)).map((c) => ({ value: c, label: `${c} (in store)` })),
+    ...extraCategories([...products.map((p) => p.category), formData.category]).map((c) => ({ value: c, label: c })),
     { value: "", label: "No category" },
-  ], [products]);
+  ], [products, formData.category]);
 
   const categoryFilterOptions = useMemo<CategoryOption[]>(() => [
     { value: "all", label: "All categories", count: products.length },
@@ -383,12 +383,11 @@ export default function AdminDashboard() {
                     value={formData.category}
                     onChange={(category) => setFormData({ ...formData, category })}
                     options={categoryOptions}
+                    allowCreate
                     placeholder="Choose a category"
+                    searchPlaceholder="Search or add a category..."
                     className="w-full"
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Pick from the list, or type to search it.
-                  </p>
                 </div>
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
                   <input type="checkbox" checked={formData.is_featured}

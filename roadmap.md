@@ -6,3 +6,4 @@
 - [ ] Verify signed-in admin photo loading/uploads: blocked by external Supabase session unavailable to automated checks.
 - [x] Keep out-of-stock details accessible and block Add to Cart and Buy Now; verified real product image navigation and disabled purchase controls, with passing purchase guard tests.
 - [x] Replace the admin category text box and category filter buttons with one searchable category dropdown (eight official categories, older store categories kept); covered by tests.
+- [x] Allow new category names from the product dropdown; save with the product and prevent blank or case-insensitive duplicate choices.
