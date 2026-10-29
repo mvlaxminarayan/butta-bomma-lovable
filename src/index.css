@@ -152,3 +152,22 @@ All colors MUST be HSL.
   user-select: none;
   -webkit-touch-callout: none;
 }
+
+/* Thin, visible scrollbar for the category picker list */
+.category-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+  overscroll-behavior: contain;
+}
+.category-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+.category-scroll::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border));
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+.category-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
