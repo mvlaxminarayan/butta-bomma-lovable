@@ -136,10 +136,10 @@ export function CategorySelect({
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-[var(--radix-popover-trigger-width)] min-w-64 p-0"
+        className="flex max-h-[var(--radix-popover-content-available-height)] w-[var(--radix-popover-trigger-width)] min-w-64 flex-col overflow-hidden p-0"
       >
         {creating ? (
-          <div className="space-y-3 p-3">
+          <div className="shrink-0 space-y-3 p-3">
             <Input
               autoFocus
               aria-label="New category name"
@@ -160,9 +160,9 @@ export function CategorySelect({
             </Button>
           </div>
         ) : <>
-        <Command>
+        <Command className="flex min-h-0 flex-1 flex-col">
           <CommandInput value={query} onValueChange={setQuery} placeholder={searchPlaceholder} className="h-10" />
-          <CommandList>
+          <CommandList className="category-scroll min-h-0 flex-1">
             <CommandEmpty>{emptyText}</CommandEmpty>
             {newName && (
               <CommandGroup>
@@ -208,8 +208,8 @@ export function CategorySelect({
             </CommandGroup>
           </CommandList>
         </Command>
-        {saveError && <p role="alert" className="px-3 py-2 text-sm text-destructive">{saveError}</p>}
-        {allowCreate && <div className="border-t p-1">
+        {saveError && <p role="alert" className="shrink-0 px-3 py-2 text-sm text-destructive">{saveError}</p>}
+        {allowCreate && <div className="shrink-0 border-t p-1">
           <Button type="button" variant="ghost" className="w-full justify-start" onClick={() => {
             setCreating(true);
             setQuery("");
