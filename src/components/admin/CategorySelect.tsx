@@ -2,6 +2,7 @@ import * as React from "react";
 import { Check, ChevronsUpDown, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Command,
   CommandEmpty,
@@ -82,15 +83,27 @@ export function CategorySelect({
 }: CategorySelectProps) {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
+  const [creating, setCreating] = React.useState(false);
   const newName = allowCreate ? newCategoryName(query, options) : null;
   const selected = options.find((o) => o.value === value);
   // A product may already carry a category that is not in the list — show it as-is.
   const label = value ? selected?.label ?? value : "";
+  const addCategory = () => {
+    if (!newName) return;
+    onChange(newName);
+    setQuery("");
+    setCreating(false);
+    setOpen(false);
+  };
 
   return (
+    <div className={cn("min-w-0", className)}>
     <Popover open={open} onOpenChange={(nextOpen) => {
       setOpen(nextOpen);
-      if (!nextOpen) setQuery("");
+      if (!nextOpen) {
+        setQuery("");
+        setCreating(false);
+      }
     }}>
       <PopoverTrigger asChild>
         <Button
@@ -100,7 +113,7 @@ export function CategorySelect({
           role="combobox"
           aria-expanded={open}
           aria-label={ariaLabel}
-          className={cn("justify-between font-normal", className)}
+          className="w-full justify-between font-normal"
         >
           <span className={cn("truncate text-left", !label && "text-muted-foreground")}>
             {label || placeholder}
@@ -112,6 +125,27 @@ export function CategorySelect({
         align="start"
         className="w-[var(--radix-popover-trigger-width)] min-w-64 p-0"
       >
+        {creating ? (
+          <div className="space-y-3 p-3">
+            <Input
+              autoFocus
+              aria-label="New category name"
+              placeholder="New category name"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  addCategory();
+                }
+              }}
+            />
+            {query.trim() && !newName && <p className="text-sm text-muted-foreground">This category already exists.</p>}
+            <Button type="button" className="w-full" disabled={!newName} onClick={addCategory}>
+              <Plus className="mr-2 h-4 w-4" />Add category
+            </Button>
+          </div>
+        ) : <>
         <Command>
           <CommandInput value={query} onValueChange={setQuery} placeholder={searchPlaceholder} className="h-10" />
           <CommandList>
@@ -163,8 +197,25 @@ export function CategorySelect({
             </CommandGroup>
           </CommandList>
         </Command>
+        {allowCreate && <div className="border-t p-1">
+          <Button type="button" variant="ghost" className="w-full justify-start" onClick={() => {
+            setCreating(true);
+            setQuery("");
+          }}>
+            <Plus className="mr-2 h-4 w-4" />Add new category
+          </Button>
+        </div>}
+        </>}
       </PopoverContent>
     </Popover>
+    {allowCreate && <Button type="button" variant="link" className="h-8 px-0" onClick={() => {
+      setCreating(true);
+      setQuery("");
+      setOpen(true);
+    }}>
+      <Plus className="mr-1 h-4 w-4" />Add new category
+    </Button>}
+    </div>
   );
 }
 
