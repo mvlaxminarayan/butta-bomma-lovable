@@ -20,6 +20,9 @@ import {
   BUCKET, LOCAL_ASSETS, productImageRefs, resolveImageUrls, uploadProductImage,
 } from "@/lib/productImages";
 import ProductPhoto from "@/components/admin/ProductPhoto";
+import CategorySelect, {
+  STORE_CATEGORIES, extraCategories, type CategoryOption,
+} from "@/components/admin/CategorySelect";
 import DiscountsManager from "@/components/admin/DiscountsManager";
 import StoryManager from "@/components/admin/StoryManager";
 import OrdersManager from "@/components/admin/OrdersManager";
@@ -96,6 +99,19 @@ export default function AdminDashboard() {
     });
     return Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0]));
   }, [products]);
+
+  // Category picker choices: the shop's official list first, then any older
+  // category a product still uses, then "No category".
+  const categoryOptions = useMemo<CategoryOption[]>(() => [
+    ...STORE_CATEGORIES.map((c) => ({ value: c, label: c })),
+    ...extraCategories(products.map((p) => p.category)).map((c) => ({ value: c, label: `${c} (in store)` })),
+    { value: "", label: "No category" },
+  ], [products]);
+
+  const categoryFilterOptions = useMemo<CategoryOption[]>(() => [
+    { value: "all", label: "All categories", count: products.length },
+    ...categories.map(([cat, count]) => ({ value: cat, label: cat, count })),
+  ], [products.length, categories]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -361,8 +377,18 @@ export default function AdminDashboard() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
-                  <Input id="category" value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })} />
+                  <CategorySelect
+                    id="category"
+                    ariaLabel="Product category"
+                    value={formData.category}
+                    onChange={(category) => setFormData({ ...formData, category })}
+                    options={categoryOptions}
+                    placeholder="Choose a category"
+                    className="w-full"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Pick from the list, or type to search it.
+                  </p>
                 </div>
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
                   <input type="checkbox" checked={formData.is_featured}
@@ -470,17 +496,20 @@ export default function AdminDashboard() {
           </div>
 
 
-          <div className="flex flex-wrap gap-2 pt-3">
-            <Button size="sm" variant={categoryFilter === "all" ? "default" : "outline"}
-              onClick={() => setCategoryFilter("all")}>
-              All <span className="ml-1 opacity-70">({products.length})</span>
-            </Button>
-            {categories.map(([cat, count]) => (
-              <Button key={cat} size="sm" variant={categoryFilter === cat ? "default" : "outline"}
-                onClick={() => setCategoryFilter(cat)}>
-                {cat} <span className="ml-1 opacity-70">({count})</span>
-              </Button>
-            ))}
+          <div className="flex flex-wrap items-center gap-3 pt-3">
+            <CategorySelect
+              value={categoryFilter}
+              onChange={setCategoryFilter}
+              options={categoryFilterOptions}
+              placeholder="All categories"
+              searchPlaceholder="Search categories..."
+              emptyText="No category found"
+              ariaLabel="Filter products by category"
+              className="w-64"
+            />
+            <span className="text-xs text-muted-foreground">
+              Showing {filtered.length} of {products.length} product{products.length === 1 ? "" : "s"}
+            </span>
           </div>
 
           <div className="flex flex-wrap gap-2 pt-2">
