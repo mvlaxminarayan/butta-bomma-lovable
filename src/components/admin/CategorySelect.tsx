@@ -101,8 +101,11 @@ export function CategorySelect({
       bottom: el.scrollTop + el.clientHeight < el.scrollHeight - 2,
     });
   }, []);
-  // Re-measure whenever the list contents change (opening, searching, new options).
+  // Re-measure whenever the list contents change (opening, searching, new options),
+  // and start a fresh search from the top of the list.
   React.useEffect(() => {
+    const el = listRef.current;
+    if (el) el.scrollTop = 0;
     const frame = requestAnimationFrame(refreshScrollHint);
     return () => cancelAnimationFrame(frame);
   }, [open, query, options, refreshScrollHint]);
