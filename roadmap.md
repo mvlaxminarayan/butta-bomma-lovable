@@ -10,3 +10,4 @@
 - [x] Persist category creation independently of product saving, and display save errors instead of silently closing.
 - [ ] Verify category creation and reload in signed-in admin: external Supabase session unavailable to automated checks.
 - [x] Make the category dropdown list scroll within the screen with visible scroll hints; verified by automated checks.
+- [x] Fix category scrolling inside the product dialog; verified wheel and touch gestures reach and select the final option in a dialog-mounted check. Signed-in admin testing remains unavailable with external Supabase.
