@@ -88,6 +88,27 @@ export function CategorySelect({
   const [creating, setCreating] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const [saveError, setSaveError] = React.useState("");
+  const listRef = React.useRef<HTMLDivElement>(null);
+  const [scrollHint, setScrollHint] = React.useState({ top: false, bottom: false });
+  const refreshScrollHint = React.useCallback(() => {
+    const el = listRef.current;
+    if (!el) {
+      setScrollHint({ top: false, bottom: false });
+      return;
+    }
+    setScrollHint({
+      top: el.scrollTop > 2,
+      bottom: el.scrollTop + el.clientHeight < el.scrollHeight - 2,
+    });
+  }, []);
+  // Re-measure whenever the list contents change (opening, searching, new options),
+  // and start a fresh search from the top of the list.
+  React.useEffect(() => {
+    const el = listRef.current;
+    if (el) el.scrollTop = 0;
+    const frame = requestAnimationFrame(refreshScrollHint);
+    return () => cancelAnimationFrame(frame);
+  }, [open, query, options, refreshScrollHint]);
   const newName = allowCreate ? newCategoryName(query, options) : null;
   const selected = options.find((o) => o.value === value);
   // A product may already carry a category that is not in the list — show it as-is.
@@ -136,10 +157,10 @@ export function CategorySelect({
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-[var(--radix-popover-trigger-width)] min-w-64 p-0"
+        className="flex max-h-[var(--radix-popover-content-available-height)] w-[var(--radix-popover-trigger-width)] min-w-64 flex-col overflow-hidden p-0"
       >
         {creating ? (
-          <div className="space-y-3 p-3">
+          <div className="shrink-0 space-y-3 p-3">
             <Input
               autoFocus
               aria-label="New category name"
@@ -160,9 +181,10 @@ export function CategorySelect({
             </Button>
           </div>
         ) : <>
-        <Command>
+        <Command className="flex min-h-0 flex-1 flex-col">
           <CommandInput value={query} onValueChange={setQuery} placeholder={searchPlaceholder} className="h-10" />
-          <CommandList>
+          <div className="relative flex min-h-0 flex-1 flex-col">
+          <CommandList ref={listRef} onScroll={refreshScrollHint} className="category-scroll min-h-0 flex-1">
             <CommandEmpty>{emptyText}</CommandEmpty>
             {newName && (
               <CommandGroup>
@@ -207,9 +229,16 @@ export function CategorySelect({
               ))}
             </CommandGroup>
           </CommandList>
+          {scrollHint.top && (
+            <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-5 bg-gradient-to-b from-popover to-transparent" />
+          )}
+          {scrollHint.bottom && (
+            <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-5 bg-gradient-to-t from-popover to-transparent" />
+          )}
+          </div>
         </Command>
-        {saveError && <p role="alert" className="px-3 py-2 text-sm text-destructive">{saveError}</p>}
-        {allowCreate && <div className="border-t p-1">
+        {saveError && <p role="alert" className="shrink-0 px-3 py-2 text-sm text-destructive">{saveError}</p>}
+        {allowCreate && <div className="shrink-0 border-t p-1">
           <Button type="button" variant="ghost" className="w-full justify-start" onClick={() => {
             setCreating(true);
             setQuery("");
