@@ -3,9 +3,6 @@ import { ChevronDown, X } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard, { Product } from "./ProductCard";
-import productMug from "@/assets/product-mug.jpg";
-import productBasket from "@/assets/product-basket.jpg";
-import productCuttingBoard from "@/assets/product-cutting-board.jpg";
 import { getProductReviewsSync } from "@/hooks/useProductReviews";
 import { resolveImageUrls, productImageRefs, LOCAL_ASSETS, FALLBACK_IMAGE } from "@/lib/productImages";
 import { getWishlistIds } from "@/lib/wishlist";
@@ -23,38 +20,8 @@ interface ProductGridProps {
   onExitFeatured?: () => void;
 }
 
-// Fallback product data for when database is empty
-const fallbackProducts = [
-  {
-    id: "fallback-1",
-    name: "Handcrafted Ceramic Mug",
-    price: 28,
-    originalPrice: 35,
-    image: productMug,
-    images: [productMug],
-    category: "Ceramics",
-    inStock: true,
-  },
-  {
-    id: "fallback-2",
-    name: "Woven Storage Basket",
-    price: 45,
-    image: productBasket,
-    images: [productBasket],
-    category: "Home Decor",
-    inStock: true,
-  },
-  {
-    id: "fallback-3",
-    name: "Live Edge Cutting Board",
-    price: 68,
-    originalPrice: 85,
-    image: productCuttingBoard,
-    images: [productCuttingBoard],
-    category: "Kitchen",
-    inStock: true,
-  },
-];
+// No sample products: show only real catalog items.
+const fallbackProducts: Product[] = [];
 
 // Get products with review data from database or fallback
 const getProductsWithReviews = async (): Promise<Product[]> => {

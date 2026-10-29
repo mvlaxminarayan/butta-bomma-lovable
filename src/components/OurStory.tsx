@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import { fetchStoreSettings, SAMPLE_STORY } from "@/lib/pricing";
 import { resolveImageUrls } from "@/lib/productImages";
-import storyFallback from "@/assets/kondapalli.jpg";
 
 const OurStory = () => {
   const [title, setTitle] = useState(SAMPLE_STORY.title);
   const [paragraphs, setParagraphs] = useState<string[]>(() =>
     SAMPLE_STORY.text.split(/\n\s*\n/).filter(Boolean)
   );
-  const [image, setImage] = useState<string>(storyFallback);
+  const [image, setImage] = useState<string>("");
 
   useEffect(() => {
     let cancelled = false;
@@ -34,11 +33,11 @@ const OurStory = () => {
       <div className="container mx-auto px-4">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="relative overflow-hidden rounded-2xl shadow-elegant h-[360px] md:h-[440px]">
-            <img
+            {image && <img
               src={image}
               alt={title}
               className="absolute inset-0 w-full h-full object-cover"
-            />
+            />}
           </div>
           <div className="space-y-6">
             <h2 className="text-3xl md:text-4xl font-bold">{title}</h2>

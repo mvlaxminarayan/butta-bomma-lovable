@@ -1,6 +1,4 @@
 import { Button } from "@/components/ui/button";
-import heroImage from "@/assets/kondapalli.jpg";
-import heroImage1 from "@/assets/hero-image.jpg";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,10 +12,6 @@ interface Slide {
   image: string;
 }
 
-const DEFAULT_SLIDES: Slide[] = [
-  { id: null, name: "", price: null, image: heroImage },
-  { id: null, name: "", price: null, image: heroImage1 },
-];
 
 
 const Hero = ({ onViewFeatured }: { onViewFeatured?: () => void }) => {
@@ -42,7 +36,7 @@ const Hero = ({ onViewFeatured }: { onViewFeatured?: () => void }) => {
           .order("created_at", { ascending: false })
           .limit(8);
         if (error || !data || data.length === 0) {
-          if (!cancelled) setSlides(DEFAULT_SLIDES);
+          if (!cancelled) setSlides([]);
           return;
         }
 
@@ -67,9 +61,9 @@ const Hero = ({ onViewFeatured }: { onViewFeatured?: () => void }) => {
           setSlides(built);
           setCurrentIndex(0);
         }
-        else if (!cancelled) setSlides(DEFAULT_SLIDES);
+        else if (!cancelled) setSlides([]);
       } catch {
-        if (!cancelled) setSlides(DEFAULT_SLIDES);
+        if (!cancelled) setSlides([]);
       }
     })();
     return () => { cancelled = true; };
@@ -144,7 +138,8 @@ const Hero = ({ onViewFeatured }: { onViewFeatured?: () => void }) => {
             </div>
           </div>
 
-          {/* Featured product slider */}
+          {/* Featured product slider: only shown when featured products exist */}
+          {slides.length > 0 && (
           <div className="relative">
             <div
               role={active?.id ? "link" : undefined}
@@ -213,8 +208,8 @@ const Hero = ({ onViewFeatured }: { onViewFeatured?: () => void }) => {
                 </div>
               )}
             </div>
-            
           </div>
+          )}
         </div>
       </div>
     </section>

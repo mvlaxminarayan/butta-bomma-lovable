@@ -1,16 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
-import productMug from "@/assets/product-mug.jpg";
-import productBasket from "@/assets/product-basket.jpg";
-import productCuttingBoard from "@/assets/product-cutting-board.jpg";
 
 export const BUCKET = "product-images";
 const SIGNED_URL_TTL = 60 * 60 * 24 * 7; // 7 days
 
-export const LOCAL_ASSETS: Record<string, string> = {
-  "product-mug.jpg": productMug,
-  "product-basket.jpg": productBasket,
-  "product-cutting-board.jpg": productCuttingBoard,
-};
+/** Legacy built-in photo names; sample photos were removed, so none resolve locally. */
+export const LOCAL_ASSETS: Record<string, string> = {};
 
 const isStoragePath = (v: string) => !v.startsWith("http") && !LOCAL_ASSETS[v];
 
@@ -43,4 +37,9 @@ export async function uploadProductImage(file: File | Blob, ext = "jpg"): Promis
   return path;
 }
 
-export const FALLBACK_IMAGE = productMug;
+/** Neutral placeholder (never sample artwork) for products without a photo. */
+export const FALLBACK_IMAGE =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400"><rect width="400" height="400" fill="#f1ede6"/><path d="M140 250l50-60 40 45 30-30 50 45H140z" fill="#cfc6b8"/><circle cx="250" cy="160" r="18" fill="#cfc6b8"/></svg>'
+  );

@@ -9,3 +9,5 @@
 - Keep direct Buy Now checkout local to the product page and separate from the saved cart; use the shared checkout drawer and completion helper so direct purchases cannot charge or clear saved items.
 - Book shipments only through the admin-only shiprocket edge function, which writes courier/AWB back to the order and stores the Shiprocket shipment id in status_history, so the label can be reprinted without a schema change.
 - Order status validation must append to the incoming status_history (falling back to existing history), so shipment metadata saved with a status change survives atomically.
+
+- Never ship sample/demo photos in the repo or as fallbacks; empty sections hide instead, so customers only see real store photos.
