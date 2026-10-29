@@ -20,6 +20,12 @@ test("admins can add a new category with surrounding spaces removed", () => {
   assert.equal(newCategoryName("  Wall decor yellow  ", STORE_CATEGORIES.map((value) => ({ value, label: value }))), "Wall decor yellow");
 });
 
+test("saved custom categories stay selectable without any products or active form category", () => {
+  const savedCategories = ["Buttabomma Custom Made"];
+  const productCategories: string[] = [];
+  assert.deepEqual(extraCategories([...savedCategories, ...productCategories, ""]), ["Buttabomma Custom Made"]);
+});
+
 test("adding categories rejects blanks and case-insensitive duplicates", () => {
   const options = STORE_CATEGORIES.map((value) => ({ value, label: value }));
   assert.equal(newCategoryName("   ", options), null);
