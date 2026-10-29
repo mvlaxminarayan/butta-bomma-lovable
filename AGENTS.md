@@ -11,3 +11,4 @@
 - Order status validation must append to the incoming status_history (falling back to existing history), so shipment metadata saved with a status change survives atomically.
 
 - Never ship sample/demo photos in the repo or as fallbacks; empty sections hide instead, so customers only see real store photos.
+- Create custom categories through the product category picker and persist them with the product; derive reusable choices from saved products rather than a separate category store.
