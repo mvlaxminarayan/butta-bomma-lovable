@@ -12,3 +12,4 @@
 
 - Never ship sample/demo photos in the repo or as fallbacks; empty sections hide instead, so customers only see real store photos.
 - Persist custom categories immediately in the admin-only categories table exposed through the security-invoker api view; merge saved categories with official and product-derived choices so unused categories survive refreshes.
+- Keep category popovers modal so their portaled lists own the active scroll lock inside product dialogs and accept both wheel and touch scrolling.

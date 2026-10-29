@@ -132,7 +132,7 @@ export function CategorySelect({
 
   return (
     <div className={cn("min-w-0", className)}>
-    <Popover open={open} onOpenChange={(nextOpen) => {
+    <Popover modal open={open} onOpenChange={(nextOpen) => {
       setOpen(nextOpen);
       if (!nextOpen) {
         setQuery("");
