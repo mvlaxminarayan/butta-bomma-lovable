@@ -19,18 +19,21 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          sort_order: number
           updated_at: string
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
+          sort_order?: number
           updated_at?: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
+          sort_order?: number
           updated_at?: string
         }
         Relationships: []
@@ -313,6 +316,7 @@ export type Database = {
     }
     Functions: {
       is_admin: { Args: never; Returns: boolean }
+      rename_category: { Args: { _new: string; _old: string }; Returns: string }
       username_available: { Args: { _username: string }; Returns: boolean }
     }
     Enums: {
