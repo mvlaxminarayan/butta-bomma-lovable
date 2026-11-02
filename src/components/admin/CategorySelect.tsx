@@ -1,8 +1,7 @@
 import * as React from "react";
-import { Check, ChevronsUpDown, Plus } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Command,
   CommandEmpty,
@@ -46,14 +45,6 @@ export function extraCategories(used: (string | null)[]): string[] {
   return [...extras].sort((a, b) => a.localeCompare(b));
 }
 
-export function newCategoryName(query: string, options: CategoryOption[]): string | null {
-  const name = query.trim();
-  if (!name || options.some((option) => option.value.trim().toLowerCase() === name.toLowerCase())) {
-    return null;
-  }
-  return name;
-}
-
 interface CategorySelectProps {
   value: string;
   onChange: (value: string) => void;
@@ -65,10 +56,10 @@ interface CategorySelectProps {
   className?: string;
   id?: string;
   ariaLabel?: string;
-  allowCreate?: boolean;
-  onCreate?: (name: string) => Promise<string>;
 }
 
+// Selection only. Creating or removing categories lives in the
+// Manage categories dialog, so every category change happens in one place.
 export function CategorySelect({
   value,
   onChange,
@@ -80,14 +71,9 @@ export function CategorySelect({
   className,
   id,
   ariaLabel = "Category",
-  allowCreate = false,
-  onCreate,
 }: CategorySelectProps) {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState("");
-  const [creating, setCreating] = React.useState(false);
-  const [saving, setSaving] = React.useState(false);
-  const [saveError, setSaveError] = React.useState("");
   const listRef = React.useRef<HTMLDivElement>(null);
   const [scrollHint, setScrollHint] = React.useState({ top: false, bottom: false });
   const refreshScrollHint = React.useCallback(() => {
@@ -109,35 +95,15 @@ export function CategorySelect({
     const frame = requestAnimationFrame(refreshScrollHint);
     return () => cancelAnimationFrame(frame);
   }, [open, query, options, refreshScrollHint]);
-  const newName = allowCreate ? newCategoryName(query, options) : null;
   const selected = options.find((o) => o.value === value);
   // A product may already carry a category that is not in the list — show it as-is.
   const label = value ? selected?.label ?? value : "";
-  const addCategory = async () => {
-    if (!newName || saving) return;
-    setSaving(true);
-    setSaveError("");
-    try {
-      const name = onCreate ? await onCreate(newName) : newName;
-      onChange(name);
-      setQuery("");
-      setCreating(false);
-      setOpen(false);
-    } catch (error) {
-      setSaveError(error instanceof Error ? error.message : "Could not save category. Please try again.");
-    } finally {
-      setSaving(false);
-    }
-  };
 
   return (
     <div className={cn("min-w-0", className)}>
     <Popover modal open={open} onOpenChange={(nextOpen) => {
       setOpen(nextOpen);
-      if (!nextOpen) {
-        setQuery("");
-        setCreating(false);
-      }
+      if (!nextOpen) setQuery("");
     }}>
       <PopoverTrigger asChild>
         <Button
@@ -159,47 +125,11 @@ export function CategorySelect({
         align="start"
         className="flex max-h-[var(--radix-popover-content-available-height)] w-[var(--radix-popover-trigger-width)] min-w-64 flex-col overflow-hidden p-0"
       >
-        {creating ? (
-          <div className="shrink-0 space-y-3 p-3">
-            <Input
-              autoFocus
-              aria-label="New category name"
-              placeholder="New category name"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  addCategory();
-                }
-              }}
-            />
-            {query.trim() && !newName && <p className="text-sm text-muted-foreground">This category already exists.</p>}
-            {saveError && <p role="alert" className="text-sm text-destructive">{saveError}</p>}
-            <Button type="button" className="w-full" disabled={!newName || saving} onClick={addCategory}>
-              <Plus className="mr-2 h-4 w-4" />{saving ? "Saving..." : "Add category"}
-            </Button>
-          </div>
-        ) : <>
         <Command className="flex min-h-0 flex-1 flex-col">
           <CommandInput value={query} onValueChange={setQuery} placeholder={searchPlaceholder} className="h-10" />
           <div className="relative flex min-h-0 flex-1 flex-col">
           <CommandList ref={listRef} onScroll={refreshScrollHint} className="category-scroll min-h-0 flex-1">
             <CommandEmpty>{emptyText}</CommandEmpty>
-            {newName && (
-              <CommandGroup>
-                <CommandItem
-                  value={`__create__${newName}`}
-                  forceMount
-                  disabled={saving}
-                  onSelect={() => { void addCategory(); }}
-                  className="gap-2 text-primary"
-                >
-                  <Plus className="h-4 w-4 shrink-0" />
-                  <span className="min-w-0 break-words">Add “{newName}”</span>
-                </CommandItem>
-              </CommandGroup>
-            )}
             <CommandGroup heading={groupHeading}>
               {options.map((o) => (
                 <CommandItem
@@ -237,25 +167,8 @@ export function CategorySelect({
           )}
           </div>
         </Command>
-        {saveError && <p role="alert" className="shrink-0 px-3 py-2 text-sm text-destructive">{saveError}</p>}
-        {allowCreate && <div className="shrink-0 border-t p-1">
-          <Button type="button" variant="ghost" className="w-full justify-start" onClick={() => {
-            setCreating(true);
-            setQuery("");
-          }}>
-            <Plus className="mr-2 h-4 w-4" />Add new category
-          </Button>
-        </div>}
-        </>}
       </PopoverContent>
     </Popover>
-    {allowCreate && <Button type="button" variant="link" className="h-8 px-0" onClick={() => {
-      setCreating(true);
-      setQuery("");
-      setOpen(true);
-    }}>
-      <Plus className="mr-1 h-4 w-4" />Add new category
-    </Button>}
     </div>
   );
 }

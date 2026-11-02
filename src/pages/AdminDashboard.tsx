@@ -413,13 +413,15 @@ export default function AdminDashboard() {
                     value={formData.category}
                     onChange={(category) => setFormData({ ...formData, category })}
                     options={categoryOptions}
-                    allowCreate
-                    onCreate={createCategory}
                     placeholder="Choose a category"
-                    searchPlaceholder="Search or add a category..."
+                    searchPlaceholder="Search categories..."
                     className="w-full"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Need a new one? Add it under Manage categories.
+                  </p>
                 </div>
+
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
                   <input type="checkbox" checked={formData.is_featured}
                     onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
@@ -537,7 +539,14 @@ export default function AdminDashboard() {
               ariaLabel="Filter products by category"
               className="w-64"
             />
-            <CategoryManager categories={extraCategories(savedCategories)} productCategories={products.map((product) => product.category)} onRemove={removeCategory} />
+            <CategoryManager
+              categories={extraCategories(savedCategories)}
+              productCategories={products.map((product) => product.category)}
+              existingNames={[...STORE_CATEGORIES, ...savedCategories, ...products.map((product) => product.category ?? "")]}
+              onAdd={createCategory}
+              onRemove={removeCategory}
+            />
+
             <span className="text-xs text-muted-foreground">
               Showing {filtered.length} of {products.length} product{products.length === 1 ? "" : "s"}
             </span>

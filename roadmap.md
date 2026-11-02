@@ -13,3 +13,5 @@
 - [x] Fix category scrolling inside the product dialog; verified wheel and touch gestures reach and select the final option in a dialog-mounted check. Signed-in admin testing remains unavailable with external Supabase.
 - [x] Add confirmed custom-category removal for admins; verified database grants/policy, passing safeguards tests, and isolated confirmation/cancellation controls.
 - [ ] Verify category removal and reload in signed-in admin: blocked by external Supabase session unavailable to automated checks.
+- [x] Move category creation into the Manage categories dialog (add, search, remove in one place); product forms only pick from the list. Verified add via Enter and button, duplicate and blank blocking, and removal in an isolated mount.
+
