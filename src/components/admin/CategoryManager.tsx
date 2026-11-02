@@ -1,23 +1,45 @@
 import { useState } from "react";
-import { Settings2, Trash2 } from "lucide-react";
+import { Plus, Settings2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel } from "@/components/ui/alert-dialog";
-import { categoryProductCount } from "@/lib/categoryManagement";
+import { categoryProductCount, uniqueCategoryName } from "@/lib/categoryManagement";
 
 interface CategoryManagerProps {
   categories: string[];
   productCategories: (string | null)[];
+  // Every name already in use (official, saved, or on a product) — used to
+  // stop a new category from duplicating one that exists.
+  existingNames: string[];
+  onAdd: (name: string) => Promise<string>;
   onRemove: (name: string) => Promise<void>;
 }
 
-export default function CategoryManager({ categories, productCategories, onRemove }: CategoryManagerProps) {
+export default function CategoryManager({ categories, productCategories, existingNames, onAdd, onRemove }: CategoryManagerProps) {
   const [query, setQuery] = useState("");
+  const [newName, setNewName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [addError, setAddError] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
   const [removing, setRemoving] = useState(false);
   const [error, setError] = useState("");
   const filtered = categories.filter((name) => name.toLowerCase().includes(query.trim().toLowerCase()));
+  const candidate = uniqueCategoryName(newName, existingNames);
+
+  const add = async () => {
+    if (!candidate || saving) return;
+    setSaving(true);
+    setAddError("");
+    try {
+      await onAdd(candidate);
+      setNewName("");
+    } catch (failure) {
+      setAddError(failure instanceof Error ? failure.message : "Could not save category. Please try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const remove = async () => {
     if (!selected || removing) return;
@@ -38,7 +60,28 @@ export default function CategoryManager({ categories, productCategories, onRemov
       <Button variant="outline" type="button"><Settings2 className="mr-2 h-4 w-4" />Manage categories</Button>
     </DialogTrigger>
     <DialogContent className="max-h-[90dvh] max-w-lg overflow-hidden" aria-describedby={undefined}>
-      <DialogHeader><DialogTitle>Custom categories</DialogTitle></DialogHeader>
+      <DialogHeader><DialogTitle>Manage categories</DialogTitle></DialogHeader>
+      <div className="space-y-2">
+        <div className="flex gap-2">
+          <Input
+            aria-label="New category name"
+            placeholder="New category name"
+            value={newName}
+            onChange={(event) => setNewName(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                void add();
+              }
+            }}
+          />
+          <Button type="button" className="shrink-0" disabled={!candidate || saving} onClick={() => { void add(); }}>
+            <Plus className="mr-2 h-4 w-4" />{saving ? "Saving..." : "Add"}
+          </Button>
+        </div>
+        {newName.trim() && !candidate && <p className="text-sm text-muted-foreground">This category already exists.</p>}
+        {addError && <p role="alert" className="text-sm text-destructive">{addError}</p>}
+      </div>
       <Input aria-label="Search custom categories" placeholder="Search categories..." value={query} onChange={(event) => setQuery(event.target.value)} />
       <div className="category-scroll max-h-[50dvh] overflow-y-auto divide-y">
         {filtered.map((name) => {
