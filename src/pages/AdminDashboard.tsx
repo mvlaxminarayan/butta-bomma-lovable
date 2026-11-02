@@ -157,9 +157,10 @@ export default function AdminDashboard() {
   // category a product still uses, then "No category".
   const categoryOptions = useMemo<CategoryOption[]>(() => [
     ...savedCategories.map((c) => ({ value: c, label: c })),
-    ...extraCategories([...STORE_CATEGORIES, ...products.map((p) => p.category), formData.category])
-      .concat(STORE_CATEGORIES)
-      .filter((c, i, all) => !savedCategories.some((s) => s.toLowerCase() === c.toLowerCase()) && all.findIndex((x) => x.toLowerCase() === c.toLowerCase()) === i)
+    // Saved list is the source of order; official names only fill in before it loads.
+    ...[...(savedCategories.length ? [] : STORE_CATEGORIES), ...products.map((p) => p.category), formData.category]
+      .map((c) => (c || "").trim())
+      .filter((c, i, all) => c && !savedCategories.some((s) => s.toLowerCase() === c.toLowerCase()) && all.findIndex((x) => x.toLowerCase() === c.toLowerCase()) === i)
       .map((c) => ({ value: c, label: c })),
     { value: "", label: "No category" },
   ], [products, formData.category, savedCategories]);
