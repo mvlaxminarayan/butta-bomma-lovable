@@ -14,3 +14,5 @@
 - Persist custom categories immediately in the admin-only categories table exposed through the security-invoker api view; merge saved categories with official and product-derived choices so unused categories survive refreshes.
 - Remove saved custom categories through the security-invoker api view with admin-only deletion policies and a database usage guard; never delete or recategorize their products implicitly.
 - Keep category popovers modal so their portaled lists own the active scroll lock inside product dialogs and accept both wheel and touch scrolling.
+- Keep category creation and removal in the Manage categories dialog; product forms only pick from the list, so every category change has one home and duplicates are blocked before saving.
+
