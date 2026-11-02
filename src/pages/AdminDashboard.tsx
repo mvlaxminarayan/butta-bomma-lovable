@@ -28,6 +28,7 @@ import StoryManager from "@/components/admin/StoryManager";
 import OrdersManager from "@/components/admin/OrdersManager";
 import QuestionsManager from "@/components/admin/QuestionsManager";
 import { useAdminUnseen } from "@/hooks/useAdminUnseen";
+import CategoryManager from "@/components/admin/CategoryManager";
 
 interface Product {
   id: string;
@@ -95,6 +96,17 @@ export default function AdminDashboard() {
     setSavedCategories((previous) => [...previous, data.name]);
     toast.success("Category saved");
     return data.name;
+  };
+
+  const removeCategory = async (name: string): Promise<void> => {
+    const { data, error } = await (supabase as any).schema("api").from("categories")
+      .delete().eq("name", name).select("name");
+    if (error) throw new Error(error.message);
+    if (!data?.length) throw new Error("Category was not removed. Refresh and try again.");
+    setSavedCategories((previous) => previous.filter((category) => category !== name));
+    setFormData((previous) => previous.category === name ? { ...previous, category: "" } : previous);
+    setCategoryFilter((previous) => previous === name ? "all" : previous);
+    toast.success("Category removed");
   };
 
   const fetchProducts = async () => {
@@ -525,6 +537,7 @@ export default function AdminDashboard() {
               ariaLabel="Filter products by category"
               className="w-64"
             />
+            <CategoryManager categories={extraCategories(savedCategories)} productCategories={products.map((product) => product.category)} onRemove={removeCategory} />
             <span className="text-xs text-muted-foreground">
               Showing {filtered.length} of {products.length} product{products.length === 1 ? "" : "s"}
             </span>
