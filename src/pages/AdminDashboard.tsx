@@ -81,7 +81,7 @@ export default function AdminDashboard() {
 
   useEffect(() => { fetchProducts(); }, []);
   useEffect(() => {
-    (supabase as any).schema("api").from("categories").select("name").order("name")
+    (supabase as any).schema("api").from("categories").select("name, sort_order").order("sort_order").order("name")
       .then(({ data, error }: { data: { name: string }[] | null; error: { message: string } | null }) => {
         if (error) toast.error("Could not load saved categories: " + error.message);
         else setSavedCategories((data || []).map((category) => category.name));
@@ -90,12 +90,35 @@ export default function AdminDashboard() {
 
   const createCategory = async (name: string): Promise<string> => {
     const { data, error } = await (supabase as any).schema("api").from("categories")
-      .insert({ name: name.trim() }).select("name").single();
+      .insert({ name: name.trim(), sort_order: savedCategories.length + 1 }).select("name").single();
     if (error) throw new Error(error.message);
     if (!data?.name) throw new Error("Category was not saved. Please try again.");
     setSavedCategories((previous) => [...previous, data.name]);
     toast.success("Category saved");
     return data.name;
+  };
+
+  const renameCategory = async (oldName: string, newName: string): Promise<void> => {
+    const { data, error } = await (supabase as any).schema("api").rpc("rename_category", { _old: oldName, _new: newName });
+    if (error) throw new Error(error.message);
+    const saved = (data as string) || newName.trim();
+    setSavedCategories((previous) => previous.map((c) => c === oldName ? saved : c));
+    setProducts((previous) => previous.map((p) => p.category?.trim().toLowerCase() === oldName.trim().toLowerCase() ? { ...p, category: saved } : p));
+    setFormData((previous) => previous.category === oldName ? { ...previous, category: saved } : previous);
+    setCategoryFilter((previous) => previous === oldName ? saved : previous);
+    toast.success("Category renamed");
+  };
+
+  const reorderCategories = async (ordered: string[]): Promise<void> => {
+    const before = savedCategories;
+    setSavedCategories(ordered);
+    const results = await Promise.all(ordered.map((name, index) =>
+      (supabase as any).schema("api").from("categories").update({ sort_order: index + 1 }).eq("name", name)));
+    const failed = results.find((r: { error: { message: string } | null }) => r.error);
+    if (failed) {
+      setSavedCategories(before);
+      toast.error("Could not save the new order: " + failed.error.message);
+    }
   };
 
   const removeCategory = async (name: string): Promise<void> => {
@@ -133,8 +156,12 @@ export default function AdminDashboard() {
   // Category picker choices: the shop's official list first, then any older
   // category a product still uses, then "No category".
   const categoryOptions = useMemo<CategoryOption[]>(() => [
-    ...STORE_CATEGORIES.map((c) => ({ value: c, label: c })),
-    ...extraCategories([...savedCategories, ...products.map((p) => p.category), formData.category]).map((c) => ({ value: c, label: c })),
+    ...savedCategories.map((c) => ({ value: c, label: c })),
+    // Saved list is the source of order; official names only fill in before it loads.
+    ...[...(savedCategories.length ? [] : STORE_CATEGORIES), ...products.map((p) => p.category), formData.category]
+      .map((c) => (c || "").trim())
+      .filter((c, i, all) => c && !savedCategories.some((s) => s.toLowerCase() === c.toLowerCase()) && all.findIndex((x) => x.toLowerCase() === c.toLowerCase()) === i)
+      .map((c) => ({ value: c, label: c })),
     { value: "", label: "No category" },
   ], [products, formData.category, savedCategories]);
 
@@ -540,10 +567,12 @@ export default function AdminDashboard() {
               className="w-64"
             />
             <CategoryManager
-              categories={extraCategories(savedCategories)}
+              categories={savedCategories}
               productCategories={products.map((product) => product.category)}
               existingNames={[...STORE_CATEGORIES, ...savedCategories, ...products.map((product) => product.category ?? "")]}
               onAdd={createCategory}
+              onRename={renameCategory}
+              onReorder={reorderCategories}
               onRemove={removeCategory}
             />
 
