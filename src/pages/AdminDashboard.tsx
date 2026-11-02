@@ -413,13 +413,15 @@ export default function AdminDashboard() {
                     value={formData.category}
                     onChange={(category) => setFormData({ ...formData, category })}
                     options={categoryOptions}
-                    allowCreate
-                    onCreate={createCategory}
                     placeholder="Choose a category"
-                    searchPlaceholder="Search or add a category..."
+                    searchPlaceholder="Search categories..."
                     className="w-full"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Need a new one? Add it under Manage categories.
+                  </p>
                 </div>
+
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
                   <input type="checkbox" checked={formData.is_featured}
                     onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
