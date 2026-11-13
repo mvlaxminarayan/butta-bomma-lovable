@@ -569,7 +569,7 @@ export default function AdminDashboard() {
             <CategoryManager
               categories={savedCategories}
               productCategories={products.map((product) => product.category)}
-              existingNames={[...STORE_CATEGORIES, ...savedCategories, ...products.map((product) => product.category ?? "")]}
+              existingNames={[...(savedCategories.length ? [] : STORE_CATEGORIES), ...savedCategories, ...products.map((product) => product.category ?? "")]}
               onAdd={createCategory}
               onRename={renameCategory}
               onReorder={reorderCategories}
