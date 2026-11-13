@@ -1,0 +1,2 @@
+DROP POLICY IF EXISTS "Anyone can view product images" ON storage.objects;
+CREATE POLICY "Admins can list product images" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'product-images' AND public.is_admin());
