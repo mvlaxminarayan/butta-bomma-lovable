@@ -1,7 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
 export const BUCKET = "product-images";
-const SIGNED_URL_TTL = 60 * 60 * 24 * 7; // 7 days
 
 /** Legacy built-in photo names; sample photos were removed, so none resolve locally. */
 export const LOCAL_ASSETS: Record<string, string> = {};
@@ -20,9 +19,10 @@ export async function resolveImageUrls(refs: string[]): Promise<string[]> {
   const paths = Array.from(new Set(refs.filter(isStoragePath)));
   const signed: Record<string, string> = {};
   if (paths.length) {
-    const { data, error } = await supabase.storage.from(BUCKET).createSignedUrls(paths, SIGNED_URL_TTL);
+    // Bucket is private with no public read rule; a server function signs only photos the store displays.
+    const { data, error } = await supabase.functions.invoke("product-image-urls", { body: { paths } });
     if (error) console.error("Signed URL error:", error);
-    data?.forEach((d) => { if (d.path && d.signedUrl) signed[d.path] = d.signedUrl; });
+    Object.assign(signed, (data?.urls as Record<string, string>) || {});
   }
   // Keeps the same order/length as refs; unresolved entries become "".
   return refs.map((r) => (r.startsWith("http") ? r : LOCAL_ASSETS[r] || signed[r] || ""));
