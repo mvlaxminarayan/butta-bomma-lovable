@@ -455,7 +455,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                   disabled={!canPurchaseProduct(product)}
                   variant="outline"
                   size="lg"
-                  className="min-w-0 basis-full sm:basis-auto sm:flex-1 border-primary text-primary hover:bg-primary/10"
+                  className="min-w-0 basis-full sm:basis-auto sm:flex-1 border-primary text-primary hover:bg-primary/10 hover:text-primary"
                 >
                   <Zap className="h-5 w-5 mr-2" />
                   Buy now
