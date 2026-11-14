@@ -458,7 +458,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                   className="min-w-0 basis-full sm:basis-auto sm:flex-1 border-primary text-primary hover:bg-primary/10"
                 >
                   <Zap className="h-5 w-5 mr-2" />
-                  Buy Now
+                  Buy now
                 </Button>
                 {isBuyNowOpen && (
                   <Cart
@@ -477,6 +477,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                   onClick={handleToggleWishlist}
                   aria-pressed={wishlisted}
                   aria-label={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+                  className="flex-1 sm:flex-none"
                 >
                   <Heart className={`h-5 w-5 ${wishlisted ? "fill-primary text-primary" : ""}`} />
                 </Button>
@@ -485,6 +486,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                   size="lg"
                   onClick={handleShare}
                   aria-label="Share this product"
+                  className="flex-1 sm:flex-none"
                 >
                   <Share2 className="h-5 w-5" />
                 </Button>
