@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Tag } from "lucide-react";
 import { Coupon, DEFAULT_SETTINGS, StoreSettings, computeTotals, fetchStoreSettings, formatINR, lookupCoupon } from "@/lib/pricing";
@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { PENDING_ORDER_KEY } from "@/lib/orders";
 import CheckoutForm, { CheckoutDetails } from "@/components/CheckoutForm";
+import { ScrollIndicator } from "@/components/ScrollIndicator";
 import { checkoutItems, clearPurchasedCart } from "@/lib/checkoutCart";
 import { Label } from "@/components/ui/label";
 import { useShippingQuote } from "@/hooks/useShippingQuote";
@@ -32,6 +33,7 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
   const cartItems = checkoutItems(savedCartItems, buyNowItem);
   const [isLoading, setIsLoading] = useState(false);
   const [step, setStep] = useState<"cart" | "details">("cart");
+  const cartScrollRef = useRef<HTMLDivElement>(null);
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const [settings, setSettings] = useState<StoreSettings>(DEFAULT_SETTINGS);
   const [settingsLoaded, setSettingsLoaded] = useState(false);
@@ -239,7 +241,8 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
           ) : (
           <>
           {/* Cart Items */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div className="relative min-h-0 flex-1">
+          <div ref={cartScrollRef} className="h-full overflow-y-auto p-6 space-y-6 form-scroll">
             {cartItems.length === 0 ? (
               <div className="text-center py-12">
                 <ShoppingBag className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -305,6 +308,8 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
                 </div>
               ))
             )}
+          </div>
+          <ScrollIndicator scrollRef={cartScrollRef} />
           </div>
 
           {/* Footer */}

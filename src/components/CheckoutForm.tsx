@@ -1,9 +1,10 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ScrollIndicator } from "@/components/ScrollIndicator";
 import { useAuth } from "@/hooks/useAuth";
 
 export interface CheckoutDetails {
@@ -101,10 +102,12 @@ const CheckoutForm = ({ total, summary, isPricingLoading = false, backLabel = "B
     </div>
   );
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   return (
     <form onSubmit={submit} className="flex flex-col h-full">
       <div className="relative min-h-0 flex-1">
-        <div className="h-full overflow-y-auto p-6 space-y-3 category-scroll">
+        <div ref={scrollRef} className="h-full overflow-y-auto p-6 space-y-3 form-scroll">
           <p className="text-sm text-muted-foreground">
             We need these details to deliver your order. We deliver within India only. Scroll down to fill all fields.
           </p>
@@ -147,6 +150,7 @@ const CheckoutForm = ({ total, summary, isPricingLoading = false, backLabel = "B
         </div>
         </div>
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-background to-transparent" aria-hidden="true" />
+        <ScrollIndicator scrollRef={scrollRef} />
       </div>
 
       <div className="shrink-0 border-t p-4 sm:p-6 space-y-3">
