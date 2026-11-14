@@ -103,10 +103,11 @@ const CheckoutForm = ({ total, summary, isPricingLoading = false, backLabel = "B
 
   return (
     <form onSubmit={submit} className="flex flex-col h-full">
-      <div className="min-h-0 flex-1 overflow-y-auto p-6 space-y-4">
-        <p className="text-sm text-muted-foreground">
-          We need these details to deliver your order. We deliver within India only.
-        </p>
+      <div className="relative min-h-0 flex-1">
+        <div className="h-full overflow-y-auto p-6 space-y-3 category-scroll">
+          <p className="text-sm text-muted-foreground">
+            We need these details to deliver your order. We deliver within India only. Scroll down to fill all fields.
+          </p>
 
         {field("name", "Full name", { maxLength: 120, autoComplete: "name", placeholder: "Your name" })}
         {field("email", "Email", { type: "email", maxLength: 255, autoComplete: "email", placeholder: "you@example.com" })}
@@ -144,6 +145,8 @@ const CheckoutForm = ({ total, summary, isPricingLoading = false, backLabel = "B
             onChange={(e) => set("instructions", e.target.value)}
           />
         </div>
+        </div>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-background to-transparent" aria-hidden="true" />
       </div>
 
       <div className="shrink-0 border-t p-4 sm:p-6 space-y-3">

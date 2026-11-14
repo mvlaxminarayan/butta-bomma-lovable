@@ -55,7 +55,8 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
   const shipping = quote?.shipping ?? base.shipping;
   const total = quote?.total ?? base.total;
   const couponOk = base.couponOk;
-  const shippingLabel = !settingsLoaded || quoteLoading ? "Calculating…" : shipping === 0 ? "Free" : !quote ? "Enter PIN code" : formatINR(shipping);
+  const shippingPending = settingsLoaded && !quoteLoading && !quote && shipping > 0;
+  const shippingLabel = !settingsLoaded || quoteLoading ? "Calculating…" : shipping === 0 ? "Free" : !quote ? "Calculated after you enter PIN code" : formatINR(shipping);
   const shippingNote = quote?.source === "fallback" ? "Live rates unavailable · ₹120 backup charge" : quote?.source === "live" ? quote.courier : null;
   const threshold = settings.free_shipping_threshold;
 
@@ -223,7 +224,7 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
                     </div>
                     <div className="flex justify-between gap-3 text-sm"><span>Product cost</span><span>{formatINR(subtotal)}</span></div>
                     {couponOk && discount > 0 && <div className="flex justify-between gap-3 text-sm text-primary"><span>Discount ({coupon?.code})</span><span>−{formatINR(discount)}</span></div>}
-                    <div className="flex justify-between gap-3 text-sm"><span>Shipping cost</span><span>{shippingLabel}</span></div>
+                    <div className="flex justify-between gap-3 text-sm"><span>Shipping cost</span><span className={shippingPending ? "text-muted-foreground text-xs text-right" : undefined}>{shippingLabel}</span></div>
                     {shippingNote && <p className="text-xs text-muted-foreground">{shippingNote}</p>}
                     {quoteError && <div role="alert" className="text-sm text-destructive">{quoteError}<Button type="button" variant="ghost" size="sm" onClick={retryQuote}>Retry</Button></div>}
                     <div className="flex justify-between gap-3 border-t pt-2 font-semibold"><span>Total</span><span>{!settingsLoaded || quoteLoading ? "Calculating…" : !quote && shipping > 0 ? "—" : formatINR(total)}</span></div>
@@ -327,7 +328,7 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
                 )}
                 <div className="flex justify-between text-sm">
                   <span>Shipping</span>
-                  <span>
+                  <span className={shippingPending ? "text-muted-foreground text-xs text-right" : undefined}>
                     {shippingLabel}
                   </span>
                 </div>
