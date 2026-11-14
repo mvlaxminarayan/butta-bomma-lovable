@@ -310,8 +310,9 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
           {cartItems.length > 0 && (
             <div className="border-t p-6 space-y-4">
               <div className="space-y-1">
-                <Label htmlFor="cart-pincode">Delivery PIN code</Label>
-                <Input id="cart-pincode" value={pincode} inputMode="numeric" autoComplete="postal-code" maxLength={6} placeholder="6-digit PIN code" onChange={e => setPincode(e.target.value.replace(/\D/g, ""))} />
+                <Label htmlFor="cart-pincode">Delivery Postal PIN Code</Label>
+                <Input id="cart-pincode" value={pincode} inputMode="numeric" autoComplete="postal-code" maxLength={6} placeholder="e.g. 560001" aria-describedby="cart-pincode-help" onChange={e => setPincode(e.target.value.replace(/\D/g, ""))} />
+                <p id="cart-pincode-help" className="text-xs text-muted-foreground">Your 6-digit area postal code, used to calculate courier charges.</p>
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
