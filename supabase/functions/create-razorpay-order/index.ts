@@ -1,4 +1,5 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
+import { verifyQuote } from '../_shared/shippingQuote.ts'
 
 // Creates a Razorpay order for the cart total (in paise) and returns
 // the order id + publishable key id so the browser can open checkout.
@@ -21,7 +22,11 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json().catch(() => ({}))
-    const amountRupees = Number(body?.amount)
+    if (typeof body.quote_token !== 'string' || body.quote_token.length > 20000) return json({ error: 'Refresh your shipping charge before payment.' }, 400)
+    let quote;
+    try { quote = await verifyQuote(body.quote_token) }
+    catch (error) { return json({ error: error instanceof Error ? error.message : 'Invalid shipping quote' }, 400) }
+    const amountRupees = quote.total
     const product = typeof body?.product === 'string' ? body.product.slice(0, 120) : 'Order'
 
     if (!Number.isFinite(amountRupees) || amountRupees <= 0 || amountRupees > 10_000_000) {
@@ -44,7 +49,16 @@ Deno.serve(async (req) => {
         amount: amountPaise,
         currency: 'INR',
         receipt: `rcpt_${Date.now()}`,
-        notes: { product },
+        notes: {
+          product,
+          shipping_fee: String(quote.shipping),
+          subtotal: String(quote.subtotal), discount: String(quote.discount),
+          shipping_weight_grams: String(quote.weight_grams),
+          courier_id: String(quote.courier_id || ''),
+          shipping_pincode: quote.pincode,
+          coupon_code: quote.coupon_code || '',
+          cart_fingerprint: Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(quote.items))))).map(b => b.toString(16).padStart(2, '0')).join(''),
+        },
       }),
     })
 

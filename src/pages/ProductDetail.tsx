@@ -60,6 +60,7 @@ const getProductById = async (id: string): Promise<(Product & {
       id: product.id,
       name: product.name,
       price: Number(product.price),
+      weight_grams: product.weight_grams,
       image: productImage,
       images: productImages,
       category: product.category || "Uncategorized",

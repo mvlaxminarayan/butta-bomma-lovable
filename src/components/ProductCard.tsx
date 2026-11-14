@@ -19,6 +19,7 @@ export interface Product {
   category: string;
   inStock: boolean;
   featured?: boolean;
+  weight_grams?: number | null;
 }
 
 interface ProductCardProps {

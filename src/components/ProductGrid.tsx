@@ -91,6 +91,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
         category: (product.category || "").trim() || "Uncategorized",
         inStock: product.in_stock,
         featured: !!product.is_featured,
+        weight_grams: product.weight_grams,
         rating: averageRating || 0,
         reviews: reviewCount
       };

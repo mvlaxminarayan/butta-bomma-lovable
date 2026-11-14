@@ -1,5 +1,6 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { parcelGrams } from '../_shared/shippingRules.ts'
 
 // Admin-only Shiprocket actions:
 //  - ship:  create Shiprocket order, assign courier, save AWB + courier, mark shipped
@@ -36,8 +37,10 @@ async function sr(path: string, method = 'GET', body?: unknown) {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   try {
-    const url = Deno.env.get('SUPABASE_URL')!
-    const db = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { db: { schema: 'api' }, auth: { persistSession: false } })
+    const url = Deno.env.get('SUPABASE_URL')
+    const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    if (!url || !key) return json({ error: 'Shipping is not configured.' }, 500)
+    const db = createClient(url, key, { db: { schema: 'api' }, auth: { persistSession: false } })
 
     const jwt = (req.headers.get('Authorization') || '').replace('Bearer ', '')
     const { data: u } = await db.auth.getUser(jwt)
@@ -69,7 +72,9 @@ Deno.serve(async (req) => {
     if (!pickup) return json({ error: 'Add a pickup address in Shiprocket Settings first.' }, 400)
 
     const items = (o.items || []) as { id: string; name: string; price: number; quantity: number }[]
-    const totalQty = items.reduce((s, i) => s + i.quantity, 0) || 1
+    const quoteHistory = o.status_history?.find?.((h: any) => h.shipping_weight_grams)
+    const { data: products } = await db.from('products').select('id,weight_grams,specifications').in('id', items.map(i => i.id))
+    const grams = Number(quoteHistory?.shipping_weight_grams) || parcelGrams(items.map(i => ({ ...products?.find((p: any) => p.id === i.id), quantity: i.quantity })))
     const [first, ...rest] = String(o.customer_name || 'Customer').split(' ')
     const created = await sr('/orders/create/adhoc', 'POST', {
       order_id: o.order_number,
@@ -91,12 +96,12 @@ Deno.serve(async (req) => {
       total_discount: Number(o.discount) || 0,
       sub_total: Number(o.subtotal) || Number(o.total),
       length: 25, breadth: 20, height: 10,
-      weight: Math.min(20, 0.5 * totalQty),
+      weight: grams / 1000,
     })
     const shipmentId = created.shipment_id
     if (!shipmentId) return json({ error: `Shiprocket did not create a shipment: ${created.message || ''}` }, 502)
 
-    const awb = await sr('/courier/assign/awb', 'POST', { shipment_id: shipmentId })
+    const awb = await sr('/courier/assign/awb', 'POST', { shipment_id: shipmentId, ...(quoteHistory?.shipping_courier_id ? { courier_id: quoteHistory.shipping_courier_id } : {}) })
     const r = awb?.response?.data
     if (!r?.awb_code) return json({ error: `Courier not assigned: ${awb?.message || 'check wallet balance / KYC in Shiprocket'}` }, 502)
 

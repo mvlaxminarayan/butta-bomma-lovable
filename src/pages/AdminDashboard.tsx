@@ -29,6 +29,8 @@ import OrdersManager from "@/components/admin/OrdersManager";
 import QuestionsManager from "@/components/admin/QuestionsManager";
 import { useAdminUnseen } from "@/hooks/useAdminUnseen";
 import CategoryManager from "@/components/admin/CategoryManager";
+import { productWeight, toGrams } from "@/lib/shipping";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Product {
   id: string;
@@ -43,6 +45,7 @@ interface Product {
   features?: string[] | null;
   specifications?: Record<string, string> | null;
   is_featured?: boolean;
+  weight_grams?: number | null;
 }
 
 const db = () => (supabase as any).schema("api").from("products");
@@ -63,6 +66,8 @@ export default function AdminDashboard() {
     name: "", description: "", price: "", category: "", stock_quantity: "", is_featured: false,
   });
   const [features, setFeatures] = useState<string[]>([]);
+  const [weight, setWeight] = useState("500");
+  const [weightUnit, setWeightUnit] = useState("g");
   const [specs, setSpecs] = useState<{ key: string; value: string }[]>([]);
 
   // Browsing controls
@@ -250,12 +255,18 @@ export default function AdminDashboard() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const grams = toGrams(Number(weight), weightUnit);
+    if (!Number.isFinite(grams) || grams <= 0 || grams > 1000000) {
+      toast.error("Enter a weight greater than zero and at most 1000 kg.");
+      return;
+    }
     setLoading(true);
     const stock = parseInt(formData.stock_quantity);
     const productData = {
       name: formData.name,
       description: formData.description || null,
       price: parseFloat(formData.price),
+      weight_grams: grams,
       images,
       image_url: images[0] || null,
       category: formData.category || null,
@@ -297,6 +308,9 @@ export default function AdminDashboard() {
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
+    const grams = productWeight(product);
+    setWeightUnit(grams >= 1000 ? "kg" : "g");
+    setWeight(String(grams >= 1000 ? grams / 1000 : grams));
     const refs = productImageRefs(product);
     setPreviews({});
     setImages(refs);
@@ -315,6 +329,8 @@ export default function AdminDashboard() {
   };
 
   const resetForm = () => {
+    setWeight("500");
+    setWeightUnit("g");
     setEditingProduct(null);
     setImages([]);
     setPreviews({});
@@ -447,6 +463,21 @@ export default function AdminDashboard() {
                   <p className="text-xs text-muted-foreground">
                     Need a new one? Add it under Manage categories.
                   </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="shipping-weight">Shipping weight</Label>
+                  <div className="grid grid-cols-[1fr_140px] gap-3">
+                    <Input id="shipping-weight" type="number" inputMode="decimal" min="0.001" step="any" required value={weight} onChange={e => setWeight(e.target.value)} />
+                    <Select value={weightUnit} onValueChange={unit => {
+                      const grams = toGrams(Number(weight), weightUnit);
+                      if (weight && Number.isFinite(grams)) setWeight(String(unit === "kg" ? grams / 1000 : grams));
+                      setWeightUnit(unit);
+                    }}>
+                      <SelectTrigger aria-label="Weight unit"><SelectValue /></SelectTrigger>
+                      <SelectContent><SelectItem value="g">Grams (g)</SelectItem><SelectItem value="kg">Kilograms (kg)</SelectItem></SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
@@ -606,6 +637,7 @@ export default function AdminDashboard() {
                   <div className="p-3 flex flex-col gap-1 flex-1">
                     <p className="font-medium text-sm line-clamp-1">{product.name}</p>
                     <p className="text-xs text-muted-foreground">{product.category || "Uncategorized"}</p>
+                    <p className="text-xs text-muted-foreground">{productWeight(product)} g{product.weight_grams == null ? " · inferred / default" : ""}</p>
                     <div className="flex items-center justify-between mt-1">
                       <span className="font-semibold text-sm">{formatINR(product.price)}</span>
                       <Badge variant={product.in_stock ? "default" : "destructive"} className="text-[10px]">
@@ -632,6 +664,7 @@ export default function AdminDashboard() {
                   <TableHead>Name</TableHead>
                   <TableHead>Category</TableHead>
                   <TableHead>Price</TableHead>
+                  <TableHead>Weight</TableHead>
                   <TableHead>Stock</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
@@ -647,6 +680,7 @@ export default function AdminDashboard() {
                     <TableCell className="font-medium">{product.name}</TableCell>
                     <TableCell>{product.category || "Uncategorized"}</TableCell>
                     <TableCell>{formatINR(product.price)}</TableCell>
+                    <TableCell className="whitespace-nowrap">{productWeight(product)} g{product.weight_grams == null && <span className="block text-xs text-muted-foreground">Inferred / default</span>}</TableCell>
                     <TableCell>{product.stock_quantity}</TableCell>
                     <TableCell>
                       <Badge variant={product.in_stock ? "default" : "destructive"}>

@@ -42,9 +42,11 @@ interface Props {
   isLoading: boolean;
   onBack: () => void;
   onSubmit: (details: CheckoutDetails) => void;
+  pincode?: string;
+  onPincodeChange?: (pincode: string) => void;
 }
 
-const CheckoutForm = ({ total, summary, isPricingLoading = false, backLabel = "Back to cart", isLoading, onBack, onSubmit }: Props) => {
+const CheckoutForm = ({ total, summary, isPricingLoading = false, backLabel = "Back to cart", isLoading, onBack, onSubmit, pincode, onPincodeChange }: Props) => {
   const { user, profile } = useAuth();
   const [form, setForm] = useState<CheckoutDetails>(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -57,10 +59,12 @@ const CheckoutForm = ({ total, summary, isPricingLoading = false, backLabel = "B
       ...saved,
       name: saved.name || (profile as any)?.full_name || "",
       email: saved.email || user?.email || "",
+      zip: pincode ?? saved.zip ?? "",
     });
   }, [user, profile]);
 
   const set = (field: keyof CheckoutDetails, value: string) => {
+    if (field === "zip") onPincodeChange?.(value);
     setForm((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };

@@ -15,4 +15,6 @@
 - Remove saved custom categories through the security-invoker api view with admin-only deletion policies and a database usage guard; never delete or recategorize their products implicitly.
 - Keep category popovers modal so their portaled lists own the active scroll lock inside product dialogs and accept both wheel and touch scrolling.
 - Keep category creation and removal in the Manage categories dialog; product forms only pick from the list, so every category change has one home and duplicates are blocked before saving.
+- Store shipping weight in grams and share legacy-weight parsing with shipment booking, so quotes and shipments use the same item mass.
+- Use signed, expiring server-priced shipping quotes for Razorpay orders and snapshot shipping/weight/courier in payment notes, so client totals cannot alter the charged shipping and paid orders retain their quote.
 

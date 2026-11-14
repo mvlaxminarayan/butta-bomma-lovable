@@ -14,4 +14,8 @@
 - [x] Add confirmed custom-category removal for admins; verified database grants/policy, passing safeguards tests, and isolated confirmation/cancellation controls.
 - [ ] Verify category removal and reload in signed-in admin: blocked by external Supabase session unavailable to automated checks.
 - [x] Move category creation into the Manage categories dialog (add, search, remove in one place); product forms only pick from the list. Verified add via Enter and button, duplicate and blank blocking, and removal in an isolated mount.
+- [x] Add numeric product weights with grams/kg and legacy text range handling; verified 250 g converts to 0.25 kg in an isolated admin form.
+- [x] Calculate live Shiprocket shipping below ₹5,000; verified real rates, ₹5,494 cart free shipping, and ₹120 unavailable-rate backup.
+- [x] Verify cart and Buy Now quotes on desktop/mobile, saved-cart preservation, and unpaid Razorpay order matches server total; shared shipment weight tests pass.
+- [ ] Verify signed-in admin weight saving and paid shipment booking: external Supabase session unavailable; no payment charged or shipment booked during checks.
 

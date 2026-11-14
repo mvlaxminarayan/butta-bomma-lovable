@@ -29,7 +29,7 @@ export const formatINR = (amount: number): string =>
   }).format(amount);
 
 export const DEFAULT_SETTINGS: StoreSettings = {
-  shipping_fee: 99,
+  shipping_fee: 120,
   free_shipping_threshold: 5000,
   story_title: null,
   story_text: null,
@@ -62,11 +62,11 @@ export async function lookupCoupon(code: string): Promise<Coupon | null> {
 export function computeTotals(subtotal: number, settings: StoreSettings, coupon: Coupon | null) {
   const couponOk = !!coupon && subtotal >= coupon.min_order;
   let discount = 0;
-  if (couponOk && coupon!.discount_type === "percent") discount = subtotal * Math.min(coupon!.discount_value, 100) / 100;
-  if (couponOk && coupon!.discount_type === "fixed") discount = Math.min(coupon!.discount_value, subtotal);
+  if (coupon && couponOk && coupon.discount_type === "percent") discount = subtotal * Math.min(coupon.discount_value, 100) / 100;
+  if (coupon && couponOk && coupon.discount_type === "fixed") discount = Math.min(coupon.discount_value, subtotal);
   discount = Math.round(discount * 100) / 100;
   const thresholdMet = settings.free_shipping_threshold != null && subtotal >= settings.free_shipping_threshold;
-  const couponFreeShip = couponOk && coupon!.discount_type === "free_shipping";
+  const couponFreeShip = coupon && couponOk && coupon.discount_type === "free_shipping";
   const shipping = thresholdMet || couponFreeShip ? 0 : settings.shipping_fee;
   const total = Math.max(0, subtotal - discount) + shipping;
   return { discount, shipping, total, couponOk };

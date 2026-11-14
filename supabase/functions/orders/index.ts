@@ -45,8 +45,9 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {
-    const url = Deno.env.get('SUPABASE_URL')!
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const url = Deno.env.get('SUPABASE_URL')
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    if (!url || !serviceKey) return json({ error: 'Orders are not configured.' }, 500)
     const db = createClient(url, serviceKey, { db: { schema: 'api' }, auth: { persistSession: false } })
     const body = await req.json().catch(() => ({}))
     const action = str(body?.action, 20)
@@ -89,9 +90,13 @@ Deno.serve(async (req) => {
           return p ? { id: p.id, name: p.name, price: Number(p.price), quantity: qty } : null
         })
         .filter(Boolean) as { price: number; quantity: number }[]
-      const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0)
-      const shippingFee = Math.max(0, Number(body.shipping_fee) || 0)
-      const discount = Math.max(0, Math.round((subtotal + shippingFee - total) * 100) / 100)
+      if (rpOrder.notes?.cart_fingerprint) {
+        const fingerprint = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(rawItems.map((i: any) => ({ id: i.id, quantity: i.quantity }))))))).map(b => b.toString(16).padStart(2, '0')).join('')
+        if (fingerprint !== rpOrder.notes.cart_fingerprint || rpOrder.notes.shipping_pincode !== String(body.customer?.address?.zip)) return json({ error: 'Paid order items or pincode do not match.' }, 400)
+      }
+      const subtotal = Number(rpOrder.notes?.subtotal ?? items.reduce((s, i) => s + i.price * i.quantity, 0))
+      const shippingFee = Math.max(0, Number(rpOrder.notes?.shipping_fee ?? body.shipping_fee) || 0)
+      const discount = Number(rpOrder.notes?.discount ?? Math.max(0, Math.round((subtotal + shippingFee - total) * 100) / 100))
 
       // Link to the signed-in customer (from their verified token only)
       let userId: string | null = null
@@ -128,9 +133,9 @@ Deno.serve(async (req) => {
         shipping_fee: shippingFee,
         discount,
         total,
-        coupon_code: str(body.coupon_code, 40) || null,
+        coupon_code: str(rpOrder.notes?.coupon_code ?? body.coupon_code, 40) || null,
         status: 'paid',
-        status_history: [{ status: 'paid', at: new Date().toISOString() }],
+        status_history: [{ status: 'paid', at: new Date().toISOString(), shipping_weight_grams: Number(rpOrder.notes?.shipping_weight_grams) || null, shipping_courier_id: Number(rpOrder.notes?.courier_id) || null }],
         razorpay_order_id: rzOrderId,
         razorpay_payment_id: rzPaymentId,
       })

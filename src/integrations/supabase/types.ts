@@ -212,6 +212,7 @@ export type Database = {
           specifications: Json
           stock_quantity: number | null
           updated_at: string
+          weight_grams: number | null
         }
         Insert: {
           category?: string | null
@@ -228,6 +229,7 @@ export type Database = {
           specifications?: Json
           stock_quantity?: number | null
           updated_at?: string
+          weight_grams?: number | null
         }
         Update: {
           category?: string | null
@@ -244,6 +246,7 @@ export type Database = {
           specifications?: Json
           stock_quantity?: number | null
           updated_at?: string
+          weight_grams?: number | null
         }
         Relationships: []
       }

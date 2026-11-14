@@ -11,6 +11,8 @@ import { toast } from "@/components/ui/use-toast";
 import { PENDING_ORDER_KEY } from "@/lib/orders";
 import CheckoutForm, { CheckoutDetails } from "@/components/CheckoutForm";
 import { checkoutItems, clearPurchasedCart } from "@/lib/checkoutCart";
+import { Label } from "@/components/ui/label";
+import { useShippingQuote } from "@/hooks/useShippingQuote";
 
 export interface CartItem extends Product {
   quantity: number;
@@ -44,7 +46,17 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
     }
     else setStep("cart");
   }, [isOpen, startAtCheckout]);
-  const { discount, shipping, total, couponOk } = computeTotals(subtotal, settings, coupon);
+  const [pincode, setPincode] = useState(() => {
+    try { return String(JSON.parse(localStorage.getItem("checkout_details") || "{}").zip || ""); } catch { return ""; }
+  });
+  const { quote, loading: quoteLoading, error: quoteError, retry: retryQuote } = useShippingQuote(isOpen, cartItems, pincode, coupon?.code || null);
+  const base = computeTotals(subtotal, settings, coupon);
+  const discount = quote?.discount ?? base.discount;
+  const shipping = quote?.shipping ?? base.shipping;
+  const total = quote?.total ?? base.total;
+  const couponOk = base.couponOk;
+  const shippingLabel = !settingsLoaded || quoteLoading ? "Calculating…" : shipping === 0 ? "Free" : !quote ? "Enter PIN code" : formatINR(shipping);
+  const shippingNote = quote?.source === "fallback" ? "Live rates unavailable · ₹120 backup charge" : quote?.source === "live" ? quote.courier : null;
   const threshold = settings.free_shipping_threshold;
 
   const applyCoupon = async () => {
@@ -68,6 +80,11 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
 
   const FRIENDLY = "Something went wrong on our side. Please wait a moment and try again — your cart and details are saved.";
   const handleCheckout = async (details: CheckoutDetails) => {
+    if (!quote || quoteLoading || details.zip !== pincode || quote.expires <= Date.now()) {
+      retryQuote();
+      toast({ title: "Please wait for the shipping charge before paying." });
+      return;
+    }
     try {
       setIsLoading(true);
 
@@ -79,6 +96,7 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
             body: {
               product: cartItems.length === 1 ? cartItems[0].name : `${cartItems.length} items`,
               amount: Math.round(total * 100) / 100,
+              quote_token: quote.quote_token,
             },
           });
           if (!res.error) data = res.data;
@@ -190,7 +208,9 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
             <div className="flex-1 min-h-0">
               <CheckoutForm
                 total={formatINR(total)}
-                isPricingLoading={!settingsLoaded}
+                pincode={pincode}
+                onPincodeChange={setPincode}
+                isPricingLoading={!settingsLoaded || quoteLoading || !quote}
                 summary={
                   <div className="space-y-2" aria-label="Order summary">
                     <div className="max-h-24 overflow-y-auto space-y-2">
@@ -203,8 +223,10 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
                     </div>
                     <div className="flex justify-between gap-3 text-sm"><span>Product cost</span><span>{formatINR(subtotal)}</span></div>
                     {couponOk && discount > 0 && <div className="flex justify-between gap-3 text-sm text-primary"><span>Discount ({coupon?.code})</span><span>−{formatINR(discount)}</span></div>}
-                    <div className="flex justify-between gap-3 text-sm"><span>Shipping cost</span><span>{!settingsLoaded ? "Loading…" : shipping === 0 ? "Free" : formatINR(shipping)}</span></div>
-                    <div className="flex justify-between gap-3 border-t pt-2 font-semibold"><span>Total</span><span>{settingsLoaded ? formatINR(total) : "Loading…"}</span></div>
+                    <div className="flex justify-between gap-3 text-sm"><span>Shipping cost</span><span>{shippingLabel}</span></div>
+                    {shippingNote && <p className="text-xs text-muted-foreground">{shippingNote}</p>}
+                    {quoteError && <div role="alert" className="text-sm text-destructive">{quoteError}<Button type="button" variant="ghost" size="sm" onClick={retryQuote}>Retry</Button></div>}
+                    <div className="flex justify-between gap-3 border-t pt-2 font-semibold"><span>Total</span><span>{!settingsLoaded || quoteLoading ? "Calculating…" : !quote && shipping > 0 ? "—" : formatINR(total)}</span></div>
                   </div>
                 }
                 backLabel={buyNowItem ? "Back to product" : "Back to cart"}
@@ -287,6 +309,10 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
           {/* Footer */}
           {cartItems.length > 0 && (
             <div className="border-t p-6 space-y-4">
+              <div className="space-y-1">
+                <Label htmlFor="cart-pincode">Delivery PIN code</Label>
+                <Input id="cart-pincode" value={pincode} inputMode="numeric" autoComplete="postal-code" maxLength={6} placeholder="6-digit PIN code" onChange={e => setPincode(e.target.value.replace(/\D/g, ""))} />
+              </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Subtotal</span>
@@ -301,18 +327,16 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
                 <div className="flex justify-between text-sm">
                   <span>Shipping</span>
                   <span>
-                    {shipping === 0 ? (
-                      <Badge variant="secondary" className="text-xs">Free</Badge>
-                    ) : (
-                      formatINR(shipping)
-                    )}
+                    {shippingLabel}
                   </span>
                 </div>
                 <div className="flex justify-between font-semibold text-lg border-t pt-2">
                   <span>Total</span>
-                  <span>{formatINR(total)}</span>
+                  <span>{quoteLoading ? "Calculating…" : !quote && shipping > 0 ? "—" : formatINR(total)}</span>
                 </div>
               </div>
+              {shippingNote && <p className="text-xs text-muted-foreground">{shippingNote}</p>}
+              {quoteError && <div role="alert" className="text-sm text-destructive">{quoteError}<Button type="button" variant="ghost" size="sm" onClick={retryQuote}>Retry</Button></div>}
               
               <div className="flex gap-2">
                 <Input placeholder="Coupon code" value={codeInput} maxLength={40}
