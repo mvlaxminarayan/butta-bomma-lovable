@@ -1,15 +1,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 
-const cors = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...cors, 'Content-Type': 'application/json' } })
+const json = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
 const TTL = 60 * 60 * 24 * 7
 
 // Signs only photos the store actually displays (product photos, story photo); admins may sign any product-images path.
 Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   try {
     const body = await req.json().catch(() => ({}))
     const paths: string[] = Array.isArray(body?.paths)
@@ -17,7 +14,7 @@ Deno.serve(async (req) => {
       : []
     if (!paths.length) return json({ urls: {} })
     const url = Deno.env.get('SUPABASE_URL')!
-    const admin = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } })
+    const admin = createClient(url, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { db: { schema: 'api' }, auth: { persistSession: false } })
 
     let isAdmin = false
     const token = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '')
@@ -32,12 +29,18 @@ Deno.serve(async (req) => {
     let allowed = paths
     if (!isAdmin) {
       const known = new Set<string>()
-      const { data: products } = await admin.from('products').select('images, image_url')
-      products?.forEach((p: { images: string[] | null; image_url: string | null }) => {
-        (p.images || []).forEach((i) => known.add(i))
-        if (p.image_url) known.add(p.image_url)
-      })
-      const { data: s } = await admin.from('store_settings').select('story_image').eq('id', 1).maybeSingle()
+      // Page through all products; the Data API caps each response at 1,000 rows.
+      for (let offset = 0; ; offset += 1000) {
+        const { data: products, error } = await admin.from('products').select('images, image_url').order('id').range(offset, offset + 999)
+        if (error) throw error
+        products?.forEach((p: { images: string[] | null; image_url: string | null }) => {
+          (p.images || []).forEach((i) => known.add(i))
+          if (p.image_url) known.add(p.image_url)
+        })
+        if (!products || products.length < 1000) break
+      }
+      const { data: s, error: settingsError } = await admin.from('store_settings').select('story_image').eq('id', 1).maybeSingle()
+      if (settingsError) throw settingsError
       if (s?.story_image) known.add(s.story_image)
       allowed = paths.filter((p) => known.has(p))
     }

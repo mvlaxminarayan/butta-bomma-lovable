@@ -11,6 +11,7 @@
 - Order status validation must append to the incoming status_history (falling back to existing history), so shipment metadata saved with a status change survives atomically.
 
 - Never ship sample/demo photos in the repo or as fallbacks; empty sections hide instead, so customers only see real store photos.
+- Resolve private photo allowlists through the exposed `api` schema and surface lookup failures, so inaccessible data cannot silently hide all storefront photos.
 - Persist custom categories immediately in the admin-only categories table exposed through the security-invoker api view; merge saved categories with official and product-derived choices so unused categories survive refreshes.
 - Remove saved custom categories through the security-invoker api view with admin-only deletion policies and a database usage guard; never delete or recategorize their products implicitly.
 - Keep category popovers modal so their portaled lists own the active scroll lock inside product dialogs and accept both wheel and touch scrolling.

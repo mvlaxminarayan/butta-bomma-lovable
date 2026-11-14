@@ -20,9 +20,12 @@ export async function resolveImageUrls(refs: string[]): Promise<string[]> {
   const signed: Record<string, string> = {};
   if (paths.length) {
     // Bucket is private with no public read rule; a server function signs only photos the store displays.
-    const { data, error } = await supabase.functions.invoke("product-image-urls", { body: { paths } });
-    if (error) console.error("Signed URL error:", error);
-    Object.assign(signed, (data?.urls as Record<string, string>) || {});
+    await Promise.all(Array.from({ length: Math.ceil(paths.length / 200) }, async (_, index) => {
+      const batch = paths.slice(index * 200, (index + 1) * 200);
+      const { data, error } = await supabase.functions.invoke("product-image-urls", { body: { paths: batch } });
+      if (error) console.error("Signed URL error:", error);
+      Object.assign(signed, (data?.urls as Record<string, string>) || {});
+    }));
   }
   // Keeps the same order/length as refs; unresolved entries become "".
   return refs.map((r) => (r.startsWith("http") ? r : LOCAL_ASSETS[r] || signed[r] || ""));
