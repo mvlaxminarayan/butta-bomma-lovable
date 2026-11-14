@@ -448,7 +448,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                   size="lg"
                 >
                   <ShoppingCart className="h-5 w-5 mr-2" />
-                  Add to Cart - {formatINR(product.price * quantity)}
+                  Add to cart
                 </Button>
                 <Button
                   onClick={handleBuyNow}

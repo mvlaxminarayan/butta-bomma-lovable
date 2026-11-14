@@ -166,7 +166,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 hover:shadow-lg"
         >
           <ShoppingCart className="h-4 w-4 mr-2" />
-          Add to Cart
+          Add to cart
         </Button>
       </div>
     </div>
