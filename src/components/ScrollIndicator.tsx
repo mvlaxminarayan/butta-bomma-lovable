@@ -26,8 +26,8 @@ export function ScrollIndicator({ scrollRef, className = "" }: Props) {
         ? { visible: false, height: 0, top: 0 }
         : {
             visible: true,
-            height: Math.max(28, Math.min(track, (el.clientHeight / el.scrollHeight) * track)),
-            top: 4 + (el.scrollTop / max) * Math.max(0, track - Math.max(28, (el.clientHeight / el.scrollHeight) * track)),
+            height: Math.max(40, Math.min(track, (el.clientHeight / el.scrollHeight) * track)),
+            top: 4 + (el.scrollTop / max) * Math.max(0, track - Math.max(40, (el.clientHeight / el.scrollHeight) * track)),
           };
     const prev = last.current;
     if (
@@ -63,10 +63,10 @@ export function ScrollIndicator({ scrollRef, className = "" }: Props) {
   return (
     <div
       aria-hidden
-      className={`scroll-indicator pointer-events-none absolute bottom-2 right-1 top-2 w-1.5 overflow-hidden rounded-full bg-muted ${className}`}
+      className={`scroll-indicator pointer-events-none absolute bottom-2 right-1 top-2 w-2 overflow-hidden rounded-full bg-border ${className}`}
     >
       <div
-        className="absolute left-0 w-full rounded-full bg-muted-foreground/70"
+        className="absolute left-0 w-full rounded-full bg-muted-foreground"
         style={{ height: `${bar.height}px`, top: `${bar.top}px` }}
       />
     </div>
