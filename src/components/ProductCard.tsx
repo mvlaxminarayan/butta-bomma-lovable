@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Heart, ShoppingCart, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,7 +33,22 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
   const photos = (product.images && product.images.length > 0 ? product.images : [product.image]).filter(Boolean);
   const hasMultiple = photos.length > 1;
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [hovered, setHovered] = useState(false);
   const saved = useWishlistIds().includes(product.id);
+
+  // Auto-slide photos; pause on hover and when the customer prefers reduced motion.
+  useEffect(() => {
+    if (!hasMultiple || hovered) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    // Stagger start times so cards don't all flip at once.
+    const offset = Math.abs([...product.id].reduce((s, ch) => s + ch.charCodeAt(0), 0)) % 3000;
+    let interval: ReturnType<typeof setInterval> | undefined;
+    const kickoff = setTimeout(() => {
+      setPhotoIndex((i) => (i + 1) % photos.length);
+      interval = setInterval(() => setPhotoIndex((i) => (i + 1) % photos.length), 3500);
+    }, 1500 + offset);
+    return () => { clearTimeout(kickoff); if (interval) clearInterval(interval); };
+  }, [hasMultiple, hovered, photos.length, product.id]);
 
   const prevPhoto = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -46,7 +61,11 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
   };
 
   return (
-    <div className="group relative bg-product-card hover:bg-product-card-hover rounded-xl shadow-[var(--shadow-product)] hover:shadow-[var(--shadow-product-hover)] transition-all duration-300 hover:-translate-y-2 cursor-pointer">
+    <div
+      className="group relative bg-product-card hover:bg-product-card-hover rounded-xl shadow-[var(--shadow-product)] hover:shadow-[var(--shadow-product-hover)] transition-all duration-300 hover:-translate-y-2 cursor-pointer"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       {/* Product Image */}
       <div className="relative overflow-hidden rounded-t-xl protected-img" onContextMenu={(e) => e.preventDefault()}>
         <img
