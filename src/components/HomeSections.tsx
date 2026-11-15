@@ -103,7 +103,7 @@ export const CategoryTiles = ({ onPick, activeCategory = "All", searchQuery = ""
         {circle("All", "All Items", "", 0)}
         {cats.map((c, i) => circle(c, c, photos[c] || "", i + 1))}
       </div>
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-4 flex items-center justify-between gap-3">
         <div className="relative w-full sm:max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -119,8 +119,8 @@ export const CategoryTiles = ({ onPick, activeCategory = "All", searchQuery = ""
             aria-label="Search products"
           />
         </div>
-        <div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Sort by</span>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="hidden text-[10px] font-bold uppercase tracking-widest text-muted-foreground sm:inline">Sort by</span>
           <div className="relative">
             <select
               aria-label="Sort products"
