@@ -1,5 +1,7 @@
 # Architecture rules
 
+- Keep product photo swipes active only at unzoomed scale and cancel them for multi-touch, so pinch zoom and zoomed panning do not switch photos; arrows and thumbnails share selection and zoom reset.
+
 - Snapshot catalog filters, sorting, pagination and scroll position in navigation history for catalog and spotlight product links; preserve it through product errors and cart detours so Back to Shop and browser Back retain shopping context.
 
 - Use neutral placeholders for unresolved admin product photos, never sample artwork, so loading cannot misrepresent an item's photo.

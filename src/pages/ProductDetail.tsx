@@ -1,7 +1,7 @@
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { BrandLogo } from "@/components/BrandLogo";
-import { useState, useEffect } from "react";
-import { ArrowLeft, Heart, Share2, ShoppingCart, Star, Plus, Minus, RotateCcw, Zap } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ArrowLeft, ChevronLeft, ChevronRight, Heart, Share2, ShoppingCart, Star, Plus, Minus, RotateCcw, Zap } from "lucide-react";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -108,6 +108,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
   const [quantity, setQuantity] = useState(1);
   const [isBuyNowOpen, setIsBuyNowOpen] = useState(false);
   const [zoomScale, setZoomScale] = useState(1);
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
   const [wishlisted, setWishlisted] = useState(false);
 
 
@@ -137,6 +138,19 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
     specifications: Record<string, string>;
   }) | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setSelectedImageIndex(0);
+    setZoomScale(1);
+    swipeStart.current = null;
+  }, [id]);
+
+  const selectImage = (index: number) => {
+    if (!product?.images.length) return;
+    setSelectedImageIndex((index + product.images.length) % product.images.length);
+    setZoomScale(1);
+    swipeStart.current = null;
+  };
 
   useEffect(() => {
     if (product) setWishlisted(isWishlisted(product.id));
@@ -302,7 +316,29 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
           {/* Image Gallery */}
           <div className="space-y-4 protected-img" onContextMenu={(e) => e.preventDefault()}>
             {/* Main Image — zoomable */}
-            <div className="relative aspect-square rounded-xl overflow-hidden bg-product-card group/zoom">
+            <div
+              className={`relative aspect-square rounded-xl overflow-hidden bg-product-card group/zoom ${zoomScale <= 1.01 ? "touch-pan-y" : "touch-none"}`}
+              onTouchStartCapture={(event) => {
+                const touch = event.touches[0];
+                swipeStart.current = event.touches.length === 1 && zoomScale <= 1.01 && touch
+                  ? { x: touch.clientX, y: touch.clientY } : null;
+              }}
+              onTouchMoveCapture={(event) => {
+                if (event.touches.length !== 1) swipeStart.current = null;
+              }}
+              onTouchCancel={() => { swipeStart.current = null; }}
+              onTouchEndCapture={(event) => {
+                const start = swipeStart.current;
+                swipeStart.current = null;
+                const touch = event.changedTouches[0];
+                if (!start || !touch || zoomScale > 1.01 || product.images.length < 2) return;
+                const dx = touch.clientX - start.x;
+                const dy = touch.clientY - start.y;
+                if (Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+                  selectImage(selectedImageIndex + (dx < 0 ? 1 : -1));
+                }
+              }}
+            >
               <TransformWrapper
                 key={selectedImageIndex}
                 initialScale={1}
@@ -311,6 +347,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                 centerZoomedOut
                 wheel={{ step: 0.2 }}
                 doubleClick={{ mode: "toggle", step: 2 }}
+                panning={{ disabled: zoomScale <= 1.01 }}
                 onTransform={(_, s) => setZoomScale(s.scale)}
               >
                 {({ zoomIn, zoomOut, resetTransform }) => (
@@ -346,18 +383,34 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                   </>
                 )}
               </TransformWrapper>
+              {product.images.length > 1 && (
+                <>
+                  <Button variant="outline" size="icon" aria-label="Previous photo" title="Previous photo" onClick={() => selectImage(selectedImageIndex - 1)} className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-background/90 text-foreground shadow-sm">
+                    <ChevronLeft />
+                  </Button>
+                  <Button variant="outline" size="icon" aria-label="Next photo" title="Next photo" onClick={() => selectImage(selectedImageIndex + 1)} className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-background/90 text-foreground shadow-sm">
+                    <ChevronRight />
+                  </Button>
+                  <span aria-live="polite" className="absolute top-3 right-3 rounded-md bg-background/80 px-2 py-1 text-xs text-foreground">
+                    {selectedImageIndex + 1} / {product.images.length}
+                  </span>
+                </>
+              )}
               <p className="absolute bottom-3 left-3 text-xs text-muted-foreground bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md pointer-events-none opacity-100 group-hover/zoom:opacity-0 transition-opacity">
                 Scroll to zoom • Double-click to enlarge
               </p>
             </div>
             
             {/* Thumbnail Images */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 overflow-x-auto">
               {product.images.map((image, index) => (
-                <button
+                <Button
                   key={index}
-                  onClick={() => setSelectedImageIndex(index)}
-                  className={`w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                  variant="ghost"
+                  aria-label={`View photo ${index + 1}`}
+                  aria-pressed={index === selectedImageIndex}
+                  onClick={() => selectImage(index)}
+                  className={`w-20 h-20 shrink-0 p-0 rounded-lg overflow-hidden border-2 transition-all ${
                     index === selectedImageIndex
                       ? "border-primary"
                       : "border-transparent hover:border-border"
@@ -369,7 +422,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                     draggable={false}
                     className="w-full h-full object-cover"
                   />
-                </button>
+                </Button>
               ))}
             </div>
           </div>
