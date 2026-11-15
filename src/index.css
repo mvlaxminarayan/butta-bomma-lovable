@@ -150,7 +150,7 @@ All colors MUST be HSL.
 }
 
 .homepage-artwork {
-  width: min(100%, 680px, calc(38svh * 16 / 9));
+  width: min(100%, 800px);
   border: 1px solid var(--artwork-glass-edge);
   box-shadow: var(--artwork-glass-shadow);
 }
