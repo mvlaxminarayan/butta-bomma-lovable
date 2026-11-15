@@ -17,9 +17,21 @@ export function useShippingQuote(open: boolean, items: { id: string; quantity: n
     setResult(null);
     const timer = setTimeout(async () => {
       try {
-        const { data, error } = await supabase.functions.invoke("shipping-rates", { body: JSON.parse(key) });
+        // Retry quietly on brief network/server hiccups; show the server's real reason otherwise.
+        let data: any = null; let message = "";
+        for (let attempt = 0; attempt < 3 && !cancelled; attempt++) {
+          if (attempt) await new Promise(r => setTimeout(r, 800 * attempt));
+          const res = await supabase.functions.invoke("shipping-rates", { body: JSON.parse(key) });
+          if (!res.error && res.data?.quote_token) { data = res.data; break; }
+          data = null;
+          const ctx = (res.error as any)?.context;
+          let body: any = res.data;
+          if (!body && ctx && typeof ctx.json === "function") body = await ctx.clone().json().catch(() => null);
+          message = body?.error || "";
+          if (ctx?.status === 400 && message) break; // a real problem (e.g. stock) won't fix itself
+        }
         if (cancelled) return;
-        if (error || !data?.quote_token) throw new Error(data?.error || "Shipping could not be checked. Please try again.");
+        if (!data) throw new Error(message || "Shipping could not be checked. Please try again.");
         setResult({ key, quote: data });
         refreshTimer = setTimeout(() => setRefresh(n => n + 1), Math.max(1000, data.expires - Date.now() - 30000));
       } catch (error) {
