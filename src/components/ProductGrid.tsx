@@ -189,6 +189,18 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
   }, [loading, currentPage, sort, onBrowseChange]);
   const pageItems = visibleProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
+  // Windowed page numbers: first, last, and pages around the current one, with ellipses.
+  const pageNumbers = useMemo<(number | "…")[]>(() => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+    const around = [currentPage - 1, currentPage, currentPage + 1].filter((p) => p > 1 && p < totalPages);
+    const list: (number | "…")[] = [1];
+    if (around[0] > 2) list.push("…");
+    list.push(...around);
+    if (around[around.length - 1] < totalPages - 1) list.push("…");
+    list.push(totalPages);
+    return list;
+  }, [totalPages, currentPage]);
+
   const goTo = (p: number) => {
     setPage(p);
     document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -221,20 +233,24 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
   }
 
   const pill = (active: boolean) =>
-    `px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
+    `px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
       active ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:bg-muted"
     }`;
 
   const pagination = (position: "top" | "bottom") => (
-    <nav aria-label={`Product pages (${position})`} className={`flex items-center justify-center gap-2 flex-wrap ${position === "bottom" ? "mt-10" : ""}`}>
+    <nav aria-label={`Product pages (${position})`} className={`flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap ${position === "bottom" ? "mt-10" : ""}`}>
       <Button variant="outline" className={pill(false)} disabled={currentPage <= 1} onClick={() => goTo(currentPage - 1)}>
-        ‹ Previous
+        ‹ Prev
       </Button>
-      {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-        <Button key={p} variant={p === currentPage ? "default" : "outline"} className={pill(p === currentPage)} onClick={() => goTo(p)} aria-current={p === currentPage ? "page" : undefined}>
-          {p}
-        </Button>
-      ))}
+      {pageNumbers.map((p, i) =>
+        p === "…" ? (
+          <span key={`ellipsis-${i}`} className="px-1 text-sm text-muted-foreground" aria-hidden="true">…</span>
+        ) : (
+          <Button key={p} variant={p === currentPage ? "default" : "outline"} className={pill(p === currentPage)} onClick={() => goTo(p)} aria-current={p === currentPage ? "page" : undefined}>
+            {p}
+          </Button>
+        )
+      )}
       <Button variant="outline" className={pill(false)} disabled={currentPage >= totalPages} onClick={() => goTo(currentPage + 1)}>
         Next ›
       </Button>
