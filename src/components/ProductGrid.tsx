@@ -3,6 +3,7 @@ import { ChevronDown, X } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard, { Product } from "./ProductCard";
+import { Button } from "./ui/button";
 import { getProductReviewsSync } from "@/hooks/useProductReviews";
 import { resolveImageUrls, productImageRefs, LOCAL_ASSETS, FALLBACK_IMAGE } from "@/lib/productImages";
 import { getWishlistIds } from "@/lib/wishlist";
@@ -246,6 +247,22 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
       active ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:bg-muted"
     }`;
 
+  const pagination = (position: "top" | "bottom") => (
+    <nav aria-label={`Product pages (${position})`} className={`flex items-center justify-center gap-2 flex-wrap ${position === "top" ? "mb-6" : "mt-10"}`}>
+      <Button variant="outline" className={pill(false)} disabled={currentPage <= 1} onClick={() => goTo(currentPage - 1)}>
+        ‹ Previous
+      </Button>
+      {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+        <Button key={p} variant={p === currentPage ? "default" : "outline"} className={pill(p === currentPage)} onClick={() => goTo(p)} aria-current={p === currentPage ? "page" : undefined}>
+          {p}
+        </Button>
+      ))}
+      <Button variant="outline" className={pill(false)} disabled={currentPage >= totalPages} onClick={() => goTo(currentPage + 1)}>
+        Next ›
+      </Button>
+    </nav>
+  );
+
   return (
     <section id="products" className="pt-4 pb-10 bg-background scroll-mt-20">
       <div className="container mx-auto px-4">
@@ -391,6 +408,7 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
             <p className="text-sm text-muted-foreground mb-4">
               Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, visibleProducts.length)} of {visibleProducts.length}
             </p>
+            {pagination("top")}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {pageItems.map((product) => (
                 <ProductCard
@@ -404,21 +422,7 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
           </>
         )}
 
-        {visibleProducts.length > 0 && (
-          <div className="flex items-center justify-center gap-2 mt-10 flex-wrap">
-            <button className={pill(false) + " disabled:opacity-50 disabled:pointer-events-none"} disabled={currentPage <= 1} onClick={() => goTo(currentPage - 1)}>
-              ‹ Previous
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <button key={p} className={pill(p === currentPage)} onClick={() => goTo(p)} aria-current={p === currentPage ? "page" : undefined}>
-                {p}
-              </button>
-            ))}
-            <button className={pill(false) + " disabled:opacity-50 disabled:pointer-events-none"} disabled={currentPage >= totalPages} onClick={() => goTo(currentPage + 1)}>
-              Next ›
-            </button>
-          </div>
-        )}
+        {visibleProducts.length > 0 && pagination("bottom")}
 
         {(wishlistOnly || featuredOnly || query || category !== "All") && (
           <div className="text-center mt-8">
