@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, MapPin, Clock, Smartphone, CreditCard, Landmark, Wallet } from "lucide-react";
+import { Mail, MapPin, Clock, Landmark, Wallet } from "lucide-react";
+import { VisaIcon, MastercardIcon, RuPayIcon, UpiIcon } from "@/components/icons/PaymentIcons";
 import { WhatsAppIcon, InstagramIcon } from "@/components/icons/BrandIcons";
 import { STORE_INFO, whatsappLink, instagramLink } from "@/lib/storeInfo";
 
@@ -83,19 +84,20 @@ const Footer = () => {
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs text-muted-foreground mr-1">Secure payments by Razorpay</span>
             {[
-              { label: "UPI", Icon: Smartphone },
-              { label: "RuPay", Icon: CreditCard },
-              { label: "Visa", Icon: CreditCard },
-              { label: "Mastercard", Icon: CreditCard },
+              { label: "UPI", Icon: UpiIcon },
+              { label: "RuPay", Icon: RuPayIcon },
+              { label: "Visa", Icon: VisaIcon },
+              { label: "Mastercard", Icon: MastercardIcon },
               { label: "Net Banking", Icon: Landmark },
               { label: "Wallets", Icon: Wallet },
             ].map(({ label, Icon }) => (
               <span
                 key={label}
-                className="inline-flex items-center gap-1.5 rounded border border-border bg-card px-2 py-1 text-xs text-muted-foreground"
+                title={label}
+                aria-label={label}
+                className="inline-flex items-center rounded border border-border bg-card px-2 py-1.5 text-muted-foreground"
               >
-                <Icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                {label}
+                <Icon className="h-4 w-7" aria-hidden="true" />
               </span>
             ))}
           </div>
