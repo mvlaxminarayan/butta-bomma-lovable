@@ -35,8 +35,11 @@ Deno.serve(async req => {
     }
     discount = Math.round(discount * 100) / 100;
     const weight = parcelGrams(items);
+    // Follow the admin's free-shipping setting so cart, checkout and announcement agree.
+    const { data: settings } = await db.from('store_settings').select('free_shipping_threshold').eq('id', 1).maybeSingle();
+    const freeThreshold = settings ? (settings.free_shipping_threshold == null ? null : Number(settings.free_shipping_threshold)) : FREE_SHIPPING_THRESHOLD;
     let shipping = 0; let source: Quote['source'] = 'free'; let courier_id: number | null = null; let courier: string | null = null;
-    if (subtotal < FREE_SHIPPING_THRESHOLD && !freeCoupon) {
+    if ((freeThreshold == null || subtotal < freeThreshold) && !freeCoupon) {
       shipping = FALLBACK_SHIPPING; source = 'fallback';
       try {
         const pickups = await shiprocket('/settings/company/pickup');
