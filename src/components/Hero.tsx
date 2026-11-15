@@ -80,6 +80,7 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
           {/* Content */}
           <div className="flex flex-col gap-6">
             <h1 className="sr-only">Buttabomma Crafts — Traditional Toys, Timeless Happiness</h1>
+            <div className="homepage-artwork mx-auto relative overflow-hidden rounded-2xl">
             <img
               src={homepagePhoto.url}
               alt="Buttabomma — Traditional Toys, Timeless Happiness, with Kondapalli and Etikoppaka toys"
@@ -88,6 +89,7 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
               fetchPriority="high"
               className="block w-full h-auto object-contain"
             />
+            </div>
             
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button 

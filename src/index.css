@@ -68,6 +68,9 @@ All colors MUST be HSL.
     --shadow-product-hover: 0 8px 25px hsl(var(--primary) / 0.2);
     --shadow-elegant: 0 10px 30px -5px hsl(var(--accent) / 0.1);
     --shadow-traditional: 0 6px 20px hsl(var(--primary) / 0.2);
+    --artwork-glass-edge: hsl(var(--card) / 0.75);
+    --artwork-glass-sheen: linear-gradient(135deg, hsl(var(--card) / 0.23), hsl(var(--card) / 0) 45%, hsl(var(--card) / 0.05));
+    --artwork-glass-shadow: 0 8px 24px hsl(var(--primary) / 0.14), inset 0 1px 0 hsl(var(--card) / 0.7);
 
     /* Smooth transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -144,6 +147,20 @@ All colors MUST be HSL.
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+.homepage-artwork {
+  width: min(100%, 680px, calc(38svh * 16 / 9));
+  border: 1px solid var(--artwork-glass-edge);
+  box-shadow: var(--artwork-glass-shadow);
+}
+.homepage-artwork::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: var(--artwork-glass-sheen);
 }
 .no-scrollbar {
   -ms-overflow-style: none;
