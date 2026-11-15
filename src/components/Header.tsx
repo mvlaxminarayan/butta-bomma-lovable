@@ -29,13 +29,13 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
       <div className="container mx-auto px-4 py-4">
         <div className="flex flex-wrap items-center justify-between gap-y-2 sm:flex-nowrap">
           {/* Logo */}
-          <Link to="/" aria-label="Go to home page" className="flex items-center gap-3 group mx-auto sm:mx-0">
+          <Link to="/" aria-label="Go to home page" className="flex items-center gap-3 group">
             <BrandLogo size="lg" />
           </Link>
 
 
           {/* Action Buttons */}
-          <div className="flex w-full shrink-0 items-center justify-end gap-2 sm:w-auto lg:gap-4">
+          <div className="flex shrink-0 items-center justify-end gap-2 lg:gap-4">
             <Button
               variant="ghost"
               size="icon"
@@ -56,7 +56,7 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
             <Button 
               variant="ghost" 
               size="icon" 
-              className="relative"
+              className="relative hidden md:flex"
               onClick={onCartClick}
               aria-label="Open cart"
             >
@@ -112,6 +112,9 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={onCartClick}>
+                  Cart{cartItems > 0 ? ` (${cartItems})` : ""}
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/", { state: { scrollTo: "products" } })}>
                   Shop All
                 </DropdownMenuItem>

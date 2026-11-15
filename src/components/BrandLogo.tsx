@@ -41,8 +41,8 @@ const Lettering = ({ variant, className }: { variant: "left" | "right"; classNam
 
 /** Simple lockup: బుట్ట [doll emblem] బొమ్మ — lettering, emblem and underlines only. */
 export const BrandLogo = ({ size = "lg" }: Props) => {
-  const left = size === "lg" ? "w-[64px] sm:w-[70px] md:w-[78px]" : "w-[64px] sm:w-[68px] md:w-[74px]";
-  const right = size === "lg" ? "w-[82px] sm:w-[90px] md:w-[100px]" : "w-[82px] sm:w-[88px] md:w-[96px]";
+  const left = size === "lg" ? "w-[44px] sm:w-[70px] md:w-[78px]" : "w-[44px] sm:w-[68px] md:w-[74px]";
+  const right = size === "lg" ? "w-[56px] sm:w-[90px] md:w-[100px]" : "w-[56px] sm:w-[88px] md:w-[96px]";
   return (
     <span
       className="inline-flex shrink-0 items-center gap-1 leading-none"
@@ -53,10 +53,10 @@ export const BrandLogo = ({ size = "lg" }: Props) => {
       <img
         src={logo}
         alt="Buttabomma Crafts logo"
-        className="h-14 w-14 md:h-16 md:w-16 object-contain rounded-full"
+        className="h-10 w-10 sm:h-14 sm:w-14 md:h-16 md:w-16 object-contain rounded-full"
       />
       <Lettering variant="right" className={right} />
-      <span className="ml-1 whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.3em] text-foreground/70 sm:text-xs">
+      <span className="ml-1 hidden whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.3em] text-foreground/70 sm:inline sm:text-xs">
         Crafts
       </span>
     </span>
