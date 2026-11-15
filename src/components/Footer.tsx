@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, MapPin, Clock } from "lucide-react";
-import logo from "@/assets/logo.png";
 import { WhatsAppIcon, InstagramIcon } from "@/components/icons/BrandIcons";
 import { STORE_INFO, whatsappLink, instagramLink } from "@/lib/storeInfo";
 
@@ -10,15 +9,7 @@ const Footer = () => {
   return (
     <footer className="mt-12 border-t border-border/60 bg-muted/30">
       <div className="container mx-auto px-4 py-10">
-        <div className="grid gap-8 md:grid-cols-4">
-          {/* Brand */}
-          <div className="space-y-3">
-            <img src={logo} alt={STORE_INFO.name} className="h-12 w-auto object-contain" />
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Authentic handcrafted treasures made by traditional artisans, delivered across India.
-            </p>
-          </div>
-
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
           {/* Shop */}
           <div>
             <h3 className="text-sm font-semibold tracking-wide uppercase mb-3">Shop</h3>
@@ -58,7 +49,7 @@ const Footer = () => {
           </div>
 
           {/* Contact */}
-          <div>
+          <div className="col-span-2 md:col-span-1">
             <h3 className="text-sm font-semibold tracking-wide uppercase mb-3">Get in Touch</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex gap-2">
