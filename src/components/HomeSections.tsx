@@ -99,7 +99,7 @@ export const CategoryTiles = ({ onPick, activeCategory = "All", searchQuery = ""
   return (
     <section aria-label="Shop by category" className="container mx-auto px-4 py-8">
       <h2 className="mb-5 text-center font-serif text-2xl">Shop by Category</h2>
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
         <div className="relative w-full shrink-0 lg:w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
