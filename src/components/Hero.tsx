@@ -90,7 +90,10 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
               className="block w-full h-auto object-contain"
             />
             </div>
-            
+          </div>
+
+          <div className={`grid items-center gap-6 ${slides.length > 0 ? "md:grid-cols-2" : "grid-cols-1"}`}>
+          <div className="flex flex-col gap-5">
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button 
                 size="lg" 
@@ -128,7 +131,7 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
 
           {/* Featured product slider: only shown when featured products exist */}
           {slides.length > 0 && (
-          <div className="relative w-full max-w-[640px] self-center">
+          <div className="relative mx-auto w-full max-w-[480px]">
             <div
               role={active?.id ? "link" : undefined}
               tabIndex={active?.id ? 0 : undefined}
@@ -140,7 +143,7 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
                   onViewProduct(active.id);
                 }
               }}
-              className={`group relative overflow-hidden rounded-2xl shadow-elegant h-[300px] ${
+              className={`group relative overflow-hidden rounded-2xl shadow-elegant h-[220px] ${
                 active?.id ? "cursor-pointer" : ""
               }`}
             >
@@ -198,6 +201,7 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
             </div>
           </div>
           )}
+          </div>
         </div>
       </div>
     </section>
