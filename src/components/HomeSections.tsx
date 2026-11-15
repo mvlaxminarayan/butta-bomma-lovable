@@ -99,8 +99,12 @@ export const CategoryTiles = ({ onPick, activeCategory = "All", searchQuery = ""
   return (
     <section aria-label="Shop by category" className="container mx-auto px-4 py-8">
       <h2 className="mb-5 text-center font-serif text-2xl">Shop by Category</h2>
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
-        <div className="relative w-full shrink-0 lg:w-64">
+      <div className="flex items-center gap-6 overflow-x-auto pb-2 lg:justify-center">
+        {circle("All", "All Items", "", 0)}
+        {cats.map((c, i) => circle(c, c, photos[c] || "", i + 1))}
+      </div>
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full sm:max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search handcrafted items..."
@@ -110,11 +114,7 @@ export const CategoryTiles = ({ onPick, activeCategory = "All", searchQuery = ""
             aria-label="Search products"
           />
         </div>
-        <div className="flex flex-1 items-center gap-6 overflow-x-auto pb-2 lg:justify-center">
-          {circle("All", "All Items", "", 0)}
-          {cats.map((c, i) => circle(c, c, photos[c] || "", i + 1))}
-        </div>
-        <div className="flex shrink-0 items-center gap-2 self-end lg:self-auto">
+        <div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
           <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Sort by</span>
           <div className="relative">
             <select
