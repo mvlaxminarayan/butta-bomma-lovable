@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { Hand, Leaf, Users, Truck } from "lucide-react";
+import { Hand, Leaf, Users, Truck, Search, ChevronDown, LayoutGrid } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { productImageRefs, resolveImageUrls } from "@/lib/productImages";
 import { STORE_INFO } from "@/lib/storeInfo";
 import { fetchCatalog } from "@/lib/catalog";
+import { Input } from "@/components/ui/input";
 
 const trust = [
   { icon: Hand, title: "100% Handcrafted", text: "Made by hand in Nandyal" },
@@ -41,7 +42,16 @@ export const StoryTeaser = () => (
 // Fallback tiles when the store has no products loaded yet.
 const FALLBACK_CATS = ["Kondapalli Toys", "Wooden Crafts", "Home Decor", "Ceramics", "Textiles", "Gifts"];
 
-export const CategoryTiles = ({ onPick }: { onPick: (c: string) => void }) => {
+interface CategoryTilesProps {
+  onPick: (c: string) => void;
+  activeCategory?: string;
+  searchQuery?: string;
+  onSearchChange?: (q: string) => void;
+  sort?: string;
+  onSortChange?: (s: string) => void;
+}
+
+export const CategoryTiles = ({ onPick, activeCategory = "All", searchQuery = "", onSearchChange, sort = "featured", onSortChange }: CategoryTilesProps) => {
   // Use the same live product categories the "Browse Collections" gallery shows.
   const [cats, setCats] = useState<string[]>(FALLBACK_CATS);
   const [photos, setPhotos] = useState<Record<string, string>>({});
@@ -70,20 +80,57 @@ export const CategoryTiles = ({ onPick }: { onPick: (c: string) => void }) => {
     return () => { cancelled = true; };
   }, []);
 
+  const circle = (key: string, label: string, photo: string, index: number) => {
+    const active = activeCategory === key;
+    return (
+      <button key={key} onClick={() => onPick(key)} className="group flex shrink-0 flex-col items-center gap-2" aria-pressed={active}>
+        <span className={`flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 text-2xl font-serif text-primary transition group-hover:border-primary group-hover:shadow-md md:h-24 md:w-24 ${active ? "border-primary ring-2 ring-primary/30" : "border-primary/30"} ${index % 2 ? "bg-accent/20" : "bg-primary/10"}`}>
+          {photo ? (
+            <img src={photo} alt={label} loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" />
+          ) : key === "All" ? (
+            <LayoutGrid className="h-7 w-7" aria-hidden="true" />
+          ) : label[0]}
+        </span>
+        <span className={`text-xs font-medium md:text-sm ${active ? "text-primary" : ""}`}>{label}</span>
+      </button>
+    );
+  };
+
   return (
-    <section aria-label="Shop by category" className="container mx-auto px-4 py-10">
-      <h2 className="mb-6 text-center font-serif text-2xl">Shop by Category</h2>
-      <div className="flex gap-6 overflow-x-auto pb-2 md:justify-center">
-        {cats.map((c, i) => (
-          <button key={c} onClick={() => onPick(c)} className="group flex shrink-0 flex-col items-center gap-2">
-            <span className={`flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 border-primary/30 text-2xl font-serif text-primary transition group-hover:border-primary group-hover:shadow-md md:h-24 md:w-24 ${i % 2 ? "bg-accent/20" : "bg-primary/10"}`}>
-              {photos[c] ? (
-                <img src={photos[c]} alt={c} loading="lazy" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" />
-              ) : c[0]}
-            </span>
-            <span className="text-xs font-medium md:text-sm">{c}</span>
-          </button>
-        ))}
+    <section aria-label="Shop by category" className="container mx-auto px-4 py-8">
+      <h2 className="mb-5 text-center font-serif text-2xl">Shop by Category</h2>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+        <div className="relative w-full shrink-0 lg:w-64">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search handcrafted items..."
+            className="pl-10 border-border focus:ring-primary"
+            value={searchQuery}
+            onChange={(e) => onSearchChange?.(e.target.value)}
+            aria-label="Search products"
+          />
+        </div>
+        <div className="flex flex-1 items-center gap-6 overflow-x-auto pb-2 lg:justify-center">
+          {circle("All", "All Items", "", 0)}
+          {cats.map((c, i) => circle(c, c, photos[c] || "", i + 1))}
+        </div>
+        <div className="flex shrink-0 items-center gap-2 self-end lg:self-auto">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Sort by</span>
+          <div className="relative">
+            <select
+              aria-label="Sort products"
+              value={sort}
+              onChange={(e) => onSortChange?.(e.target.value)}
+              className="appearance-none bg-transparent pr-6 text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
+            >
+              <option value="featured">Featured</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="name">Name: A–Z</option>
+            </select>
+            <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          </div>
+        </div>
       </div>
     </section>
   );

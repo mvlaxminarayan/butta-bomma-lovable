@@ -1,7 +1,6 @@
-import { ShoppingCart, Search, Menu, Heart, User, LogOut } from "lucide-react";
+import { ShoppingCart, Menu, Heart, User, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
@@ -34,19 +33,6 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
             <BrandLogo size="lg" />
           </Link>
 
-
-          {/* Search Bar */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input 
-                placeholder="Search handcrafted items..." 
-                className="pl-10 border-border focus:ring-primary"
-                value={searchQuery}
-                onChange={(e) => onSearchChange?.(e.target.value)}
-              />
-            </div>
-          </div>
 
           {/* Action Buttons */}
           <div className="flex w-full shrink-0 items-center justify-end gap-2 sm:w-auto lg:gap-4">
@@ -143,18 +129,6 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
           </div>
         </div>
 
-        {/* Mobile Search */}
-        <div className="md:hidden mt-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input 
-              placeholder="Search handcrafted items..." 
-              className="pl-10"
-              value={searchQuery}
-              onChange={(e) => onSearchChange?.(e.target.value)}
-            />
-          </div>
-        </div>
       </div>
     </header>
   );

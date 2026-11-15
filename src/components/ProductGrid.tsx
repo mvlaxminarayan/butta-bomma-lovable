@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { ChevronDown, X } from "lucide-react";
+import { X } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard, { Product } from "./ProductCard";
@@ -15,6 +15,7 @@ interface ProductGridProps {
   onViewDetails: (product: Product, gridState: { page: number; sort: string }) => void;
   restoredBrowse?: ShopBrowseState;
   onBrowseChange?: (gridState: { page: number; sort: string }) => void;
+  sort?: string;
   searchQuery?: string;
   onClearSearch?: () => void;
   category?: string;
@@ -110,7 +111,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
   }
 };
 
-const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChange, searchQuery = "", onClearSearch, category: categoryProp, onCategoryChange, wishlistOnly = false, onExitWishlist, featuredOnly = false, onExitFeatured }: ProductGridProps) => {
+const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChange, sort: sortProp, searchQuery = "", onClearSearch, category: categoryProp, onCategoryChange, wishlistOnly = false, onExitWishlist, featuredOnly = false, onExitFeatured }: ProductGridProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -134,13 +135,12 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
   const [localCategory, setLocalCategory] = useState<string>("All");
   const category = categoryProp ?? localCategory;
   const setCategory = (c: string) => { setLocalCategory(c); onCategoryChange?.(c); };
-  const [sort, setSort] = useState<string>(restoredBrowse?.sort ?? "featured");
+  const [sort] = useState<string>(restoredBrowse?.sort ?? sortProp ?? "featured");
   const [page, setPage] = useState(restoredBrowse?.page ?? 1);
   const initialFilters = useRef(true);
   const restoredScroll = useRef(false);
   const PAGE_SIZE = 12;
 
-  const [galleryOpen, setGalleryOpen] = useState(false);
   const [wishlistIds, setWishlistIds] = useState<string[]>(() => getWishlistIds());
 
   useEffect(() => {
@@ -154,12 +154,6 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
   }, []);
 
   const query = searchQuery.trim().toLowerCase();
-
-  const categories = useMemo(() => {
-    const counts: Record<string, number> = {};
-    products.forEach((p) => { const c = p.category || "Uncategorized"; counts[c] = (counts[c] || 0) + 1; });
-    return Object.entries(counts).sort((a, b) => a[0].localeCompare(b[0]));
-  }, [products]);
 
   const visibleProducts = useMemo(() => {
     let list = products.filter((p) =>
@@ -226,18 +220,6 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
     );
   }
 
-  const catLink = (label: string, count: number, active: boolean, onClick: () => void) => (
-    <button
-      onClick={onClick}
-      className={`w-full text-sm text-left flex justify-between items-baseline transition-colors ${
-        active ? "text-primary font-medium" : "text-foreground/70 hover:text-primary"
-      }`}
-    >
-      {label}
-      <span className="text-[10px] font-light text-muted-foreground">({count})</span>
-    </button>
-  );
-
   const pill = (active: boolean) =>
     `px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
       active ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:bg-muted"
@@ -292,102 +274,6 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
             >
               <X className="w-4 h-4" /> View all items
             </button>
-          </div>
-        )}
-
-        {/* Category organization bar */}
-        <div className="border-y border-border py-5 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
-          <button
-            onClick={() => setGalleryOpen((v) => !v)}
-            aria-expanded={galleryOpen}
-            className="group flex items-center gap-3 cursor-pointer shrink-0"
-          >
-            <div className="flex flex-col gap-1 text-primary group-hover:text-primary/80 transition-colors">
-              <span className="block h-0.5 w-5 bg-current" />
-              <span className="block h-0.5 w-5 bg-current" />
-              <span className="block h-0.5 w-5 bg-current" />
-            </div>
-            <span className="text-xs font-bold uppercase tracking-[0.15em] text-foreground group-hover:text-primary transition-colors">
-              Browse Collections
-            </span>
-          </button>
-
-          <div className="hidden lg:flex items-center gap-4 min-w-0">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              Currently viewing
-            </span>
-            <div className="flex items-center gap-2 px-3.5 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-primary">
-              <span className="text-sm font-medium whitespace-nowrap">
-                {wishlistOnly ? "Your Wishlist" : category === "All" ? "All Items" : category}
-              </span>
-              {wishlistOnly && (
-                <button
-                  onClick={() => onExitWishlist?.()}
-                  aria-label="Exit wishlist view"
-                  className="p-0.5 hover:bg-primary/15 rounded-full transition-colors"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              )}
-              {!wishlistOnly && category !== "All" && (
-                <button
-                  onClick={() => setCategory("All")}
-                  aria-label="Clear category filter"
-                  className="p-0.5 hover:bg-primary/15 rounded-full transition-colors"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              )}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-8">
-            <p className="hidden sm:block text-sm text-muted-foreground">
-              Showing <span className="font-bold text-foreground">{visibleProducts.length}</span> Handmade Pieces
-            </p>
-            <div className="flex items-center gap-2 border-l border-border pl-8">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Sort by</span>
-              <div className="relative">
-                <select
-                  aria-label="Sort products"
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value)}
-                  className="appearance-none bg-transparent pr-6 text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
-                >
-                  <option value="featured">Featured</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="name">Name: A–Z</option>
-                </select>
-                <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Expanded category gallery */}
-        {galleryOpen && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10 py-6 mb-8 border-t border-border">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                All Collections
-              </h3>
-              <ul className="space-y-2.5">
-                <li>{catLink("All Items", products.length, category === "All", () => { setCategory("All"); setGalleryOpen(false); })}</li>
-              </ul>
-            </div>
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-foreground border-b border-border pb-2">
-                Browse by Category
-              </h3>
-              <ul className="space-y-2.5">
-                {categories.map(([c, n]) => (
-                  <li key={c}>
-                    {catLink(c, n, category === c, () => { setCategory(c); setGalleryOpen(false); })}
-                  </li>
-                ))}
-              </ul>
-            </div>
           </div>
         )}
 

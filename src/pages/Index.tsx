@@ -38,8 +38,14 @@ const Index = () => {
   );
   const navigate = useNavigate();
   const gridBrowse = useRef({ page: restoredBrowse?.page ?? 1, sort: restoredBrowse?.sort ?? "featured" });
+  const [gridSort, setGridSort] = useState(gridBrowse.current.sort);
   const rememberGridBrowse = useCallback((state: { page: number; sort: string }) => {
     gridBrowse.current = state;
+    setGridSort(state.sort);
+  }, []);
+  const handleSortChange = useCallback((sort: string) => {
+    gridBrowse.current = { ...gridBrowse.current, sort };
+    setGridSort(sort);
   }, []);
   const { toast } = useToast();
 
@@ -153,8 +159,6 @@ const Index = () => {
       <Header 
         cartItems={totalItems}
         onCartClick={() => setIsCartOpen(true)}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
       />
       <Hero onViewProduct={(id) => openProduct(id)} onViewFeatured={() => {
         setSearchQuery(""); setCategory("All"); setFeaturedOnly(true);
@@ -162,7 +166,14 @@ const Index = () => {
       }} />
       <TrustBar />
       <MakerBanner />
-      <CategoryTiles onPick={(c) => { setSearchQuery(""); setFeaturedOnly(false); setCategory(c); setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }), 50); }} />
+      <CategoryTiles
+        onPick={(c) => { setSearchQuery(""); setFeaturedOnly(false); setCategory(c); setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }), 50); }}
+        activeCategory={category}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        sort={gridSort}
+        onSortChange={handleSortChange}
+      />
 
       <ProductGrid 
 
@@ -170,6 +181,7 @@ const Index = () => {
         onViewDetails={handleViewDetails}
         restoredBrowse={restoredBrowse}
         onBrowseChange={rememberGridBrowse}
+        sort={gridSort}
         searchQuery={searchQuery}
         category={category}
         onCategoryChange={setCategory}
