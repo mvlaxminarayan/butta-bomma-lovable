@@ -18,6 +18,7 @@ export interface Product {
   reviews: number;
   category: string;
   inStock: boolean;
+  stockQuantity?: number | null;
   featured?: boolean;
   weight_grams?: number | null;
 }

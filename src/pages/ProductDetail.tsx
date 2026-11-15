@@ -17,7 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { resolveImageUrls, productImageRefs, FALLBACK_IMAGE } from "@/lib/productImages";
 import { isWishlisted, toggleWishlist } from "@/lib/wishlist";
 import Cart from "@/components/Cart";
-import { canPurchaseProduct } from "@/lib/productAvailability";
+import { canPurchaseProduct, maxPurchasable, clampQuantity } from "@/lib/productAvailability";
 import type { ShopReturnLocation } from "@/lib/shopBrowse";
 
 // Enhanced product data fetching from database
@@ -66,6 +66,7 @@ const getProductById = async (id: string): Promise<(Product & {
       images: productImages,
       category: product.category || "Uncategorized",
       inStock: product.in_stock,
+      stockQuantity: product.stock_quantity,
       description: product.description || `Beautiful ${product.name.toLowerCase()} crafted with attention to detail. Each piece is unique and brings character to your space.`,
       rating: 0, // Will be updated from reviews
       reviews: 0, // Will be updated from reviews
@@ -217,6 +218,18 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
 
   const handleAddToCart = () => {
     if (!canPurchaseProduct(product)) return;
+    const inCart = (JSON.parse(localStorage.getItem("cart") || "[]") as any[]).find((i) => i.id === product.id)?.quantity || 0;
+    const room = maxPurchasable(product) - inCart;
+    if (room < quantity) {
+      toast({
+        title: "Not enough stock",
+        description: room > 0
+          ? `Only ${maxPurchasable(product)} available — you already have ${inCart} in your cart, so you can add ${room} more.`
+          : `Only ${maxPurchasable(product)} available, and they're already in your cart.`,
+        variant: "destructive",
+      });
+      return;
+    }
     onAddToCart(product, quantity);
     setCartCount(readCartCount());
     toast({
@@ -231,7 +244,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
   };
 
   const updateQuantity = (newQuantity: number) => {
-    if (newQuantity >= 1 && newQuantity <= 10) {
+    if (newQuantity >= 1 && newQuantity <= Math.min(10, maxPurchasable(product))) {
       setQuantity(newQuantity);
     }
   };
@@ -501,11 +514,16 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
                     variant="ghost"
                     size="sm"
                     onClick={() => updateQuantity(quantity + 1)}
-                    disabled={quantity >= 10}
+                    disabled={quantity >= Math.min(10, maxPurchasable(product))}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
+                {canPurchaseProduct(product) && Number.isFinite(maxPurchasable(product)) && (
+                  <span className="text-sm text-muted-foreground">
+                    {maxPurchasable(product)} available
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-wrap gap-3">

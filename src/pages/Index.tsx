@@ -13,7 +13,7 @@ import { CategoryTiles, TrustBar, MakerBanner } from "@/components/HomeSections"
 import Cart, { CartItem } from "@/components/Cart";
 import { Product } from "@/components/ProductCard";
 import { useToast } from "@/hooks/use-toast";
-import { canPurchaseProduct } from "@/lib/productAvailability";
+import { canPurchaseProduct, maxPurchasable, clampQuantity } from "@/lib/productAvailability";
 import { shopReturnLocation, type ShopBrowseState } from "@/lib/shopBrowse";
 
 const Index = () => {
@@ -96,6 +96,15 @@ const Index = () => {
 
   const addToCart = (product: Product) => {
     if (!canPurchaseProduct(product)) return;
+    const held = cartItems.find(item => item.id === product.id)?.quantity || 0;
+    if (held >= maxPurchasable(product)) {
+      toast({
+        title: "Not enough stock",
+        description: `Only ${maxPurchasable(product)} of ${product.name} available, and they're already in your cart.`,
+        variant: "destructive",
+      });
+      return;
+    }
     setCartItems(prev => {
       const existingItem = prev.find(item => item.id === product.id);
       if (existingItem) {
@@ -121,7 +130,7 @@ const Index = () => {
     }
     setCartItems(prev =>
       prev.map(item =>
-        item.id === id ? { ...item, quantity } : item
+        item.id === id ? { ...item, quantity: Math.max(1, clampQuantity(item, quantity)) } : item
       )
     );
   };

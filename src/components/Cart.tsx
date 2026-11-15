@@ -1,3 +1,4 @@
+import { maxPurchasable } from "@/lib/productAvailability";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Tag } from "lucide-react";
@@ -291,10 +292,14 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
                           className="h-6 w-6"
                           aria-label={`Increase quantity of ${item.name}`}
                           onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                          disabled={item.quantity >= maxPurchasable(item)}
                         >
                           <Plus className="h-3 w-3" />
                         </Button>
                       </div>
+                      {Number.isFinite(maxPurchasable(item)) && item.quantity >= maxPurchasable(item) && (
+                        <span className="block text-xs text-muted-foreground">Only {maxPurchasable(item)} available</span>
+                      )}
                     </div>
                     <Button
                       variant="ghost"

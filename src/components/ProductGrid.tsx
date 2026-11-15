@@ -91,6 +91,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
         images,
         category: (product.category || "").trim() || "Uncategorized",
         inStock: product.in_stock,
+        stockQuantity: product.stock_quantity,
         featured: !!product.is_featured,
         weight_grams: product.weight_grams,
         rating: averageRating || 0,

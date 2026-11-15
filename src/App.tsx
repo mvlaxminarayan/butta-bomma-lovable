@@ -7,7 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import { lazy, Suspense } from "react";
-import { canPurchaseProduct } from "@/lib/productAvailability";
+import { canPurchaseProduct, maxPurchasable, clampQuantity } from "@/lib/productAvailability";
 
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
@@ -51,8 +51,8 @@ const App = () => (
               if (!canPurchaseProduct(product)) return;
               const cart = JSON.parse(localStorage.getItem("cart") || "[]");
               const existing = cart.find((i: any) => i.id === product.id);
-              if (existing) existing.quantity += quantity;
-              else cart.push({ ...product, quantity });
+              if (existing) existing.quantity = clampQuantity(product, existing.quantity + quantity);
+              else cart.push({ ...product, quantity: clampQuantity(product, quantity) });
               localStorage.setItem("cart", JSON.stringify(cart));
             }} />} />
 
