@@ -82,7 +82,7 @@ const Footer = () => {
         {/* Payments */}
         <div className="mt-8 pt-6 border-t border-border/60 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-muted-foreground mr-1">Secure payments by Razorpay</span>
+            <span className="text-xs text-muted-foreground mr-1 w-full sm:w-auto">Secure payments by Razorpay</span>
             {[
               { label: "UPI", Icon: UpiIcon },
               { label: "RuPay", Icon: RuPayIcon },
