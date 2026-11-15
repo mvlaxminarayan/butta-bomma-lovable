@@ -111,6 +111,11 @@ export const CategoryTiles = ({ onPick, activeCategory = "All", searchQuery = ""
             className="pl-10 border-border focus:ring-primary"
             value={searchQuery}
             onChange={(e) => onSearchChange?.(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }
+            }}
             aria-label="Search products"
           />
         </div>
