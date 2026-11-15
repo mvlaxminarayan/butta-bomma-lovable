@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import homepagePhoto from "@/assets/buttabomma-home.jpg.asset.json";
 import { resolveImageUrls, productImageRefs } from "@/lib/productImages";
 import { formatINR } from "@/lib/pricing";
 import { fetchCatalog } from "@/lib/catalog";
@@ -75,28 +75,21 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-background to-secondary">
-      <div className="container mx-auto px-4 py-10 md:py-14">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex flex-col gap-7 items-stretch">
           {/* Content */}
-          <div className="space-y-8">
-            <div className="space-y-4">
-              <h1
-                className="text-4xl md:text-6xl leading-tight"
-                style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}
-              >
-                Buttabomma <span className="whitespace-nowrap">Crafts</span>
-                <span className="block text-primary text-3xl md:text-5xl">
-                  Celebrating Heritage with Authentic, Handcrafted Treasures.
-                </span>
-              </h1>
-
-
-              <p className="text-lg md:text-xl text-muted-foreground max-w-lg">
-                Carefully curated handmade items that bring warmth and character to your home
-              </p>
-            </div>
+          <div className="flex flex-col gap-6">
+            <h1 className="sr-only">Buttabomma Crafts — Traditional Toys, Timeless Happiness</h1>
+            <img
+              src={homepagePhoto.url}
+              alt="Buttabomma — Traditional Toys, Timeless Happiness, with Kondapalli and Etikoppaka toys"
+              width={1280}
+              height={720}
+              fetchPriority="high"
+              className="block w-full h-auto object-contain"
+            />
             
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button 
                 size="lg" 
                 onClick={() => scrollTo("products")}
@@ -115,7 +108,7 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
             </div>
 
             {/* Stats */}
-            <div className="flex gap-8 pt-4">
+            <div className="flex justify-center gap-4 sm:gap-8">
               <div>
                 <div className="text-2xl font-bold text-primary">500+</div>
                 <div className="text-sm text-muted-foreground">Happy Customers</div>
@@ -133,7 +126,7 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
 
           {/* Featured product slider: only shown when featured products exist */}
           {slides.length > 0 && (
-          <div className="relative">
+          <div className="relative w-full max-w-[640px] self-center">
             <div
               role={active?.id ? "link" : undefined}
               tabIndex={active?.id ? 0 : undefined}
@@ -145,7 +138,7 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
                   onViewProduct(active.id);
                 }
               }}
-              className={`group relative overflow-hidden rounded-2xl shadow-elegant h-[400px] md:h-[500px] ${
+              className={`group relative overflow-hidden rounded-2xl shadow-elegant h-[300px] ${
                 active?.id ? "cursor-pointer" : ""
               }`}
             >

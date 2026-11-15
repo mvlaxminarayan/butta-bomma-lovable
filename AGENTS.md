@@ -12,6 +12,7 @@
 - Store individual order read revisions in browser storage scoped to the signed-in admin, independently of tab-level notifications, so opening a tab does not mark its orders as read.
 - Keep traced signboard lettering separate from the shared BrandLogo layout, so header and product-page logos share the same artwork without modifying the original emblem.
 - Keep the homepage category tiles permanent (no layout switcher): hero, then category tiles, then product grid.
+- Render the uploaded homepage artwork uncropped with intrinsic dimensions and eager priority; keep a screen-reader heading so the image-led homepage retains accessible identity without layout shifts.
 - Keep direct Buy Now checkout local to the product page and separate from the saved cart; use the shared checkout drawer and completion helper so direct purchases cannot charge or clear saved items.
 - Book shipments only through the admin-only shiprocket edge function, which writes courier/AWB back to the order and stores the Shiprocket shipment id in status_history, so the label can be reprinted without a schema change.
 - Order status validation must append to the incoming status_history (falling back to existing history), so shipment metadata saved with a status change survives atomically.
