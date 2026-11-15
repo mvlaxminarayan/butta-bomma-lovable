@@ -12,6 +12,7 @@ interface ProductGridProps {
   onAddToCart: (product: Product) => void;
   onViewDetails: (product: Product, gridState: { page: number; sort: string }) => void;
   restoredBrowse?: ShopBrowseState;
+  onBrowseChange?: (gridState: { page: number; sort: string }) => void;
   searchQuery?: string;
   onClearSearch?: () => void;
   category?: string;
@@ -112,7 +113,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
   }
 };
 
-const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, searchQuery = "", onClearSearch, category: categoryProp, onCategoryChange, wishlistOnly = false, onExitWishlist, featuredOnly = false, onExitFeatured }: ProductGridProps) => {
+const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChange, searchQuery = "", onClearSearch, category: categoryProp, onCategoryChange, wishlistOnly = false, onExitWishlist, featuredOnly = false, onExitFeatured }: ProductGridProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -192,6 +193,9 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, searchQuery =
 
   const totalPages = Math.max(1, Math.ceil(visibleProducts.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
+  useEffect(() => {
+    if (!loading) onBrowseChange?.({ page: currentPage, sort });
+  }, [loading, currentPage, sort, onBrowseChange]);
   const pageItems = visibleProducts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const goTo = (p: number) => {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import AnnouncementBar from "@/components/AnnouncementBar";
@@ -37,6 +37,10 @@ const Index = () => {
     () => restoredBrowse?.wishlistOnly ?? new URLSearchParams(window.location.search).get("wishlist") === "1"
   );
   const navigate = useNavigate();
+  const gridBrowse = useRef({ page: restoredBrowse?.page ?? 1, sort: restoredBrowse?.sort ?? "featured" });
+  const rememberGridBrowse = useCallback((state: { page: number; sort: string }) => {
+    gridBrowse.current = state;
+  }, []);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -49,7 +53,11 @@ const Index = () => {
 
   const closeCart = () => {
     setIsCartOpen(false);
-    if (new URLSearchParams(location.search).get("cart")) navigate("/", { replace: true });
+    const params = new URLSearchParams(location.search);
+    if (params.has("cart")) {
+      params.delete("cart");
+      navigate({ pathname: "/", search: params.toString() }, { replace: true, state: location.state });
+    }
   };
 
   useEffect(() => {
@@ -120,16 +128,17 @@ const Index = () => {
     });
   };
 
-  const handleViewDetails = (product: Product, gridState: { page: number; sort: string }) => {
+  const openProduct = (id: string, gridState = gridBrowse.current) => {
     const returnTo = shopReturnLocation(location.search, {
       searchQuery, category, featuredOnly, wishlistOnly,
       ...gridState, scrollY: window.scrollY,
     });
     // Save the same snapshot in history for the browser's Back button too.
     navigate({ pathname: returnTo.pathname, search: returnTo.search }, { replace: true, state: returnTo.state });
-    navigate(`/product/${product.id}`, { state: { returnTo } });
+    navigate(`/product/${id}`, { state: { returnTo } });
     window.scrollTo({ top: 0, behavior: "instant" });
   };
+  const handleViewDetails = (product: Product, gridState: { page: number; sort: string }) => openProduct(product.id, gridState);
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -147,7 +156,7 @@ const Index = () => {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
-      <Hero onViewFeatured={() => {
+      <Hero onViewProduct={(id) => openProduct(id)} onViewFeatured={() => {
         setSearchQuery(""); setCategory("All"); setFeaturedOnly(true);
         setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
       }} />
@@ -160,6 +169,7 @@ const Index = () => {
         onAddToCart={addToCart}
         onViewDetails={handleViewDetails}
         restoredBrowse={restoredBrowse}
+        onBrowseChange={rememberGridBrowse}
         searchQuery={searchQuery}
         category={category}
         onCategoryChange={setCategory}

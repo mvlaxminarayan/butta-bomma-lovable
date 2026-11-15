@@ -1,6 +1,6 @@
 # Architecture rules
 
-- Snapshot catalog filters, sorting, pagination and scroll position in navigation history when opening a catalog product; restore that snapshot on return so shopping context survives both Back to Shop and browser Back.
+- Snapshot catalog filters, sorting, pagination and scroll position in navigation history for catalog and spotlight product links; preserve it through product errors and cart detours so Back to Shop and browser Back retain shopping context.
 
 - Use neutral placeholders for unresolved admin product photos, never sample artwork, so loading cannot misrepresent an item's photo.
 - Share the product availability guard across purchase actions while keeping detail navigation independent, so unavailable items remain viewable without enabling purchases.

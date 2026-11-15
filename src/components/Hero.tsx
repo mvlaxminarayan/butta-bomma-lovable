@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveImageUrls, productImageRefs } from "@/lib/productImages";
 import { formatINR } from "@/lib/pricing";
@@ -14,8 +13,7 @@ interface Slide {
 
 
 
-const Hero = ({ onViewFeatured }: { onViewFeatured?: () => void }) => {
-  const navigate = useNavigate();
+const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; onViewProduct: (id: string) => void }) => {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -145,11 +143,11 @@ const Hero = ({ onViewFeatured }: { onViewFeatured?: () => void }) => {
               role={active?.id ? "link" : undefined}
               tabIndex={active?.id ? 0 : undefined}
               aria-label={active?.id ? `View ${active.name}` : undefined}
-              onClick={() => active?.id && navigate(`/product/${active.id}`)}
+              onClick={() => active?.id && onViewProduct(active.id)}
               onKeyDown={(e) => {
                 if (active?.id && (e.key === "Enter" || e.key === " ")) {
                   e.preventDefault();
-                  navigate(`/product/${active.id}`);
+                  onViewProduct(active.id);
                 }
               }}
               className={`group relative overflow-hidden rounded-2xl shadow-elegant h-[400px] md:h-[500px] ${

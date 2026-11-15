@@ -191,8 +191,8 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
-          <Button onClick={() => navigate("/")} variant="outline">
-            Back to Home
+          <Button onClick={backToShop} variant="outline">
+            Back to Shop
           </Button>
         </div>
       </div>
@@ -279,7 +279,12 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
             variant="ghost"
             size="icon"
             aria-label="Open cart"
-            onClick={() => navigate("/?cart=open")}
+            onClick={() => {
+              const returnTo = (location.state as { returnTo?: ShopReturnLocation } | null)?.returnTo;
+              const params = new URLSearchParams(returnTo?.search);
+              params.set("cart", "open");
+              navigate(`/?${params}`, { state: returnTo?.state });
+            }}
             className="relative"
           >
             <ShoppingCart className="h-5 w-5" />
