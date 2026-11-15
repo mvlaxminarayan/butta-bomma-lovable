@@ -56,7 +56,7 @@ const TrackOrder = () => {
   };
 
   return (
-    <main className="min-h-screen bg-background px-4 py-10">
+    <main className="min-h-screen px-4 py-10">
       <Seo
         title="Track Your Order"
         description="Check the latest status of your Buttabomma Crafts order with your order number and email."

@@ -43,7 +43,7 @@ const PaymentSuccess = () => {
 
   if (!shippingComplete) {
     return (
-      <main className="min-h-screen bg-background flex items-center justify-center px-6">
+      <main className="min-h-screen flex items-center justify-center px-6">
         <Card className="max-w-md w-full text-center">
           <CardContent className="p-8">
             <CheckCircle className="h-16 w-16 text-green-600 mx-auto mb-4" />
@@ -63,7 +63,7 @@ const PaymentSuccess = () => {
   }
 
   return (
-    <main className="min-h-screen bg-background px-6 py-16">
+    <main className="min-h-screen px-6 py-16">
       <div className="max-w-2xl mx-auto text-center">
         <div className="mb-8">
           <CheckCircle className="h-20 w-20 text-green-600 mx-auto mb-6" />

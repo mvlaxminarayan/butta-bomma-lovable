@@ -19,7 +19,7 @@ const PaymentCanceled = () => {
   }, []);
 
   return (
-    <main className="min-h-screen bg-background px-6 py-16">
+    <main className="min-h-screen px-6 py-16">
       <section className="max-w-2xl mx-auto text-center">
         <h1 className="text-3xl font-bold mb-2">Payment Canceled</h1>
         <p className="text-muted-foreground mb-6">No worries—your card wasn't charged. You can continue shopping and try again.</p>

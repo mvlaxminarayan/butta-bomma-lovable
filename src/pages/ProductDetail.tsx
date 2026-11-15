@@ -168,7 +168,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Loading Product...</h1>
         </div>
@@ -178,7 +178,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
           <Button onClick={() => navigate("/")} variant="outline">
@@ -240,7 +240,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen ">
       <Seo
         title={product.name}
         description={product.description.slice(0, 160)}

@@ -45,7 +45,7 @@ const MyOrders = () => {
   if (!authLoading && !user) return <Navigate to="/auth" replace />;
 
   return (
-    <main className="min-h-screen bg-background px-4 py-10">
+    <main className="min-h-screen px-4 py-10">
       <div className="mx-auto max-w-2xl space-y-6">
         <Button variant="ghost" size="sm" asChild><Link to="/"><ArrowLeft className="mr-1 h-4 w-4" />Back to Shop</Link></Button>
         <h1 className="text-2xl font-semibold">My Orders</h1>

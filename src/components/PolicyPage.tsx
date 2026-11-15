@@ -22,7 +22,7 @@ export const PolicySection = ({ heading, children }: { heading: string; children
 const PolicyPage = ({ title, intro, children }: PolicyPageProps) => {
   const { pathname } = useLocation();
   return (
-  <div className="min-h-screen bg-background flex flex-col">
+  <div className="min-h-screen flex flex-col">
     <Seo
       title={title}
       description={intro ?? `${title} for Buttabomma Crafts — handcrafted artisan goods from Nandyal, Andhra Pradesh.`}

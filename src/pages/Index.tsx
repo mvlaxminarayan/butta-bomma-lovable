@@ -124,7 +124,7 @@ const Index = () => {
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen ">
       <Seo
         title="Buttabomma Crafts — Handcrafted Artisan Goods"
         description="Buttabomma Crafts celebrates heritage with authentic handcrafted treasures. Shop artisan toys, ceramics, textiles and home decor from Nandyal, Andhra Pradesh."
