@@ -248,7 +248,7 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
     }`;
 
   const pagination = (position: "top" | "bottom") => (
-    <nav aria-label={`Product pages (${position})`} className={`flex items-center justify-center gap-2 flex-wrap ${position === "top" ? "mb-6" : "mt-10"}`}>
+    <nav aria-label={`Product pages (${position})`} className={`flex items-center justify-center gap-2 flex-wrap ${position === "top" ? "sm:ml-auto" : "mt-10"}`}>
       <Button variant="outline" className={pill(false)} disabled={currentPage <= 1} onClick={() => goTo(currentPage - 1)}>
         ‹ Previous
       </Button>
@@ -405,10 +405,12 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
           </div>
         ) : (
           <>
-            <p className="text-sm text-muted-foreground mb-4">
-              Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, visibleProducts.length)} of {visibleProducts.length}
-            </p>
-            {pagination("top")}
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mb-4">
+              <p className="text-sm text-muted-foreground shrink-0">
+                Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, visibleProducts.length)} of {visibleProducts.length}
+              </p>
+              {pagination("top")}
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {pageItems.map((product) => (
                 <ProductCard
