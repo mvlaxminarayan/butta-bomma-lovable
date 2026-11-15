@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect , useRef} from "react";
 import { Star, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,6 +27,15 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
   const { reviews, averageRating } = useProductReviews(productId);
   const [localReviews, setLocalReviews] = useState<Review[]>(reviews);
   const [showForm, setShowForm] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  // Opened from a product card's "Rate" stars: show the form and scroll to it.
+  useEffect(() => {
+    if (sessionStorage.getItem(`rate:${productId}`)) {
+      sessionStorage.removeItem(`rate:${productId}`);
+      setShowForm(true);
+      setTimeout(() => rootRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 300);
+    }
+  }, [productId]);
   const [newReview, setNewReview] = useState({
     name: "",
     rating: 0,
@@ -98,7 +107,7 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div ref={rootRef} id="reviews" className="space-y-6 scroll-mt-24">
       {/* Reviews Summary */}
       <Card>
         <CardHeader>

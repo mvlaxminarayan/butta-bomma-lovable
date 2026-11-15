@@ -106,7 +106,9 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
                 variant="outline" 
                 size="lg"
                 onClick={() => scrollTo("our-story")}
-                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                // Hidden on phones: Our Story lives in the menu there.
+                data-mobile-hidden
+                className="hidden sm:inline-flex border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
               >
                 Our Story
               </Button>

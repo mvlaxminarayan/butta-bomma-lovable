@@ -159,6 +159,16 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
 
 
   const { averageRating, reviewCount } = useProductReviews(id || "");
+  // Buy now tapped on a product card: open the direct checkout once the item loads.
+  useEffect(() => {
+    if (!product) return;
+    const key = `buynow:${product.id}`;
+    if (sessionStorage.getItem(key)) {
+      sessionStorage.removeItem(key);
+      if (canPurchaseProduct(product)) setIsBuyNowOpen(true);
+    }
+  }, [product]);
+
 
   useEffect(() => {
     const fetchProduct = async () => {

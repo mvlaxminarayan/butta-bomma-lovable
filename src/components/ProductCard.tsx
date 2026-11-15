@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Heart, ShoppingCart, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { Heart, ShoppingCart, Star, ChevronLeft, ChevronRight, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toggleWishlist } from "@/lib/wishlist";
@@ -73,7 +73,7 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
           src={photos[photoIndex] || product.image}
           alt={product.name}
           draggable={false}
-          className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
+          className="w-full h-40 sm:h-64 object-cover transition-transform duration-500 group-hover:scale-110"
           onClick={() => onViewDetails(product)}
         />
         {hasMultiple && (
@@ -100,12 +100,17 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
           </>
         )}
 
-        {/* Sale Badge */}
-        {isOnSale && (
-          <Badge className="absolute top-3 left-3 bg-sale-price text-white font-semibold">
-            Sale
-          </Badge>
-        )}
+        {/* Category + Sale badges (top-left) */}
+        <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-col items-start gap-1 max-w-[65%] pointer-events-none">
+          {product.category && (
+            <Badge variant="secondary" className="text-[10px] sm:text-xs bg-background/85 backdrop-blur-sm truncate max-w-full">
+              {product.category}
+            </Badge>
+          )}
+          {isOnSale && (
+            <Badge className="bg-sale-price text-primary-foreground font-semibold text-[10px] sm:text-xs">Sale</Badge>
+          )}
+        </div>
 
         {/* Wishlist Button */}
         <Button
@@ -133,61 +138,76 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
       </div>
 
       {/* Product Info */}
-      <div className="p-4 space-y-3">
-        <div>
-          <Badge variant="secondary" className="text-xs mb-2">
-            {product.category}
-          </Badge>
-          <h3 
-            className="font-semibold text-card-foreground line-clamp-2 hover:text-primary transition-colors cursor-pointer"
+      <div className="p-2.5 sm:p-4 space-y-2 sm:space-y-3">
+        {/* Row 1: name and price */}
+        <div className="flex items-start justify-between gap-2">
+          <h3
+            className="text-sm sm:text-base font-semibold text-card-foreground line-clamp-2 hover:text-primary transition-colors cursor-pointer min-w-0"
             onClick={() => onViewDetails(product)}
           >
             {product.name}
           </h3>
-        </div>
-
-        {/* Rating */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={`h-4 w-4 ${
-                  i < Math.floor(product.rating)
-                    ? "fill-rating text-rating"
-                    : "text-muted-foreground"
-                }`}
-              />
-            ))}
-          </div>
-          <span className="text-sm text-muted-foreground">
-            ({product.reviews})
-          </span>
-        </div>
-
-        {/* Price */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-price">
-              {formatINR(product.price)}
-            </span>
+          <div className="text-right shrink-0">
+            <div className="text-sm sm:text-lg font-bold text-price leading-tight">{formatINR(product.price)}</div>
             {isOnSale && (
-              <span className="text-sm text-muted-foreground line-through">
-                {formatINR(product.originalPrice)}
-              </span>
+              <div className="text-[11px] sm:text-sm text-muted-foreground line-through">{formatINR(product.originalPrice)}</div>
             )}
           </div>
         </div>
 
-        {/* Add to Cart Button */}
-        <Button
-          onClick={() => { if (canPurchaseProduct(product)) onAddToCart(product); }}
-          disabled={!canPurchaseProduct(product)}
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 hover:shadow-lg"
+        {/* Rating: tap the stars to rate */}
+        <button
+          type="button"
+          aria-label={`Rate ${product.name}`}
+          title="Rate this product"
+          onClick={(e) => {
+            e.stopPropagation();
+            sessionStorage.setItem(`rate:${product.id}`, "1");
+            onViewDetails(product);
+          }}
+          className="flex items-center gap-1 sm:gap-2 group/rate"
         >
-          <ShoppingCart className="h-4 w-4 mr-2" />
-          Add to cart
-        </Button>
+          <span className="flex items-center">
+            {[...Array(5)].map((_, i) => (
+              <Star
+                key={i}
+                className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
+                  i < Math.floor(product.rating) ? "fill-rating text-rating" : "text-muted-foreground"
+                }`}
+              />
+            ))}
+          </span>
+          <span className="text-xs sm:text-sm text-muted-foreground group-hover/rate:text-primary group-hover/rate:underline">
+            {product.reviews > 0 ? `(${product.reviews})` : "Rate"}
+          </span>
+        </button>
+
+        {/* Row 2: Buy now and Add to cart */}
+        <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+          <Button
+            variant="outline"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!canPurchaseProduct(product)) return;
+              sessionStorage.setItem(`buynow:${product.id}`, "1");
+              onViewDetails(product);
+            }}
+            disabled={!canPurchaseProduct(product)}
+            className="h-9 px-1 text-xs sm:text-sm border-primary text-primary hover:bg-primary/10 hover:text-primary"
+          >
+            <Zap className="hidden min-[400px]:block h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
+            Buy now
+          </Button>
+          <Button
+            onClick={(e) => { e.stopPropagation(); if (canPurchaseProduct(product)) onAddToCart(product); }}
+            disabled={!canPurchaseProduct(product)}
+            className="h-9 px-1 text-xs sm:text-sm bg-primary hover:bg-primary/90 text-primary-foreground"
+          >
+            <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1" />
+            <span className="sm:hidden">Cart</span>
+            <span className="hidden sm:inline">Add to cart</span>
+          </Button>
+        </div>
       </div>
     </div>
   );
