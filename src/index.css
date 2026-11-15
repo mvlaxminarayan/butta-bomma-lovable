@@ -150,12 +150,12 @@ All colors MUST be HSL.
 }
 
 .homepage-artwork {
-  width: min(100%, 880px);
+  width: 100%;
   border: 1px solid var(--artwork-glass-edge);
   box-shadow: var(--artwork-glass-shadow);
 }
 .homepage-artwork img {
-  max-height: 449px;
+  max-height: 420px;
   object-fit: fill;
 }
 .homepage-artwork::after {
