@@ -3,6 +3,7 @@ import { Hand, Leaf, Users, Truck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { productImageRefs, resolveImageUrls } from "@/lib/productImages";
 import { STORE_INFO } from "@/lib/storeInfo";
+import { fetchCatalog } from "@/lib/catalog";
 
 const trust = [
   { icon: Hand, title: "100% Handcrafted", text: "Made by hand in Nandyal" },
@@ -48,7 +49,7 @@ export const CategoryTiles = ({ onPick }: { onPick: (c: string) => void }) => {
     let cancelled = false;
     (async () => {
       try {
-        const { data, error } = await (supabase as any).schema("api").from("products").select("*");
+        const { data, error } = await fetchCatalog();
         if (error || !data) return;
         const firstRef: Record<string, string> = {};
         data.forEach((r: any) => {

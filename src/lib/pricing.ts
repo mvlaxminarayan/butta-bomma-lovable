@@ -38,7 +38,16 @@ export const DEFAULT_SETTINGS: StoreSettings = {
 
 const api = () => (supabase as any).schema("api");
 
-export async function fetchStoreSettings(): Promise<StoreSettings> {
+let pendingSettings: Promise<StoreSettings> | null = null;
+export function fetchStoreSettings(): Promise<StoreSettings> {
+  if (pendingSettings) return pendingSettings;
+  const request = loadStoreSettings();
+  pendingSettings = request;
+  void request.finally(() => { if (pendingSettings === request) pendingSettings = null; }).catch(() => {});
+  return request;
+}
+
+async function loadStoreSettings(): Promise<StoreSettings> {
   const { data } = await api().from("store_settings").select("*").eq("id", 1).maybeSingle();
   if (!data) return DEFAULT_SETTINGS;
   return {

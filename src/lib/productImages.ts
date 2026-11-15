@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { createPhotoResolver } from "./photoResolver";
 
 export const BUCKET = "product-images";
 
@@ -6,6 +7,21 @@ export const BUCKET = "product-images";
 export const LOCAL_ASSETS: Record<string, string> = {};
 
 const isStoragePath = (v: string) => !v.startsWith("http") && !LOCAL_ASSETS[v];
+
+const newResolver = () => createPhotoResolver(async (paths) => {
+  const { data, error } = await supabase.functions.invoke("product-image-urls", { body: { paths } });
+  if (error) throw error;
+  return (data?.urls as Record<string, string>) || {};
+});
+let resolvePhotos = newResolver();
+let photoIdentity: string | null = null;
+supabase.auth.onAuthStateChange((_event, session) => {
+  const identity = session?.user.id ?? null;
+  if (identity !== photoIdentity) {
+    photoIdentity = identity;
+    resolvePhotos = newResolver();
+  }
+});
 
 /** Collect a product's image references: `images` array first, then legacy `image_url`. */
 export const productImageRefs = (p: { images?: string[] | null; image_url?: string | null }) => {
@@ -17,16 +33,8 @@ export const productImageRefs = (p: { images?: string[] | null; image_url?: stri
 /** Turn stored references (storage paths, full URLs, legacy asset names) into displayable URLs. */
 export async function resolveImageUrls(refs: string[]): Promise<string[]> {
   const paths = Array.from(new Set(refs.filter(isStoragePath)));
-  const signed: Record<string, string> = {};
-  if (paths.length) {
-    // Bucket is private with no public read rule; a server function signs only photos the store displays.
-    await Promise.all(Array.from({ length: Math.ceil(paths.length / 200) }, async (_, index) => {
-      const batch = paths.slice(index * 200, (index + 1) * 200);
-      const { data, error } = await supabase.functions.invoke("product-image-urls", { body: { paths: batch } });
-      if (error) console.error("Signed URL error:", error);
-      Object.assign(signed, (data?.urls as Record<string, string>) || {});
-    }));
-  }
+  const urls = await resolvePhotos(paths);
+  const signed = Object.fromEntries(paths.map((path, index) => [path, urls[index]]));
   // Keeps the same order/length as refs; unresolved entries become "".
   return refs.map((r) => (r.startsWith("http") ? r : LOCAL_ASSETS[r] || signed[r] || ""));
 }

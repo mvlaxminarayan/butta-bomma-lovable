@@ -8,6 +8,7 @@ import { getProductReviewsSync } from "@/hooks/useProductReviews";
 import { resolveImageUrls, productImageRefs, LOCAL_ASSETS, FALLBACK_IMAGE } from "@/lib/productImages";
 import { getWishlistIds } from "@/lib/wishlist";
 import type { ShopBrowseState } from "@/lib/shopBrowse";
+import { fetchCatalog } from "@/lib/catalog";
 
 interface ProductGridProps {
   onAddToCart: (product: Product) => void;
@@ -32,12 +33,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
   try {
     console.log("Fetching products from database...");
     
-    const { data: products, error } = await (supabase as any)
-      .schema("api")
-      .from("products")
-      .select("*")
-      .order("in_stock", { ascending: false })
-      .order("created_at", { ascending: false });
+    const { data: products, error } = await fetchCatalog();
 
     console.log("Products query result:", { products, error });
 

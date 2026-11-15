@@ -17,12 +17,9 @@ export const OrderItemThumbs = ({ items }: { items: Order["items"] }) => {
       const { data: prods } = await (supabase as any).schema("api").from("products")
         .select("id, image_url, images").in("id", ids);
       const map: Record<string, string> = {};
-      for (const p of prods || []) {
-        const [ref] = productImageRefs(p as any);
-        if (!ref) continue;
-        const [url] = await resolveImageUrls([ref]);
-        if (url) map[p.id] = url;
-      }
+      const products = prods || [];
+      const urls = await resolveImageUrls(products.map((p: any) => productImageRefs(p)[0] || ""));
+      products.forEach((p: any, index: number) => { if (urls[index]) map[p.id] = urls[index]; });
       if (!cancelled) setThumbs(map);
     })();
     return () => { cancelled = true; };

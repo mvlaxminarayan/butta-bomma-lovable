@@ -1,4 +1,5 @@
 - [x] Keep Buy Now independent of the saved cart, including payment completion (cart preservation covered by tests).
+- [x] Sweep page loading: lazy routes, shared overlapping catalog/settings reads, auth-scoped photo request batching/cache and batched order thumbnails; public routes, real photos/swipes and catalog returns verified. Homepage product reads reduced from 3 to 1, settings from 2 to 1. Signed-in order/admin checks remain unavailable with external Supabase; no paid records, permissions or settings changed.
 - [x] Enable product photo swipes and left/right arrows; real two-photo product verified on desktop/mobile with physical touch swipes, arrows, thumbnails and zoomed panning preserving photo selection.
 - [x] Show product cost, shipping, discounts when applicable, and total above payment.
 - [x] Test Buy Now and regular cart checkout in the preview (no payment charged).

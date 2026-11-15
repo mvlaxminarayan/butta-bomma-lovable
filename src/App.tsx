@@ -6,22 +6,24 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
-import ProductDetail from "./pages/ProductDetail";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import PaymentCanceled from "./pages/PaymentCanceled";
-import ShippingDetails from "./pages/ShippingDetails";
-import NotFound from "./pages/NotFound";
-import Auth from "./pages/Auth";
-import ResetPassword from "./pages/ResetPassword";
-import AdminDashboard from "./pages/AdminDashboard";
-import TrackOrder from "./pages/TrackOrder";
-import MyOrders from "./pages/MyOrders";
-import Contact from "./pages/Contact";
-import ShippingPolicy from "./pages/ShippingPolicy";
-import RefundPolicy from "./pages/RefundPolicy";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
+import { lazy, Suspense } from "react";
 import { canPurchaseProduct } from "@/lib/productAvailability";
+
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const PaymentCanceled = lazy(() => import("./pages/PaymentCanceled"));
+const ShippingDetails = lazy(() => import("./pages/ShippingDetails"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Auth = lazy(() => import("./pages/Auth"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const TrackOrder = lazy(() => import("./pages/TrackOrder"));
+const MyOrders = lazy(() => import("./pages/MyOrders"));
+const Contact = lazy(() => import("./pages/Contact"));
+const ShippingPolicy = lazy(() => import("./pages/ShippingPolicy"));
+const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 
 const queryClient = new QueryClient();
 
@@ -32,6 +34,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <Suspense fallback={<div role="status" className="min-h-screen flex items-center justify-center text-muted-foreground">Loading…</div>}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
@@ -66,6 +69,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>

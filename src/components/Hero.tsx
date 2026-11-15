@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveImageUrls, productImageRefs } from "@/lib/productImages";
 import { formatINR } from "@/lib/pricing";
+import { fetchCatalog } from "@/lib/catalog";
 
 interface Slide {
   id: string | null;
@@ -25,14 +26,8 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
     let cancelled = false;
     (async () => {
       try {
-        const { data, error } = await (supabase as any)
-          .schema("api")
-          .from("products")
-          .select("*")
-          .eq("in_stock", true)
-          .eq("is_featured", true)
-          .order("created_at", { ascending: false })
-          .limit(8);
+        const { data: catalog, error } = await fetchCatalog();
+        const data = catalog?.filter((p) => p.in_stock && p.is_featured).slice(0, 8);
         if (error || !data || data.length === 0) {
           if (!cancelled) setSlides([]);
           return;
