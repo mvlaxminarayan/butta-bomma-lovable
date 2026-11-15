@@ -248,7 +248,7 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
     }`;
 
   const pagination = (position: "top" | "bottom") => (
-    <nav aria-label={`Product pages (${position})`} className={`flex items-center justify-center gap-2 flex-wrap ${position === "top" ? "sm:ml-auto" : "mt-10"}`}>
+    <nav aria-label={`Product pages (${position})`} className={`flex items-center justify-center gap-2 flex-wrap ${position === "bottom" ? "mt-10" : ""}`}>
       <Button variant="outline" className={pill(false)} disabled={currentPage <= 1} onClick={() => goTo(currentPage - 1)}>
         ‹ Previous
       </Button>
@@ -405,7 +405,7 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
           </div>
         ) : (
           <>
-            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mb-4">
+            <div className="grid items-center gap-x-4 gap-y-2 mb-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
               <p className="text-sm text-muted-foreground shrink-0">
                 Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, visibleProducts.length)} of {visibleProducts.length}
               </p>
