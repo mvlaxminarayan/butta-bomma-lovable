@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Heart, ShoppingCart, Star, ChevronLeft, ChevronRight, Zap } from "lucide-react";
+import { Heart, ShoppingCart, ChevronLeft, ChevronRight, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toggleWishlist } from "@/lib/wishlist";
@@ -154,33 +154,6 @@ const ProductCard = ({ product, onAddToCart, onViewDetails }: ProductCardProps) 
             )}
           </div>
         </div>
-
-        {/* Rating: tap the stars to rate */}
-        <button
-          type="button"
-          aria-label={`Rate ${product.name}`}
-          title="Rate this product"
-          onClick={(e) => {
-            e.stopPropagation();
-            sessionStorage.setItem(`rate:${product.id}`, "1");
-            onViewDetails(product);
-          }}
-          className="flex items-center gap-1 sm:gap-2 group/rate"
-        >
-          <span className="flex items-center">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
-                  i < Math.floor(product.rating) ? "fill-rating text-rating" : "text-muted-foreground"
-                }`}
-              />
-            ))}
-          </span>
-          <span className="text-xs sm:text-sm text-muted-foreground group-hover/rate:text-primary group-hover/rate:underline">
-            {product.reviews > 0 ? `(${product.reviews})` : "Rate"}
-          </span>
-        </button>
 
         {/* Row 2: Buy now and Add to cart */}
         <div className="grid grid-cols-2 gap-1.5 sm:gap-2">

@@ -65,10 +65,10 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newReview.name || !newReview.comment || newReview.rating === 0) {
+    if (newReview.rating === 0) {
       toast({
-        title: "Please complete all fields",
-        description: "Name, rating, and review are required.",
+        title: "Please select a rating",
+        description: "Tap the stars to rate this product. Name and review are optional.",
         variant: "destructive"
       });
       return;
@@ -76,9 +76,9 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
 
     const review: Review = {
       id: Date.now().toString(),
-      name: newReview.name,
+      name: newReview.name.trim() || "Anonymous",
       rating: newReview.rating,
-      comment: newReview.comment,
+      comment: newReview.comment.trim(),
       date: new Date().toISOString().split('T')[0]
     };
 
@@ -149,7 +149,7 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
           <CardContent>
             <form onSubmit={handleSubmitReview} className="space-y-4">
               <div>
-                <Label htmlFor="reviewer-name">Your Name</Label>
+                <Label htmlFor="reviewer-name">Your Name (optional)</Label>
                 <Input
                   id="reviewer-name"
                   value={newReview.name}
@@ -167,7 +167,7 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
               </div>
 
               <div>
-                <Label htmlFor="review-comment">Your Review</Label>
+                <Label htmlFor="review-comment">Your Review (optional)</Label>
                 <Textarea
                   id="review-comment"
                   value={newReview.comment}
@@ -212,9 +212,11 @@ const ProductReviews = ({ productId, productName }: ProductReviewsProps) => {
                       <div className="flex items-center gap-1">
                         {renderStars(review.rating)}
                       </div>
-                      <p className="text-muted-foreground leading-relaxed">
-                        {review.comment}
-                      </p>
+                      {review.comment && (
+                        <p className="text-muted-foreground leading-relaxed">
+                          {review.comment}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </CardContent>
