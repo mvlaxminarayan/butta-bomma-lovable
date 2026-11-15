@@ -14,8 +14,13 @@ import Cart, { CartItem } from "@/components/Cart";
 import { Product } from "@/components/ProductCard";
 import { useToast } from "@/hooks/use-toast";
 import { canPurchaseProduct } from "@/lib/productAvailability";
+import { shopReturnLocation, type ShopBrowseState } from "@/lib/shopBrowse";
 
 const Index = () => {
+  const location = useLocation();
+  const [restoredBrowse] = useState(() =>
+    (location.state as { shopBrowse?: ShopBrowseState } | null)?.shopBrowse
+  );
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try { return JSON.parse(localStorage.getItem("cart") || "[]"); } catch { return []; }
   });
@@ -25,13 +30,12 @@ const Index = () => {
   const [cartAtCheckout, setCartAtCheckout] = useState(
     () => new URLSearchParams(window.location.search).get("cart") === "checkout"
   );
-  const [searchQuery, setSearchQuery] = useState("");
-  const [category, setCategory] = useState("All");
-  const [featuredOnly, setFeaturedOnly] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(restoredBrowse?.searchQuery ?? "");
+  const [category, setCategory] = useState(restoredBrowse?.category ?? "All");
+  const [featuredOnly, setFeaturedOnly] = useState(restoredBrowse?.featuredOnly ?? false);
   const [wishlistOnly, setWishlistOnly] = useState(
-    () => new URLSearchParams(window.location.search).get("wishlist") === "1"
+    () => restoredBrowse?.wishlistOnly ?? new URLSearchParams(window.location.search).get("wishlist") === "1"
   );
-  const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -58,7 +62,7 @@ const Index = () => {
   }, [location.state]);
 
   useEffect(() => {
-    if (!wishlistOnly) return;
+    if (!wishlistOnly || restoredBrowse) return;
     const timer = setTimeout(() => {
       document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 350);
@@ -116,9 +120,15 @@ const Index = () => {
     });
   };
 
-  const handleViewDetails = (product: Product) => {
-    // Navigate to product detail page
-    window.location.href = `/product/${product.id}`;
+  const handleViewDetails = (product: Product, gridState: { page: number; sort: string }) => {
+    const returnTo = shopReturnLocation(location.search, {
+      searchQuery, category, featuredOnly, wishlistOnly,
+      ...gridState, scrollY: window.scrollY,
+    });
+    // Save the same snapshot in history for the browser's Back button too.
+    navigate({ pathname: returnTo.pathname, search: returnTo.search }, { replace: true, state: returnTo.state });
+    navigate(`/product/${product.id}`, { state: { returnTo } });
+    window.scrollTo({ top: 0, behavior: "instant" });
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -149,6 +159,7 @@ const Index = () => {
 
         onAddToCart={addToCart}
         onViewDetails={handleViewDetails}
+        restoredBrowse={restoredBrowse}
         searchQuery={searchQuery}
         category={category}
         onCategoryChange={setCategory}

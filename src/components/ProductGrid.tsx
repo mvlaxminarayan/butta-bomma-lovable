@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { ChevronDown, X } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -6,10 +6,12 @@ import ProductCard, { Product } from "./ProductCard";
 import { getProductReviewsSync } from "@/hooks/useProductReviews";
 import { resolveImageUrls, productImageRefs, LOCAL_ASSETS, FALLBACK_IMAGE } from "@/lib/productImages";
 import { getWishlistIds } from "@/lib/wishlist";
+import type { ShopBrowseState } from "@/lib/shopBrowse";
 
 interface ProductGridProps {
   onAddToCart: (product: Product) => void;
-  onViewDetails: (product: Product) => void;
+  onViewDetails: (product: Product, gridState: { page: number; sort: string }) => void;
+  restoredBrowse?: ShopBrowseState;
   searchQuery?: string;
   onClearSearch?: () => void;
   category?: string;
@@ -110,7 +112,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
   }
 };
 
-const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSearch, category: categoryProp, onCategoryChange, wishlistOnly = false, onExitWishlist, featuredOnly = false, onExitFeatured }: ProductGridProps) => {
+const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, searchQuery = "", onClearSearch, category: categoryProp, onCategoryChange, wishlistOnly = false, onExitWishlist, featuredOnly = false, onExitFeatured }: ProductGridProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -134,8 +136,10 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
   const [localCategory, setLocalCategory] = useState<string>("All");
   const category = categoryProp ?? localCategory;
   const setCategory = (c: string) => { setLocalCategory(c); onCategoryChange?.(c); };
-  const [sort, setSort] = useState<string>("featured");
-  const [page, setPage] = useState(1);
+  const [sort, setSort] = useState<string>(restoredBrowse?.sort ?? "featured");
+  const [page, setPage] = useState(restoredBrowse?.page ?? 1);
+  const initialFilters = useRef(true);
+  const restoredScroll = useRef(false);
   const PAGE_SIZE = 12;
 
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -172,7 +176,19 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
     return list;
   }, [products, category, query, sort, wishlistOnly, wishlistIds, featuredOnly]);
 
-  useEffect(() => { setPage(1); }, [category, query, sort, wishlistOnly, featuredOnly]);
+  useEffect(() => {
+    if (initialFilters.current) { initialFilters.current = false; return; }
+    setPage(1);
+  }, [category, query, sort, wishlistOnly, featuredOnly]);
+
+  useEffect(() => {
+    if (loading || !restoredBrowse || restoredScroll.current) return;
+    const frame = requestAnimationFrame(() => {
+      window.scrollTo({ top: restoredBrowse.scrollY, behavior: "instant" });
+      restoredScroll.current = true;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [loading, restoredBrowse]);
 
   const totalPages = Math.max(1, Math.ceil(visibleProducts.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -377,7 +393,7 @@ const ProductGrid = ({ onAddToCart, onViewDetails, searchQuery = "", onClearSear
                   key={product.id}
                   product={product}
                   onAddToCart={onAddToCart}
-                  onViewDetails={onViewDetails}
+                  onViewDetails={(selected) => onViewDetails(selected, { page: currentPage, sort })}
                 />
               ))}
             </div>

@@ -19,4 +19,5 @@
 - [x] Verify cart and Buy Now quotes on desktop/mobile, saved-cart preservation, and unpaid Razorpay order matches server total; shared shipment weight tests pass.
 - [ ] Verify signed-in admin weight saving and paid shipment booking: external Supabase session unavailable; no payment charged or shipment booked during checks.
 - [x] Restore product photos by correcting the private photo signing lookup and batching requests; verified real homepage photos after refresh and desktop/mobile product galleries, without making storage public.
+- [x] Restore the originating catalog page, filters, sort and scroll position when returning from product details; real page-3 product navigation verified with Back to Shop and browser Back, and snapshot tests pass.
 

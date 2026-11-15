@@ -1,4 +1,4 @@
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { BrandLogo } from "@/components/BrandLogo";
 import { useState, useEffect } from "react";
 import { ArrowLeft, Heart, Share2, ShoppingCart, Star, Plus, Minus, RotateCcw, Zap } from "lucide-react";
@@ -18,6 +18,7 @@ import { resolveImageUrls, productImageRefs, FALLBACK_IMAGE } from "@/lib/produc
 import { isWishlisted, toggleWishlist } from "@/lib/wishlist";
 import Cart from "@/components/Cart";
 import { canPurchaseProduct } from "@/lib/productAvailability";
+import type { ShopReturnLocation } from "@/lib/shopBrowse";
 
 // Enhanced product data fetching from database
 const getProductById = async (id: string): Promise<(Product & { 
@@ -87,6 +88,15 @@ interface ProductDetailProps {
 const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
+  const backToShop = () => {
+    const returnTo = (location.state as { returnTo?: ShopReturnLocation } | null)?.returnTo;
+    if (returnTo?.pathname === "/") {
+      navigate({ pathname: "/", search: returnTo.search }, { state: returnTo.state });
+    } else {
+      navigate("/");
+    }
+  };
   const readCartCount = () => {
     try {
       return JSON.parse(localStorage.getItem("cart") || "[]").reduce((s: number, i: any) => s + (i.quantity || 0), 0);
@@ -257,7 +267,7 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
             </Link>
             <Button
               variant="ghost"
-              onClick={() => navigate("/")}
+              onClick={backToShop}
               className="gap-2 px-2 sm:px-4"
               aria-label="Back to Shop"
             >
