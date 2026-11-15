@@ -238,8 +238,8 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
       active ? "bg-primary text-primary-foreground border-primary" : "bg-card text-foreground border-border hover:bg-muted"
     }`;
 
-  const pagination = (position: "top" | "bottom") => (
-    <nav aria-label={`Product pages (${position})`} className={`flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap ${position === "bottom" ? "mt-10" : ""}`}>
+  const pagination = (
+    <nav aria-label="Product pages" className="flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap mt-10">
       <Button variant="outline" className={pill(false)} disabled={currentPage <= 1} onClick={() => goTo(currentPage - 1)}>
         ‹ Prev
       </Button>
@@ -304,12 +304,9 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
           </div>
         ) : (
           <>
-            <div className="grid items-center gap-x-4 gap-y-2 mb-4 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
-              <p className="text-sm text-muted-foreground shrink-0">
-                Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, visibleProducts.length)} of {visibleProducts.length}
-              </p>
-              {pagination("top")}
-            </div>
+            <p className="text-sm text-muted-foreground mb-4">
+              Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, visibleProducts.length)} of {visibleProducts.length}
+            </p>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8">
               {pageItems.map((product) => (
                 <ProductCard
@@ -323,7 +320,7 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
           </>
         )}
 
-        {visibleProducts.length > 0 && pagination("bottom")}
+        {visibleProducts.length > 0 && pagination}
 
         {(wishlistOnly || featuredOnly || query || category !== "All") && (
           <div className="text-center mt-8">

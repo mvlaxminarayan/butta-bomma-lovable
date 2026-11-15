@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, MapPin, Clock } from "lucide-react";
+import { Mail, MapPin, Clock, Smartphone, CreditCard, Landmark, Wallet } from "lucide-react";
 import { WhatsAppIcon, InstagramIcon } from "@/components/icons/BrandIcons";
 import { STORE_INFO, whatsappLink, instagramLink } from "@/lib/storeInfo";
 
@@ -82,12 +82,20 @@ const Footer = () => {
         <div className="mt-8 pt-6 border-t border-border/60 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs text-muted-foreground mr-1">Secure payments by Razorpay</span>
-            {["UPI", "RuPay", "Visa", "Mastercard", "Net Banking", "Wallets"].map((m) => (
+            {[
+              { label: "UPI", Icon: Smartphone },
+              { label: "RuPay", Icon: CreditCard },
+              { label: "Visa", Icon: CreditCard },
+              { label: "Mastercard", Icon: CreditCard },
+              { label: "Net Banking", Icon: Landmark },
+              { label: "Wallets", Icon: Wallet },
+            ].map(({ label, Icon }) => (
               <span
-                key={m}
-                className="rounded border border-border bg-card px-2 py-1 text-xs text-muted-foreground"
+                key={label}
+                className="inline-flex items-center gap-1.5 rounded border border-border bg-card px-2 py-1 text-xs text-muted-foreground"
               >
-                {m}
+                <Icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                {label}
               </span>
             ))}
           </div>
