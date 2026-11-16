@@ -1,7 +1,8 @@
-import { ShoppingCart, Menu, Heart, User, LogOut } from "lucide-react";
+import { ShoppingCart, Menu, Heart, User, LogOut, Search } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
 import { useWishlistIds } from "@/hooks/useWishlist";
@@ -32,6 +33,25 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
           <Link to="/" aria-label="Go to home page" className="flex items-center gap-3 group">
             <BrandLogo size="lg" />
           </Link>
+
+          {/* Search — centered next to the logo on computers */}
+          {onSearchChange && (
+            <div className="relative mx-4 hidden flex-1 max-w-md md:block">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search handcrafted items..."
+                className="pl-10 border-border focus:ring-primary"
+                value={searchQuery}
+                onChange={(e) => onSearchChange(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  }
+                }}
+                aria-label="Search products"
+              />
+            </div>
+          )}
 
 
           {/* Action Buttons */}
@@ -132,6 +152,24 @@ const Header = ({ cartItems, onCartClick, searchQuery = "", onSearchChange }: He
           </div>
         </div>
 
+        {/* Search — full-width row on phones */}
+        {onSearchChange && (
+          <div className="relative mt-2 md:hidden">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search handcrafted items..."
+              className="pl-10 border-border focus:ring-primary"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+              }}
+              aria-label="Search products"
+            />
+          </div>
+        )}
       </div>
     </header>
   );

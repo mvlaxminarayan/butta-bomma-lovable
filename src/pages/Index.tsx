@@ -168,6 +168,8 @@ const Index = () => {
       <Header 
         cartItems={totalItems}
         onCartClick={() => setIsCartOpen(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
       <Hero onViewProduct={(id) => openProduct(id)} onViewFeatured={() => {
         setSearchQuery(""); setCategory("All"); setFeaturedOnly(true);
@@ -176,10 +178,6 @@ const Index = () => {
       <CategoryTiles
         onPick={(c) => { setSearchQuery(""); setFeaturedOnly(false); setCategory(c); setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }), 50); }}
         activeCategory={category}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        sort={gridSort}
-        onSortChange={handleSortChange}
       />
 
       <ProductGrid 
@@ -189,6 +187,7 @@ const Index = () => {
         restoredBrowse={restoredBrowse}
         onBrowseChange={rememberGridBrowse}
         sort={gridSort}
+        onSortChange={handleSortChange}
         searchQuery={searchQuery}
         category={category}
         onCategoryChange={setCategory}

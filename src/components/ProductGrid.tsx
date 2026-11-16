@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
-import { X } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard, { Product } from "./ProductCard";
@@ -16,6 +16,7 @@ interface ProductGridProps {
   restoredBrowse?: ShopBrowseState;
   onBrowseChange?: (gridState: { page: number; sort: string }) => void;
   sort?: string;
+  onSortChange?: (s: string) => void;
   searchQuery?: string;
   onClearSearch?: () => void;
   category?: string;
@@ -112,7 +113,7 @@ const getProductsWithReviews = async (): Promise<Product[]> => {
   }
 };
 
-const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChange, sort: sortProp, searchQuery = "", onClearSearch, category: categoryProp, onCategoryChange, wishlistOnly = false, onExitWishlist, featuredOnly = false, onExitFeatured }: ProductGridProps) => {
+const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChange, sort: sortProp, onSortChange, searchQuery = "", onClearSearch, category: categoryProp, onCategoryChange, wishlistOnly = false, onExitWishlist, featuredOnly = false, onExitFeatured }: ProductGridProps) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -136,7 +137,8 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
   const [localCategory, setLocalCategory] = useState<string>("All");
   const category = categoryProp ?? localCategory;
   const setCategory = (c: string) => { setLocalCategory(c); onCategoryChange?.(c); };
-  const [sort] = useState<string>(restoredBrowse?.sort ?? sortProp ?? "featured");
+  // Sort is controlled by the parent (Index); restoredBrowse seeds the parent's initial value.
+  const sort = sortProp ?? restoredBrowse?.sort ?? "featured";
   const [page, setPage] = useState(restoredBrowse?.page ?? 1);
   const initialFilters = useRef(true);
   const restoredScroll = useRef(false);
@@ -304,9 +306,28 @@ const ProductGrid = ({ onAddToCart, onViewDetails, restoredBrowse, onBrowseChang
           </div>
         ) : (
           <>
-            <p className="text-sm text-muted-foreground mb-4">
-              Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, visibleProducts.length)} of {visibleProducts.length}
-            </p>
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <p className="text-sm text-muted-foreground">
+                Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, visibleProducts.length)} of {visibleProducts.length}
+              </p>
+              <div className="flex shrink-0 items-center gap-2">
+                <span className="hidden text-[10px] font-bold uppercase tracking-widest text-muted-foreground sm:inline">Sort by</span>
+                <div className="relative">
+                  <select
+                    aria-label="Sort products"
+                    value={sort}
+                    onChange={(e) => onSortChange?.(e.target.value)}
+                    className="appearance-none bg-transparent pr-6 text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
+                  >
+                    <option value="featured">Featured</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="name">Name: A–Z</option>
+                  </select>
+                  <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                </div>
+              </div>
+            </div>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-8">
               {pageItems.map((product) => (
                 <ProductCard

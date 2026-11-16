@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import { Search, ChevronDown, LayoutGrid } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { LayoutGrid } from "lucide-react";
 import { productImageRefs, resolveImageUrls } from "@/lib/productImages";
 import { fetchCatalog } from "@/lib/catalog";
-import { Input } from "@/components/ui/input";
 
 export const StoryTeaser = () => (
   <section className="container mx-auto px-4 py-12 text-center">
@@ -24,13 +22,9 @@ const FALLBACK_CATS = ["Kondapalli Toys", "Wooden Crafts", "Home Decor", "Cerami
 interface CategoryTilesProps {
   onPick: (c: string) => void;
   activeCategory?: string;
-  searchQuery?: string;
-  onSearchChange?: (q: string) => void;
-  sort?: string;
-  onSortChange?: (s: string) => void;
 }
 
-export const CategoryTiles = ({ onPick, activeCategory = "All", searchQuery = "", onSearchChange, sort = "featured", onSortChange }: CategoryTilesProps) => {
+export const CategoryTiles = ({ onPick, activeCategory = "All" }: CategoryTilesProps) => {
   // Use the same live product categories the "Browse Collections" gallery shows.
   const [cats, setCats] = useState<string[]>(FALLBACK_CATS);
   const [photos, setPhotos] = useState<Record<string, string>>({});
@@ -81,40 +75,6 @@ export const CategoryTiles = ({ onPick, activeCategory = "All", searchQuery = ""
       <div className="flex items-center gap-6 overflow-x-auto pb-2 lg:justify-center">
         {circle("All", "All Items", "", 0)}
         {cats.map((c, i) => circle(c, c, photos[c] || "", i + 1))}
-      </div>
-      <div className="mt-4 flex items-center justify-between gap-3">
-        <div className="relative w-full sm:max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search handcrafted items..."
-            className="pl-10 border-border focus:ring-primary"
-            value={searchQuery}
-            onChange={(e) => onSearchChange?.(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }
-            }}
-            aria-label="Search products"
-          />
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <span className="hidden text-[10px] font-bold uppercase tracking-widest text-muted-foreground sm:inline">Sort by</span>
-          <div className="relative">
-            <select
-              aria-label="Sort products"
-              value={sort}
-              onChange={(e) => onSortChange?.(e.target.value)}
-              className="appearance-none bg-transparent pr-6 text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
-            >
-              <option value="featured">Featured</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="name">Name: A–Z</option>
-            </select>
-            <ChevronDown className="absolute right-0 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-          </div>
-        </div>
       </div>
     </section>
   );
