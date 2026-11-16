@@ -9,7 +9,7 @@ import ProductGrid from "@/components/ProductGrid";
 import OurStory from "@/components/OurStory";
 import Footer from "@/components/Footer";
 import Seo from "@/components/Seo";
-import { CategoryTiles, TrustBar, MakerBanner } from "@/components/HomeSections";
+import { CategoryTiles } from "@/components/HomeSections";
 import Cart, { CartItem } from "@/components/Cart";
 import { Product } from "@/components/ProductCard";
 import { useToast } from "@/hooks/use-toast";
@@ -173,8 +173,6 @@ const Index = () => {
         setSearchQuery(""); setCategory("All"); setFeaturedOnly(true);
         setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
       }} />
-      <TrustBar />
-      <MakerBanner />
       <CategoryTiles
         onPick={(c) => { setSearchQuery(""); setFeaturedOnly(false); setCategory(c); setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }), 50); }}
         activeCategory={category}

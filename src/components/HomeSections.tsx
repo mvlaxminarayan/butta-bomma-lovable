@@ -1,30 +1,9 @@
 import { useEffect, useState } from "react";
-import { Hand, Leaf, Users, Truck, Search, ChevronDown, LayoutGrid } from "lucide-react";
+import { Search, ChevronDown, LayoutGrid } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { productImageRefs, resolveImageUrls } from "@/lib/productImages";
-import { STORE_INFO } from "@/lib/storeInfo";
 import { fetchCatalog } from "@/lib/catalog";
 import { Input } from "@/components/ui/input";
-
-const trust = [
-  { icon: Hand, title: "100% Handcrafted", text: "Made by hand in Nandyal" },
-  { icon: Leaf, title: "Natural Wood & Dyes", text: "Eco-friendly materials" },
-  { icon: Users, title: "Direct from Artisans", text: "Fair pay, no middlemen" },
-  { icon: Truck, title: "Pan-India Shipping", text: "Free over ₹5,000" },
-];
-
-export const TrustBar = () => (
-  <section aria-label="Why shop with us" className="border-y border-border bg-muted/40">
-    <div className="container mx-auto grid grid-cols-2 gap-4 px-4 py-6 md:grid-cols-4">
-      {trust.map(({ icon: Icon, title, text }) => (
-        <div key={title} className="flex items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary"><Icon className="h-5 w-5" /></span>
-          <div><p className="text-sm font-semibold">{title}</p><p className="text-xs text-muted-foreground">{text}</p></div>
-        </div>
-      ))}
-    </div>
-  </section>
-);
 
 export const StoryTeaser = () => (
   <section className="container mx-auto px-4 py-12 text-center">
@@ -141,14 +120,4 @@ export const CategoryTiles = ({ onPick, activeCategory = "All", searchQuery = ""
   );
 };
 
-export const MakerBanner = () => (
-  <section aria-label="About the maker" className="container mx-auto px-4 pt-8">
-    <div className="flex flex-col items-center gap-2 rounded-xl border border-border bg-card px-5 py-4 text-center sm:flex-row sm:justify-between sm:text-left">
-      <div>
-        <p className="font-serif text-lg">Buttabomma Crafts</p>
-        <p className="text-sm text-muted-foreground">Nandyal, Andhra Pradesh · Handmade to order · Dispatches in 1–3 days</p>
-      </div>
-      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">★ Direct from the maker</span>
-    </div>
-  </section>
-);
+

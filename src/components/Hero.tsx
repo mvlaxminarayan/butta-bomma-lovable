@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import homepagePhoto from "@/assets/buttabomma-home-new.png.asset.json";
+import homepagePhoto from "@/assets/buttabomma-home-v2.png.asset.json";
 import { resolveImageUrls, productImageRefs } from "@/lib/productImages";
 import { formatINR } from "@/lib/pricing";
 import { fetchCatalog } from "@/lib/catalog";
