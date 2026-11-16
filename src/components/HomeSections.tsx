@@ -70,8 +70,8 @@ export const CategoryTiles = ({ onPick, activeCategory = "All" }: CategoryTilesP
   };
 
   return (
-    <section aria-label="Shop by category" className="container mx-auto px-4 py-8">
-      <h2 className="mb-5 text-center font-serif text-2xl">Shop by Category</h2>
+    <section aria-label="Shop by category" className="container mx-auto px-4 pt-4 pb-2">
+      <h2 className="mb-4 text-center font-serif text-2xl">Shop by Category</h2>
       <div className="flex items-center gap-6 overflow-x-auto pb-2 lg:justify-center">
         {circle("All", "All Items", "", 0)}
         {cats.map((c, i) => circle(c, c, photos[c] || "", i + 1))}

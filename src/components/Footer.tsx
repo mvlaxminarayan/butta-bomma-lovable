@@ -8,7 +8,7 @@ const Footer = () => {
   const navigate = useNavigate();
 
   return (
-    <footer className="mt-12 border-t border-border/60 bg-muted/30">
+    <footer className="mt-8 border-t border-border/60 bg-muted/30">
       <div className="container mx-auto px-4 py-10">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
           {/* Shop */}
