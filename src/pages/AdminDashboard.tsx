@@ -17,7 +17,7 @@ import { Trash2, Edit, Plus, Upload, X, CloudUpload, Store, Search, LayoutGrid, 
 import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 import {
-  BUCKET, LOCAL_ASSETS, productImageRefs, resolveImageUrls, uploadProductImage,
+  BUCKET, LOCAL_ASSETS, productImageRefs, resolveImageUrls, uploadProductImage, optimizeStoredPhoto,
 } from "@/lib/productImages";
 import ProductPhoto from "@/components/admin/ProductPhoto";
 import CategorySelect, {
@@ -213,6 +213,19 @@ export default function AdminDashboard() {
     return () => { cancelled = true; };
   }, [pageItems]);
 
+  const [optimizing, setOptimizing] = useState<string | null>(null);
+  const optimizeAllPhotos = async () => {
+    const paths = Array.from(new Set(products.flatMap((p: any) => productImageRefs(p)).filter((r) => r && !r.startsWith("http"))));
+    let saved = 0, failed = 0;
+    for (let i = 0; i < paths.length; i++) {
+      setOptimizing(`Shrinking photos ${i + 1}/${paths.length}...`);
+      try { saved += await optimizeStoredPhoto(paths[i], (b) => watermarkImage(b, { stamp: false })); }
+      catch { failed++; }
+    }
+    setOptimizing(null);
+    toast.success(`Photos optimized — saved ${(saved / 1e6).toFixed(1)} MB${failed ? ` (${failed} skipped)` : ""}`);
+  };
+
   const loadPreviews = async (refs: string[]) => {
     const urls = await resolveImageUrls(refs);
     setPreviews((prev) => {
@@ -406,6 +419,10 @@ export default function AdminDashboard() {
 
         <TabsContent value="products" className="space-y-4 mt-4">
           <div className="flex flex-wrap gap-2 justify-between">
+            <Button variant="outline" onClick={optimizeAllPhotos} disabled={!!optimizing}>
+              <CloudUpload className="w-4 h-4 mr-2" />
+              {optimizing ?? "Optimize existing photos"}
+            </Button>
             {hasBuiltIn ? (
               <Button variant="outline" onClick={migrateBuiltInPhotos} disabled={migrating}>
                 <CloudUpload className="w-4 h-4 mr-2" />

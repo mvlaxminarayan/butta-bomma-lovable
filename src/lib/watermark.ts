@@ -1,5 +1,10 @@
-/** Burns a "© Buttabomma Crafts" stamp into an image before upload. Returns a JPEG blob. */
-export async function watermarkImage(file: File | Blob): Promise<Blob> {
+/** Longest edge for stored photos: sharp on product pages, a fraction of camera size. */
+export const MAX_PHOTO_EDGE = 1600;
+export const PHOTO_QUALITY = 0.82;
+
+/** Resizes to web size, optionally burns the "© Buttabomma Crafts" stamp, returns a compressed JPEG blob. */
+export async function watermarkImage(file: File | Blob, opts: { stamp?: boolean } = {}): Promise<Blob> {
+  const stamp = opts.stamp ?? true;
   const url = URL.createObjectURL(file);
   try {
     const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -9,11 +14,14 @@ export async function watermarkImage(file: File | Blob): Promise<Blob> {
       i.src = url;
     });
     const canvas = document.createElement("canvas");
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    const scale = Math.min(1, MAX_PHOTO_EDGE / Math.max(img.naturalWidth, img.naturalHeight));
+    canvas.width = Math.round(img.naturalWidth * scale);
+    canvas.height = Math.round(img.naturalHeight * scale);
     const ctx = canvas.getContext("2d");
     if (!ctx) return file;
-    ctx.drawImage(img, 0, 0);
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    if (!stamp) return await toJpeg(canvas, file);
 
     const w = canvas.width, h = canvas.height;
     const size = Math.max(14, Math.round(Math.min(w, h) * 0.04));
@@ -40,10 +48,11 @@ export async function watermarkImage(file: File | Blob): Promise<Blob> {
     ctx.fillText("Buttabomma Crafts", 0, 0);
     ctx.restore();
 
-    return await new Promise<Blob>((resolve) =>
-      canvas.toBlob((b) => resolve(b || file), "image/jpeg", 0.9)
-    );
+    return await toJpeg(canvas, file);
   } finally {
     URL.revokeObjectURL(url);
   }
 }
+
+const toJpeg = (canvas: HTMLCanvasElement, fallback: Blob) =>
+  new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b || fallback), "image/jpeg", PHOTO_QUALITY));

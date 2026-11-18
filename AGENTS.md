@@ -1,6 +1,6 @@
 # Architecture rules
 
-- Keep the homepage eager and lazy-load other routes; share overlapping storefront catalog reads and batch short-lived photo links in memory per auth identity, so unrelated pages and duplicate signing do not delay first load.
+- Keep the homepage eager and lazy-load other routes; share overlapping storefront catalog reads and batch photo links and reuse them for most of their signed lifetime per auth identity (persisted in browser storage), so unrelated pages and duplicate signing do not delay first load.
 
 - Keep product photo swipes active only at unzoomed scale and cancel them for multi-touch, so pinch zoom and zoomed panning do not switch photos; arrows and thumbnails share selection and zoom reset.
 
@@ -26,3 +26,5 @@
 - Store shipping weight in grams and share legacy-weight parsing with shipment booking, so quotes and shipments use the same item mass.
 - Use signed, expiring server-priced shipping quotes for Razorpay orders and snapshot shipping/weight/courier in payment notes, so client totals cannot alter the charged shipping and paid orders retain their quote.
 
+
+- Resize product photos to web size and long-lived cache headers on upload, and shrink stored photos in place (same path), so storage bandwidth stays low without changing product references.

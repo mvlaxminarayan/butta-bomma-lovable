@@ -1,9 +1,23 @@
-/** Short-lived, in-memory links; create a fresh resolver when the signed-in identity changes. */
+type LinkStore = Pick<Storage, "getItem" | "setItem">;
+
+/** Reusable photo links per signed-in identity; create a fresh resolver when the identity changes.
+ *  Optional storage keeps links across visits so browsers can reuse cached photo downloads. */
 export function createPhotoResolver(
   sign: (paths: string[]) => Promise<Record<string, string>>,
   now: () => number = Date.now,
+  opts: { ttlMs?: number; storage?: LinkStore; storageKey?: string } = {},
 ) {
+  const ttl = opts.ttlMs ?? 5 * 60 * 1000;
+  const key = opts.storageKey ?? "photo-links";
   const cache = new Map<string, { url: string; expires: number }>();
+  try {
+    const saved = JSON.parse(opts.storage?.getItem(key) || "{}") as Record<string, { url: string; expires: number }>;
+    Object.entries(saved).forEach(([p, v]) => { if (v?.url && v.expires > now()) cache.set(p, v); });
+  } catch { /* ignore corrupt cache */ }
+  const persist = () => {
+    if (!opts.storage) return;
+    try { opts.storage.setItem(key, JSON.stringify(Object.fromEntries(cache))); } catch { /* storage full */ }
+  };
   const pending = new Map<string, Promise<string>>();
   const queued = new Map<string, (url: string) => void>();
   let scheduled = false;
@@ -17,9 +31,10 @@ export function createPhotoResolver(
       let urls: Record<string, string> = {};
       try { urls = await sign(batch.map(([path]) => path)); }
       catch (error) { console.error("Could not load photo links:", error); }
+      batch.forEach(([path]) => { const url = urls[path]; if (url) cache.set(path, { url, expires: now() + ttl }); });
+      persist();
       batch.forEach(([path, resolve]) => {
         const url = urls[path] || "";
-        if (url) cache.set(path, { url, expires: now() + 5 * 60 * 1000 });
         pending.delete(path);
         resolve(url);
       });

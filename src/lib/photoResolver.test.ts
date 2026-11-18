@@ -35,4 +35,17 @@ describe("Photo request sharing", () => {
     assert.deepEqual(await admin(["a"]), ["private-preview"]);
     assert.deepEqual(await guest(["a"]), [""]);
   });
+  test("saved links are reused across visits until they expire", async () => {
+    const mem: Record<string, string> = {};
+    const storage = { getItem: (k: string) => mem[k] ?? null, setItem: (k: string, v: string) => { mem[k] = v; } };
+    let time = 0, calls = 0;
+    const opts = { ttlMs: 1000, storage, storageKey: "k" };
+    const first = createPhotoResolver(async () => ({ a: `url:${++calls}` }), () => time, opts);
+    assert.deepEqual(await first(["a"]), ["url:1"]);
+    const nextVisit = createPhotoResolver(async () => ({ a: `url:${++calls}` }), () => time, opts);
+    assert.deepEqual(await nextVisit(["a"]), ["url:1"]);
+    time = 1000;
+    const later = createPhotoResolver(async () => ({ a: `url:${++calls}` }), () => time, opts);
+    assert.deepEqual(await later(["a"]), ["url:2"]);
+  });
 });
