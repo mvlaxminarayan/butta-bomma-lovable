@@ -1,5 +1,7 @@
 # Architecture rules
 
+- Validate admin product saves with a shared Zod schema and enforce required details on new products in a database trigger; leave legacy rows unchanged so checkout stock updates remain compatible.
+
 - Keep the homepage eager and lazy-load other routes; share overlapping storefront catalog reads and batch photo links and reuse them for most of their signed lifetime per auth identity (persisted in browser storage), so unrelated pages and duplicate signing do not delay first load.
 
 - Keep product photo swipes active only at unzoomed scale and cancel them for multi-touch, so pinch zoom and zoomed panning do not switch photos; arrows and thumbnails share selection and zoom reset.

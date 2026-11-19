@@ -30,6 +30,7 @@ import QuestionsManager from "@/components/admin/QuestionsManager";
 import { useAdminUnseen } from "@/hooks/useAdminUnseen";
 import CategoryManager from "@/components/admin/CategoryManager";
 import { productWeight, toGrams } from "@/lib/shipping";
+import { productSchema } from "@/lib/productValidation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Product {
@@ -66,7 +67,8 @@ export default function AdminDashboard() {
     name: "", description: "", price: "", category: "", stock_quantity: "", is_featured: false,
   });
   const [features, setFeatures] = useState<string[]>([]);
-  const [weight, setWeight] = useState("500");
+  const [weight, setWeight] = useState("");
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [weightUnit, setWeightUnit] = useState("g");
   const [specs, setSpecs] = useState<{ key: string; value: string }[]>([]);
 
@@ -167,7 +169,6 @@ export default function AdminDashboard() {
       .map((c) => (c || "").trim())
       .filter((c, i, all) => c && !savedCategories.some((s) => s.toLowerCase() === c.toLowerCase()) && all.findIndex((x) => x.toLowerCase() === c.toLowerCase()) === i)
       .map((c) => ({ value: c, label: c })),
-    { value: "", label: "No category" },
   ], [products, formData.category, savedCategories]);
 
   const categoryFilterOptions = useMemo<CategoryOption[]>(() => [
@@ -268,21 +269,26 @@ export default function AdminDashboard() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (uploading || loading) return;
     const grams = toGrams(Number(weight), weightUnit);
-    if (!Number.isFinite(grams) || grams <= 0 || grams > 1000000) {
-      toast.error("Enter a weight greater than zero and at most 1000 kg.");
+    const parsed = productSchema.safeParse({
+      ...formData, price: formData.price.trim() ? Number(formData.price) : NaN,
+      stock_quantity: formData.stock_quantity.trim() ? Number(formData.stock_quantity) : NaN,
+      weight_grams: grams, images,
+    });
+    if (!parsed.success) {
+      const errors = Object.fromEntries(Object.entries(parsed.error.flatten().fieldErrors).map(([key, messages]) => [key, messages?.[0] || "Check this field."]));
+      setFormErrors(errors);
+      toast.error(parsed.error.issues[0]?.message || "Complete the required product details.");
       return;
     }
+    setFormErrors({});
     setLoading(true);
-    const stock = parseInt(formData.stock_quantity);
+    const stock = parsed.data.stock_quantity;
     const productData = {
-      name: formData.name,
-      description: formData.description || null,
-      price: parseFloat(formData.price),
-      weight_grams: grams,
-      images,
-      image_url: images[0] || null,
-      category: formData.category || null,
+      ...parsed.data,
+      description: parsed.data.description || null,
+      image_url: parsed.data.images[0],
       stock_quantity: stock,
       in_stock: stock > 0,
       is_featured: formData.is_featured,
@@ -320,6 +326,7 @@ export default function AdminDashboard() {
   };
 
   const handleEdit = (product: Product) => {
+    setFormErrors({});
     setEditingProduct(product);
     const grams = productWeight(product);
     setWeightUnit(grams >= 1000 ? "kg" : "g");
@@ -342,7 +349,8 @@ export default function AdminDashboard() {
   };
 
   const resetForm = () => {
-    setWeight("500");
+    setWeight("");
+    setFormErrors({});
     setWeightUnit("g");
     setEditingProduct(null);
     setImages([]);
@@ -442,31 +450,34 @@ export default function AdminDashboard() {
                   {editingProduct ? "Update product details" : "Create a new product"}
                 </DialogDescription>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} noValidate className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Product Name</Label>
+                  <Label htmlFor="name">Product Name *</Label>
                   <Input id="name" value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })} required maxLength={200} aria-invalid={!!formErrors.name} />
+                  {formErrors.name && <p role="alert" className="text-sm text-destructive">{formErrors.name}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="description">Description</Label>
                   <Textarea id="description" value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })} />
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })} maxLength={10000} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="price">Price (₹)</Label>
-                    <Input id="price" type="number" step="0.01" value={formData.price}
+                    <Label htmlFor="price">Price (₹) *</Label>
+                    <Input id="price" type="number" min="0.01" step="0.01" value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })} required />
+                    {formErrors.price && <p role="alert" className="text-sm text-destructive">{formErrors.price}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="stock">Stock Quantity</Label>
-                    <Input id="stock" type="number" value={formData.stock_quantity}
+                    <Label htmlFor="stock">Stock Quantity *</Label>
+                    <Input id="stock" type="number" min="0" step="1" value={formData.stock_quantity}
                       onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })} required />
+                    {formErrors.stock_quantity && <p role="alert" className="text-sm text-destructive">{formErrors.stock_quantity}</p>}
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="category">Category</Label>
+                  <Label htmlFor="category">Category *</Label>
                   <CategorySelect
                     id="category"
                     ariaLabel="Product category"
@@ -477,13 +488,14 @@ export default function AdminDashboard() {
                     searchPlaceholder="Search categories..."
                     className="w-full"
                   />
+                  {formErrors.category && <p role="alert" className="text-sm text-destructive">{formErrors.category}</p>}
                   <p className="text-xs text-muted-foreground">
                     Need a new one? Add it under Manage categories.
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="shipping-weight">Shipping weight</Label>
+                  <Label htmlFor="shipping-weight">Shipping weight *</Label>
                   <div className="grid grid-cols-[1fr_140px] gap-3">
                     <Input id="shipping-weight" type="number" inputMode="decimal" min="0.001" step="any" required value={weight} onChange={e => setWeight(e.target.value)} />
                     <Select value={weightUnit} onValueChange={unit => {
@@ -495,6 +507,7 @@ export default function AdminDashboard() {
                       <SelectContent><SelectItem value="g">Grams (g)</SelectItem><SelectItem value="kg">Kilograms (kg)</SelectItem></SelectContent>
                     </Select>
                   </div>
+                  {formErrors.weight_grams && <p role="alert" className="text-sm text-destructive">{formErrors.weight_grams}</p>}
                 </div>
 
                 <label className="flex items-center gap-2 text-sm cursor-pointer">
@@ -539,7 +552,8 @@ export default function AdminDashboard() {
                   <p className="text-xs text-muted-foreground">Leave empty to show “Details coming soon” on the product page.</p>
                 </div>
                 <div className="space-y-2">
-                  <Label>Photos</Label>
+                  <Label>Photos * (at least 1)</Label>
+                  {formErrors.images && <p role="alert" className="text-sm text-destructive">{formErrors.images}</p>}
                   {images.length > 0 && (
                     <div className="grid grid-cols-4 gap-2">
                       {images.map((ref, i) => (
