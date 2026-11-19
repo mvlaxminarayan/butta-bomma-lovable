@@ -74,7 +74,7 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
   const active = slides[currentIndex];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-background to-secondary">
+    <section className="relative overflow-hidden">
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col gap-7 items-stretch">
           {/* Content */}
@@ -92,7 +92,7 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
             </div>
           </div>
 
-          <div className={`grid items-center gap-6 ${slides.length > 0 ? "md:grid-cols-2" : "grid-cols-1"}`}>
+          <div className={`mx-auto grid w-full max-w-[917px] items-center gap-6 ${slides.length > 0 ? "md:grid-cols-2" : "grid-cols-1"}`}>
           <div className="flex flex-col gap-5">
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button 
@@ -133,7 +133,7 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
 
           {/* Featured product slider: only shown when featured products exist */}
           {slides.length > 0 && (
-          <div className="relative mx-auto w-full max-w-[480px]">
+          <div className="relative w-full md:justify-self-end">
             <div
               role={active?.id ? "link" : undefined}
               tabIndex={active?.id ? 0 : undefined}
