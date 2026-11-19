@@ -157,15 +157,22 @@ All colors MUST be HSL.
   max-width: calc(516px * 1672 / 941);
   aspect-ratio: 1672 / 941;
   margin-inline: auto;
-  border: 1px solid var(--artwork-glass-edge);
-  box-shadow: var(--artwork-glass-shadow);
+  /* Frameless: the artwork's cream backdrop melts into the page art so the
+     toys and lettering read as sitting on the page itself. */
+  border: none;
+  box-shadow: none;
 }
 .homepage-artwork img {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  mix-blend-mode: multiply;
+  filter: contrast(1.08) saturate(1.1);
+  -webkit-mask-image: radial-gradient(ellipse 60% 62% at 50% 50%, #000 70%, transparent 100%);
+  mask-image: radial-gradient(ellipse 60% 62% at 50% 50%, #000 70%, transparent 100%);
 }
 .homepage-artwork::after {
+  display: none;
   content: "";
   position: absolute;
   inset: 0;
