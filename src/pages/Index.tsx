@@ -164,13 +164,15 @@ const Index = () => {
         description="Buttabomma Crafts celebrates heritage with authentic handcrafted treasures. Shop artisan toys, ceramics, textiles and home decor from Nandyal, Andhra Pradesh."
         path="/"
       />
-      <AnnouncementBar />
-      <Header 
-        cartItems={totalItems}
-        onCartClick={() => setIsCartOpen(true)}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-      />
+      <div className="sticky top-0 z-50">
+        <AnnouncementBar />
+        <Header 
+          cartItems={totalItems}
+          onCartClick={() => setIsCartOpen(true)}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
+      </div>
       <Hero onViewProduct={(id) => openProduct(id)} onViewFeatured={() => {
         setSearchQuery(""); setCategory("All"); setFeaturedOnly(true);
         setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
