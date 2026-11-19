@@ -1,4 +1,5 @@
-- [ ] Require photos and complete core details for new products; validate admin saves and server-side creation, and test missing/invalid fields.
+- [x] Require photos and complete core details for new products; admin Zod validation, server-side creation trigger, and 15 passing validation/shipping/stock tests.
+- [ ] Verify signed-in product creation with missing and valid fields: external Supabase admin session unavailable to automated checks.
 - [x] Keep Buy Now independent of the saved cart, including payment completion (cart preservation covered by tests).
 - [x] Sweep page loading: lazy routes, shared overlapping catalog/settings reads, auth-scoped photo request batching/cache and batched order thumbnails; public routes, real photos/swipes and catalog returns verified. Homepage product reads reduced from 3 to 1, settings from 2 to 1. Signed-in order/admin checks remain unavailable with external Supabase; no paid records, permissions or settings changed.
 - [x] Enable product photo swipes and left/right arrows; real two-photo product verified on desktop/mobile with physical touch swipes, arrows, thumbnails and zoomed panning preserving photo selection.
