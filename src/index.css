@@ -155,7 +155,7 @@ All colors MUST be HSL.
   box-shadow: var(--artwork-glass-shadow);
 }
 .homepage-artwork img {
-  max-height: 420px;
+  max-height: 516px;
   object-fit: fill;
 }
 .homepage-artwork::after {

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import homepagePhoto from "@/assets/buttabomma-home-v3.png.asset.json";
+import homepagePhoto from "@/assets/buttabomma-home-v4.png.asset.json";
 import { resolveImageUrls, productImageRefs } from "@/lib/productImages";
 import { formatINR } from "@/lib/pricing";
 import { fetchCatalog } from "@/lib/catalog";
@@ -84,8 +84,8 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
             <img
               src={homepagePhoto.url}
               alt="Buttabomma — Traditional Toys, Timeless Happiness, with Kondapalli and Etikoppaka toys"
-              width={1920}
-              height={1088}
+              width={1672}
+              height={941}
               fetchPriority="high"
               className="block w-full h-auto object-contain"
             />
