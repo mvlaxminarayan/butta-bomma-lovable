@@ -87,7 +87,7 @@ const Hero = ({ onViewFeatured, onViewProduct }: { onViewFeatured?: () => void; 
               width={1672}
               height={941}
               fetchPriority="high"
-              className="block w-full h-auto object-contain"
+              className="block h-full w-full object-contain"
             />
             </div>
           </div>

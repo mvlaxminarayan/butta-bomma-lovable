@@ -150,13 +150,20 @@ All colors MUST be HSL.
 }
 
 .homepage-artwork {
+  /* True shape, centered: the frame shrink-wraps the artwork at its real
+     1672:941 ratio and stops growing at the height cap, so ivory space is
+     left on both sides instead of the picture being pulled sideways. */
   width: 100%;
+  max-width: calc(516px * 1672 / 941);
+  aspect-ratio: 1672 / 941;
+  margin-inline: auto;
   border: 1px solid var(--artwork-glass-edge);
   box-shadow: var(--artwork-glass-shadow);
 }
 .homepage-artwork img {
-  max-height: 516px;
-  object-fit: fill;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .homepage-artwork::after {
   content: "";
