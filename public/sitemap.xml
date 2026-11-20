@@ -551,11 +551,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://buttabommacrafts.com/product/1ae6f94d-2efe-48ad-872c-f4a8d39d117c</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://buttabommacrafts.com/product/7924375b-3259-4669-8c4f-bbacfc998584</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -587,6 +582,11 @@
   </url>
   <url>
     <loc>https://buttabommacrafts.com/product/feb854f8-cb28-49e3-9f00-cab09f80971a</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://buttabommacrafts.com/product/87256709-83b0-4c1c-9d65-1054dd89fda1</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
