@@ -104,6 +104,11 @@ const ProductDetail = ({ onAddToCart }: ProductDetailProps) => {
     } catch { return 0; }
   };
   const [cartCount, setCartCount] = useState<number>(readCartCount);
+  useEffect(() => {
+    const refresh = () => setCartCount(readCartCount());
+    window.addEventListener("cart-changed", refresh);
+    return () => window.removeEventListener("cart-changed", refresh);
+  }, []);
   const { toast } = useToast();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
