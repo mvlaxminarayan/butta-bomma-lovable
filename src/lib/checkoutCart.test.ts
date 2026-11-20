@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { describe, it } from "node:test";
 import { strict as assert } from "node:assert";
-import { checkoutItems, clearPurchasedCart } from "./checkoutCart";
+import { checkoutItems, clearPurchasedCart, saveBuyNowItemToCart } from "./checkoutCart";
 import type { CartItem } from "@/components/Cart";
 
 const item = (id: string, price: number, quantity: number): CartItem => ({
@@ -26,5 +26,20 @@ describe("Buy Now checkout", () => {
     const removed: string[] = [];
     clearPurchasedCart({ removeItem: key => removed.push(key) });
     assert.deepEqual(removed, ["cart"]);
+  });
+});
+describe("failed Buy Now payment", () => {
+  it("adds the item to the cart and keeps existing items", () => {
+    const store = new Map([["cart", JSON.stringify(cart)]]);
+    const s = { getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => void store.set(k, v) };
+    saveBuyNowItemToCart(s, direct);
+    const saved = JSON.parse(store.get("cart")!);
+    assert.deepEqual(saved.map((i: CartItem) => [i.id, i.quantity]), [["saved", 2], ["buy-now", 3]]);
+  });
+  it("does not duplicate an item already in the cart", () => {
+    const store = new Map([["cart", JSON.stringify([item("buy-now", 800, 1)])]]);
+    const s = { getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => void store.set(k, v) };
+    saveBuyNowItemToCart(s, direct);
+    assert.deepEqual(JSON.parse(store.get("cart")!).map((i: CartItem) => [i.id, i.quantity]), [["buy-now", 3]]);
   });
 });

@@ -12,7 +12,7 @@ import { toast } from "@/components/ui/use-toast";
 import { PENDING_ORDER_KEY } from "@/lib/orders";
 import CheckoutForm, { CheckoutDetails } from "@/components/CheckoutForm";
 import { ScrollIndicator } from "@/components/ScrollIndicator";
-import { checkoutItems, clearPurchasedCart } from "@/lib/checkoutCart";
+import { checkoutItems, clearPurchasedCart, saveBuyNowItemToCart } from "@/lib/checkoutCart";
 import { Label } from "@/components/ui/label";
 import { useShippingQuote } from "@/hooks/useShippingQuote";
 
@@ -166,14 +166,16 @@ const Cart = ({ isOpen, onClose, cartItems: savedCartItems, onUpdateQuantity, on
         modal: {
           ondismiss: () => {
             setIsLoading(false);
-            toast({ title: "Payment canceled", description: "Your cart is saved — you can check out anytime." });
+            if (buyNowItem) { saveBuyNowItemToCart(localStorage, buyNowItem); window.dispatchEvent(new Event("cart-changed")); }
+            toast({ title: "Payment canceled", description: buyNowItem ? "We've saved this item to your cart so you can check out anytime." : "Your cart is saved — you can check out anytime." });
           },
         },
       });
       rzp.on("payment.failed", (resp: any) => {
         setIsLoading(false);
         console.error("Razorpay payment failed", resp?.error);
-        toast({ title: "Payment didn't go through", description: "No money was taken. Please try again or use another payment method." });
+        if (buyNowItem) { saveBuyNowItemToCart(localStorage, buyNowItem); window.dispatchEvent(new Event("cart-changed")); }
+        toast({ title: "Payment didn't go through", description: buyNowItem ? "We've saved this item to your cart so you can try again. Any amount debited is refunded automatically." : "Please try again or use another payment method. Any amount debited is refunded automatically." });
       });
       rzp.open();
     } catch (err: any) {
